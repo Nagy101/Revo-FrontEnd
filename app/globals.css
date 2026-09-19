@@ -1,0 +1,255 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Core design tokens. Only colors updated to match the logo. */
+:root {
+  --background: #121212;
+  --foreground: #f0f0f0;
+  --primary: #c3143d; /* Revo Crimson */
+  --secondary: #f04f6a; /* Light Crimson for gradients */
+  --border: #2c2c2c;
+  --muted: #1a1a1a;
+  --glow-opacity: 0; /* Default glow opacity */
+  --mx: 50%; /* Default horizontal position */
+  --my: 50%; /* Default vertical position */
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  cursor: default !important; /* Force default cursor everywhere */
+}
+
+html {
+  scroll-behavior: smooth;
+  cursor: default !important;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  cursor: default !important; /* Normal default cursor */
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  border-radius: 4px;
+}
+
+/* Noise texture overlay */
+.noise-overlay {
+  position: relative;
+}
+.noise-overlay::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* GSAP animation initial states */
+.fade-in {
+  opacity: 0;
+  transform: translateY(50px);
+}
+.slide-in-left {
+  opacity: 0;
+  transform: translateX(-100px);
+}
+.slide-in-right {
+  opacity: 0;
+  transform: translateX(100px);
+}
+.scale-in {
+  opacity: 0;
+  transform: scale(0.8);
+}
+
+/* Re-enable specific transitions */
+.btn-primary,
+.btn-outline,
+.service-card,
+.project-card {
+  transition: all 0.3s ease !important;
+}
+
+/* Magnetic button base styles */
+.magnetic-btn {
+  transform-origin: center;
+  will-change: transform;
+  cursor: pointer !important; /* Pointer cursor for buttons */
+}
+
+/* Buttons (use new crimson) */
+.btn-primary {
+  background: var(--primary);
+  color: #ffffff;
+  border-radius: 9999px;
+  padding: 0.75rem 2rem;
+  font-weight: 500;
+  border: none;
+  cursor: pointer !important; /* Pointer cursor for buttons */
+}
+.btn-primary:hover {
+  background: rgba(195, 20, 61, 0.9); /* #C3143D @ 0.9 */
+  transform: scale(1.05);
+  box-shadow: 0 0 0.5rem rgba(195, 20, 61, 0.35), 0 0 2.5rem rgba(195, 20, 61, 0.45);
+}
+.btn-primary:active {
+  transform: scale(0.95);
+}
+
+.btn-outline {
+  border: 1px solid var(--primary);
+  color: var(--primary);
+  background: transparent;
+  border-radius: 9999px;
+  padding: 0.75rem 2rem;
+  font-weight: 500;
+  cursor: pointer !important; /* Pointer cursor for buttons */
+}
+.btn-outline:hover {
+  background: var(--primary);
+  color: #ffffff;
+  box-shadow: 0 0 1.5rem rgba(195, 20, 61, 0.35);
+}
+
+/* Gradient text now uses crimson duo */
+.gradient-text {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  cursor: default !important; /* Default cursor for text */
+}
+
+/* Utility color aliases */
+.bg-card {
+  background: var(--muted);
+}
+.border-border {
+  border-color: var(--border);
+}
+.text-foreground {
+  color: var(--foreground);
+}
+.text-primary {
+  color: var(--primary);
+}
+.bg-background {
+  background: var(--background);
+}
+.bg-primary {
+  background: var(--primary);
+}
+
+/* Client slider mask (if used) */
+.client-slider-container {
+  mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
+}
+
+/* Ambient light effect styling */
+.light-spot {
+  position: absolute;
+  width: min(45vw, 720px);
+  height: min(45vw, 720px);
+  border-radius: 9999px;
+  filter: blur(90px);
+  opacity: 0.25;
+  transform: translate3d(0, 0, 0);
+  will-change: transform, opacity;
+}
+
+/* Improve focus visibility for better a11y */
+:where(a, button):focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(240, 79, 106, 0.35);
+  border-color: rgba(240, 79, 106, 0.65);
+}
+
+/* Cursor-follow glow for cards */
+.card-glow {
+  border-radius: inherit;
+  position: relative;
+}
+
+.glow-overlay {
+  opacity: var(--glow-opacity, 0);
+  transition: opacity 200ms ease;
+  mix-blend-mode: screen;
+  /* Soft multi-stop radial gradient using brand colors */
+  background: radial-gradient(
+    160px circle at var(--mx, 50%) var(--my, 50%),
+    rgba(195, 20, 61, 0.4),
+    rgba(240, 79, 106, 0.22) 35%,
+    transparent 60%
+  );
+  filter: blur(22px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glow-overlay {
+    transition: none;
+  }
+}
+
+/* Force specific cursor types for different elements */
+a,
+button,
+[role="button"],
+.cursor-pointer,
+input[type="button"],
+input[type="submit"],
+input[type="reset"] {
+  cursor: pointer !important;
+}
+
+/* Default cursor for all text and non-interactive elements */
+p,
+span,
+div,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+section,
+article,
+main,
+header,
+footer,
+nav {
+  cursor: default !important;
+}
+
+/* Text cursor only for input fields and textareas */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="search"],
+input[type="tel"],
+input[type="url"],
+textarea {
+  cursor: text !important;
+}
+
+/* Default cursor for images and media */
+img,
+video,
+canvas,
+svg {
+  cursor: default !important;
+}
