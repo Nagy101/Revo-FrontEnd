@@ -19,18 +19,15 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  cursor: default !important; /* Force default cursor everywhere */
 }
 
 html {
   scroll-behavior: smooth;
-  cursor: default !important;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  cursor: default !important; /* Normal default cursor */
 }
 
 /* Custom scrollbar */
@@ -205,51 +202,4 @@ body {
   }
 }
 
-/* Force specific cursor types for different elements */
-a,
-button,
-[role="button"],
-.cursor-pointer,
-input[type="button"],
-input[type="submit"],
-input[type="reset"] {
-  cursor: pointer !important;
-}
 
-/* Default cursor for all text and non-interactive elements */
-p,
-span,
-div,
-h1,
-h2,
-h3,
-h4,
-h5,
-h6,
-section,
-article,
-main,
-header,
-footer,
-nav {
-  cursor: default !important;
-}
-
-/* Text cursor only for input fields and textareas */
-input[type="text"],
-input[type="email"],
-input[type="password"],
-input[type="search"],
-input[type="tel"],
-input[type="url"],
-textarea {
-  cursor: text !important;
-}
-
-/* Default cursor for images and media */
-img,
-video,
-canvas,
-svg {
-  cursor: default !important;
-}

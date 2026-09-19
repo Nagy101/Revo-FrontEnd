@@ -5,7 +5,8 @@ import Link from "next/link"
 import { notFound, useRouter } from "next/navigation"
 import { ArrowLeft, Share2 } from "lucide-react"
 import { gsap } from "@/lib/gsap"
-import { usePortfolioDetail, useCategories } from "../hooks/usePortfolios"
+import { usePortfolioDetail } from "../hooks/usePortfolios"
+import { useCategories } from "@/features/categories/hooks/useCategories"
 import { CloudinaryImage } from "@/components/ui/cloudinary-image"
 import { DeferredVimeoPlayer } from "@/components/ui/deferred-vimeo-player"
 
@@ -16,7 +17,8 @@ interface PortfolioDetailContentProps {
 export function PortfolioDetailContent({ slug }: PortfolioDetailContentProps) {
   const router = useRouter()
   const { data: portfolio, isLoading, isError } = usePortfolioDetail(slug)
-  const { data: categories = [] } = useCategories()
+  const { data: categoriesResponse } = useCategories()
+  const categories = categoriesResponse?.data?.data || []
   
   const containerRef = useRef<HTMLDivElement>(null)
 

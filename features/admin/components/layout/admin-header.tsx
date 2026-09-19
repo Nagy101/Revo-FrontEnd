@@ -1,158 +1,252 @@
 "use client"
 
 import { useState } from "react"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
-import {
-  Bell,
-  Search,
-  Menu,
-  X,
-  User,
-  Settings,
-  LogOut,
-  ChevronDown,
-} from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Badge } from "@/components/ui/badge"
+import { Bell, Search, User, LogOut, Settings, X } from "lucide-react"
 
-export function AdminHeader() {
-  const [isSearchOpen, setIsSearchOpen] = useState(false)
-  const router = useRouter()
+const breadcrumbMap: Record<string, string> = {
+  "/admin":            "Dashboard",
+  "/admin/portfolio":  "Portfolio",
+  "/admin/categories": "Categories",
+  "/admin/services":   "Services",
+  "/admin/clients":    "Clients",
+  "/admin/contact":    "Contact Requests",
+  "/admin/analytics":  "Analytics",
+}
 
-  // Mocking notifications until backend integration
-  const notifications: any[] = []
-  const unreadCount = 0
+export function AdminHeader({ onMobileMenuToggle }: { onMobileMenuToggle?: () => void }) {
+  const [searchOpen, setSearchOpen] = useState(false)
+  const [profileOpen, setProfileOpen] = useState(false)
+  const [searchVal, setSearchVal] = useState("")
+  const router   = useRouter()
+  const pathname = usePathname()
+
+  const pageName = breadcrumbMap[pathname ?? ""] ?? "Dashboard"
 
   const handleLogout = () => {
-    // Logout logic will be implemented in Phase 5
-    router.push("/admin/login")
+    localStorage.removeItem("admin-authenticated")
+    router.push("/admin/auth")
   }
 
-  const markAllNotificationsRead = () => {}
-
   return (
-    <header className="bg-black/90 backdrop-blur-xl border-b border-white/10 sticky top-0 z-40">
-      <div className="flex items-center justify-between h-16 px-6">
-        {/* Mobile Menu Button */}
-        <div className="md:hidden">
-          <Button variant="ghost" size="icon" className="text-white">
-            <Menu className="h-6 w-6" />
-          </Button>
+    <motion.header
+      initial={{ y: -10, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.4 }}
+      style={{
+        height: 64, display: "flex", alignItems: "center",
+        justifyContent: "space-between",
+        padding: "0 16px",
+        background: "#0a0a0a",
+        borderBottom: "1px solid rgba(255,255,255,0.05)",
+        position: "sticky", top: 0, zIndex: 40,
+        flexShrink: 0, gap: 12,
+      }}
+    >
+      {/* Left — Hamburger (mobile) + Page title */}
+      <div style={{ display: "flex", alignItems: "center", gap: 12, flexShrink: 0 }}>
+        {/* Mobile hamburger */}
+        <div className="lg:hidden">
+          <motion.button
+            whileTap={{ scale: 0.9 }}
+            onClick={onMobileMenuToggle}
+            style={{
+              width: 36, height: 36, borderRadius: 10,
+              background: "rgba(255,255,255,0.04)",
+              border: "1px solid rgba(255,255,255,0.07)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              cursor: "pointer", color: "rgba(255,255,255,0.6)", flexShrink: 0,
+            }}
+          >
+            <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor">
+              <rect y="0" width="16" height="2" rx="1" />
+              <rect y="5" width="10" height="2" rx="1" />
+              <rect y="10" width="13" height="2" rx="1" />
+            </svg>
+          </motion.button>
         </div>
 
-        {/* Search */}
-        <div className="flex-1 flex items-center justify-center md:justify-start">
-          <div className="relative w-full max-w-md hidden md:block">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
-            <Input
-              placeholder="Search..."
-              className="w-full bg-white/5 border-white/10 text-white placeholder:text-white/40 pl-10 focus-visible:ring-red-600"
-            />
-          </div>
-          <div className="md:hidden">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="text-white"
-              onClick={() => setIsSearchOpen(!isSearchOpen)}
+        <div>
+          <AnimatePresence mode="wait">
+            <motion.h1
+              key={pageName}
+              initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -5 }} transition={{ duration: 0.2 }}
+              style={{ fontSize: "0.95rem", fontWeight: 600, color: "#fff", margin: 0 }}
             >
-              {isSearchOpen ? <X className="h-5 w-5" /> : <Search className="h-5 w-5" />}
-            </Button>
-          </div>
-        </div>
-
-        {/* Right Actions */}
-        <div className="flex items-center space-x-4">
-          {/* Notifications */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="relative text-white/60 hover:text-white">
-                <Bell className="h-5 w-5" />
-                {unreadCount > 0 && (
-                  <span className="absolute top-1 right-1 h-2 w-2 bg-red-600 rounded-full"></span>
-                )}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-80 bg-zinc-900 border-white/10 text-white">
-              <div className="flex items-center justify-between p-4 border-b border-white/10">
-                <span className="font-medium">Notifications</span>
-                {unreadCount > 0 && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={markAllNotificationsRead}
-                    className="text-xs text-white/60 hover:text-white"
-                  >
-                    Mark all read
-                  </Button>
-                )}
-              </div>
-              <div className="max-h-[300px] overflow-y-auto">
-                {notifications.length > 0 ? (
-                  notifications.map((notification: any) => (
-                    <div
-                      key={notification.id}
-                      className={`p-4 border-b border-white/10 last:border-0 hover:bg-white/5 transition-colors cursor-pointer ${
-                        !notification.read ? "bg-white/5" : ""
-                      }`}
-                    >
-                      <h4 className="text-sm font-medium">{notification.title}</h4>
-                      <p className="text-xs text-white/60 mt-1">{notification.message}</p>
-                      <span className="text-[10px] text-white/40 mt-2 block">{notification.time}</span>
-                    </div>
-                  ))
-                ) : (
-                  <div className="p-8 text-center text-white/40 text-sm">No new notifications</div>
-                )}
-              </div>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          {/* Profile */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="flex items-center space-x-3 px-2 py-1.5 hover:bg-white/10">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-red-600 to-red-900 flex items-center justify-center">
-                  <User className="h-4 w-4 text-white" />
-                </div>
-                <div className="hidden md:block text-left">
-                  <p className="text-sm font-medium text-white">Admin</p>
-                  <p className="text-xs text-white/60">admin@revo.agency</p>
-                </div>
-                <ChevronDown className="h-4 w-4 text-white/60 hidden md:block" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56 bg-zinc-900 border-white/10 text-white">
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
-              <DropdownMenuSeparator className="bg-white/10" />
-              <DropdownMenuItem className="focus:bg-white/10 focus:text-white cursor-pointer">
-                <User className="mr-2 h-4 w-4" />
-                <span>Profile</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem className="focus:bg-white/10 focus:text-white cursor-pointer">
-                <Settings className="mr-2 h-4 w-4" />
-                <span>Settings</span>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator className="bg-white/10" />
-              <DropdownMenuItem onClick={handleLogout} className="text-red-400 focus:bg-red-600/10 focus:text-red-400 cursor-pointer">
-                <LogOut className="mr-2 h-4 w-4" />
-                <span>Logout</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+              {pageName}
+            </motion.h1>
+          </AnimatePresence>
+          <p style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.28)", margin: 0 }}>
+            REVO Media Production
+          </p>
         </div>
       </div>
-    </header>
+
+      {/* Center — Search (desktop) */}
+      <div style={{ position: "absolute", left: "50%", transform: "translateX(-50%)", width: 280 }}
+        className="hidden md:block"
+      >
+        <div style={{
+          display: "flex", alignItems: "center", gap: 10,
+          background: "rgba(255,255,255,0.03)",
+          border: "1px solid rgba(255,255,255,0.07)",
+          borderRadius: 10, padding: "0 14px", height: 38,
+          transition: "border-color 0.2s",
+        }}
+          onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(195,20,61,0.3)")}
+          onBlur={(e) => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.07)")}
+        >
+          <Search style={{ width: 15, height: 15, color: "rgba(255,255,255,0.25)", flexShrink: 0 }} />
+          <input
+            value={searchVal}
+            onChange={(e) => setSearchVal(e.target.value)}
+            placeholder="Search..."
+            style={{
+              background: "transparent", border: "none", outline: "none",
+              color: "#fff", fontSize: "0.85rem", width: "100%",
+            }}
+          />
+          {searchVal && (
+            <button onClick={() => setSearchVal("")}
+              style={{ background: "none", border: "none", color: "rgba(255,255,255,0.3)", cursor: "pointer", padding: 0 }}
+            >
+              <X style={{ width: 14, height: 14 }} />
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Right — Actions */}
+      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+
+        {/* Notifications */}
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          style={{
+            width: 36, height: 36, borderRadius: 10,
+            background: "rgba(255,255,255,0.03)",
+            border: "1px solid rgba(255,255,255,0.07)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            cursor: "pointer", color: "rgba(255,255,255,0.45)",
+            position: "relative",
+          }}
+        >
+          <Bell style={{ width: 16, height: 16 }} />
+        </motion.button>
+
+        {/* Divider */}
+        <div style={{ width: 1, height: 24, background: "rgba(255,255,255,0.07)" }} />
+
+        {/* Profile */}
+        <div style={{ position: "relative" }}>
+          <motion.button
+            onClick={() => setProfileOpen(!profileOpen)}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.97 }}
+            style={{
+              display: "flex", alignItems: "center", gap: 10,
+              padding: "6px 12px 6px 6px",
+              borderRadius: 12,
+              background: profileOpen ? "rgba(255,255,255,0.06)" : "transparent",
+              border: `1px solid ${profileOpen ? "rgba(255,255,255,0.1)" : "transparent"}`,
+              cursor: "pointer", transition: "all 0.2s",
+            }}
+          >
+            {/* Avatar */}
+            <div style={{
+              width: 32, height: 32, borderRadius: 10,
+              background: "linear-gradient(135deg, #C3143D, #8f0f2c)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              boxShadow: "0 0 12px rgba(195,20,61,0.25)",
+              flexShrink: 0,
+            }}>
+              <User style={{ width: 15, height: 15, color: "#fff" }} />
+            </div>
+            <div style={{ textAlign: "left" }} className="hidden md:block">
+              <div style={{ fontSize: "0.8rem", fontWeight: 600, color: "#fff", lineHeight: 1.2 }}>Admin</div>
+              <div style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.35)" }}>admin@revo.com</div>
+            </div>
+          </motion.button>
+
+          {/* Dropdown */}
+          <AnimatePresence>
+            {profileOpen && (
+              <>
+                {/* Backdrop */}
+                <div
+                  style={{ position: "fixed", inset: 0, zIndex: 40 }}
+                  onClick={() => setProfileOpen(false)}
+                />
+                <motion.div
+                  initial={{ opacity: 0, y: 8, scale: 0.96 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 8, scale: 0.96 }}
+                  transition={{ duration: 0.15 }}
+                  style={{
+                    position: "absolute", right: 0, top: "calc(100% + 8px)",
+                    width: 200, zIndex: 50,
+                    background: "#111",
+                    border: "1px solid rgba(255,255,255,0.08)",
+                    borderRadius: 14,
+                    boxShadow: "0 16px 40px rgba(0,0,0,0.5)",
+                    overflow: "hidden",
+                    padding: "6px",
+                  }}
+                >
+                  {[
+                    { icon: User,     label: "Profile",  action: () => setProfileOpen(false) },
+                    { icon: Settings, label: "Settings", action: () => setProfileOpen(false) },
+                  ].map(({ icon: Icon, label, action }) => (
+                    <button
+                      key={label}
+                      onClick={action}
+                      style={{
+                        width: "100%", display: "flex", alignItems: "center", gap: 10,
+                        padding: "9px 12px", borderRadius: 9,
+                        background: "none", border: "none",
+                        color: "rgba(255,255,255,0.6)", cursor: "pointer",
+                        fontSize: "0.85rem", transition: "all 0.15s", textAlign: "left",
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = "rgba(255,255,255,0.05)"
+                        e.currentTarget.style.color = "#fff"
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = "none"
+                        e.currentTarget.style.color = "rgba(255,255,255,0.6)"
+                      }}
+                    >
+                      <Icon style={{ width: 15, height: 15 }} />
+                      {label}
+                    </button>
+                  ))}
+
+                  <div style={{ height: 1, background: "rgba(255,255,255,0.06)", margin: "6px 0" }} />
+
+                  <button
+                    onClick={handleLogout}
+                    style={{
+                      width: "100%", display: "flex", alignItems: "center", gap: 10,
+                      padding: "9px 12px", borderRadius: 9,
+                      background: "none", border: "none",
+                      color: "#F04F6A", cursor: "pointer",
+                      fontSize: "0.85rem", transition: "all 0.15s", textAlign: "left",
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(195,20,61,0.1)" }}
+                    onMouseLeave={(e) => { e.currentTarget.style.background = "none" }}
+                  >
+                    <LogOut style={{ width: 15, height: 15 }} />
+                    Logout
+                  </button>
+                </motion.div>
+              </>
+            )}
+          </AnimatePresence>
+        </div>
+      </div>
+    </motion.header>
   )
 }

@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { usePathname } from "next/navigation"
 import { Navigation } from "@/components/navigation"
 import { Footer } from "@/components/footer"
@@ -12,6 +12,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import dynamic from "next/dynamic"
 
 const CustomCursor = dynamic(() => import("@/components/custom-cursor").then(m => m.CustomCursor), { ssr: false })
+
+import SplashScreen from "@/features/ui/components/splash-screen"
 
 export default function ClientLayout({
   children,
@@ -29,13 +31,38 @@ export default function ClientLayout({
     },
   }))
 
+  const isPublicRoute = !isAdminRoute;
+  
+  const [showSplash, setShowSplash] = useState(isPublicRoute);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+    if (!isPublicRoute) {
+      setShowSplash(false);
+    }
+  }, [isPublicRoute]);
+
+  const handleSplashComplete = () => {
+    setShowSplash(false);
+  };
+
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
         <GSAPProvider>
-          {!isAdminRoute && <Navigation />}
-          <main className={!isAdminRoute ? "pt-20" : ""}>{children}</main>
-          {!isAdminRoute && <Footer />}
+          {showSplash && <SplashScreen onComplete={handleSplashComplete} />}
+          
+          <div style={{ 
+            opacity: showSplash ? 0 : 1, 
+            visibility: showSplash ? 'hidden' : 'visible',
+            transition: 'opacity 0.8s ease-in-out' 
+          }}>
+            {!isAdminRoute && <Navigation />}
+            <main className={!isAdminRoute ? "pt-20" : ""}>{children}</main>
+            {!isAdminRoute && <Footer />}
+          </div>
+          
           <Toaster />
           <CustomCursor />
         </GSAPProvider>
