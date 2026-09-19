@@ -6,11 +6,14 @@ import { Grid, List } from "lucide-react"
 import { gsap } from "@/lib/gsap"
 import { CardGlow } from "@/components/effects/card-glow"
 import { CloudinaryImage } from "@/components/ui/cloudinary-image"
-import { usePublicPortfolios, useCategories } from "../hooks/usePortfolios"
+import { usePublicPortfolios } from "../hooks/usePortfolios"
+import { useCategories } from "@/features/categories/hooks/useCategories"
 
 export function PortfolioListingPage() {
   const { data: portfolios = [], isLoading: isLoadingPortfolios } = usePublicPortfolios()
-  const { data: categories = [], isLoading: isLoadingCategories } = useCategories()
+  const { data: categoriesResponse, isLoading: isLoadingCategories } = useCategories()
+  
+  const categories = categoriesResponse?.data?.data || []
 
   const [selectedCategory, setSelectedCategory] = useState<string>("All")
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")

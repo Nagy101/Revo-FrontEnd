@@ -17,12 +17,6 @@ export function usePortfolioDetail(slugOrId: string) {
   })
 }
 
-export function useCategories() {
-  return useQuery({
-    queryKey: ["categories"],
-    queryFn: () => portfolioService.getCategories(),
-  })
-}
 
 // Admin Hooks
 export function useAdminPortfolios() {

@@ -11,12 +11,15 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Switch } from "@/components/ui/switch"
-import { useAdminPortfolios, useCreatePortfolio, useUpdatePortfolio, useDeletePortfolio, useCategories } from "@/features/portfolio/hooks/usePortfolios"
+import { useAdminPortfolios, useCreatePortfolio, useUpdatePortfolio, useDeletePortfolio } from "@/features/portfolio/hooks/usePortfolios"
+import { useCategories } from "@/features/categories/hooks/useCategories"
 import type { Portfolio } from "@/types/index"
 
 export function PortfolioManager() {
   const { data: portfolios = [], isLoading } = useAdminPortfolios()
-  const { data: categories = [] } = useCategories()
+  const { data: categoriesResponse } = useCategories()
+  
+  const categories = categoriesResponse?.data?.data || []
   
   const createMutation = useCreatePortfolio()
   const updateMutation = useUpdatePortfolio()

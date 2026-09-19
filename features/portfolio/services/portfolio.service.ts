@@ -1,5 +1,6 @@
 import { portfolioAdapter } from "@/lib/adapters/portfolio.adapter"
-import type { Portfolio, Category } from "@/types/index"
+import type { Portfolio } from "@/types/index"
+import type { Category } from "@/features/categories/types"
 
 export const portfolioService = {
   getPublicPortfolios(): Promise<Portfolio[]> {

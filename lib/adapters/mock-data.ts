@@ -1,8 +1,9 @@
-import { Portfolio, Category, Service, Client, ContactRequest, Settings } from "@/types/index"
+import { Portfolio, Service, Client, ContactRequest, Settings } from "@/types/index"
+import { Category } from "@/features/categories/types"
 
 export const mockCategories: Category[] = [
-  { id: "c1", nameEn: "Web Development", slug: "web-development" },
-  { id: "c2", nameEn: "Branding", slug: "branding" },
+  { id: "c1", nameAr: "تطوير الويب", nameEn: "Web Development", imageUrl: "", orderIndex: 1, portfolioItemsCount: 0 },
+  { id: "c2", nameAr: "الهوية التجارية", nameEn: "Branding", imageUrl: "", orderIndex: 2, portfolioItemsCount: 0 },
 ]
 
 export const mockPortfolios: Portfolio[] = [

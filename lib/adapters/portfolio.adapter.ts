@@ -2,7 +2,8 @@ import { getDataMode } from "./api-interface"
 import { httpClient } from "@/lib/api/http-client"
 import { mockPortfolios, mockCategories } from "./mock-data"
 import { PROVISIONAL_ENDPOINTS } from "@/lib/api/provisional-endpoints"
-import type { Portfolio, Category } from "@/types/index"
+import type { Portfolio } from "@/types/index"
+import type { Category } from "@/features/categories/types"
 
 export const portfolioAdapter = {
   async getPublicPortfolios(): Promise<Portfolio[]> {

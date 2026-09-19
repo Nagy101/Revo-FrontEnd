@@ -4,13 +4,6 @@
  * They are provisional pending the final ASP.NET Core backend API contract.
  */
 
-export interface Category {
-  id: string
-  nameEn: string
-  nameAr?: string
-  slug: string
-}
-
 export interface Portfolio {
   id: string
   titleEn: string

@@ -1,6 +1,7 @@
 "use client"
 
 import type React from "react"
+import { useState } from "react"
 import { usePathname } from "next/navigation"
 import { AdminSidebar } from "./admin-sidebar"
 import { AdminHeader } from "./admin-header"
@@ -11,25 +12,29 @@ interface AdminShellProps {
 
 export function AdminShell({ children }: AdminShellProps) {
   const pathname = usePathname()
+  const [mobileOpen, setMobileOpen] = useState(false)
 
   // Show auth page without admin layout
   if (pathname === "/admin/login" || pathname === "/admin/auth") {
-    return <div className="min-h-screen bg-black">{children}</div>
+    return <div style={{ minHeight: "100vh", background: "#060606" }}>{children}</div>
   }
 
-  // Show admin layout
   return (
-    <div className="min-h-screen bg-black text-foreground selection:bg-primary/30">
-      <div className="flex">
-        <AdminSidebar />
-        <div className="flex-1 flex flex-col min-h-screen overflow-hidden">
-          <AdminHeader />
-          <main className="flex-1 overflow-x-hidden overflow-y-auto bg-black p-4 md:p-6 lg:p-8">
-            <div className="max-w-7xl mx-auto w-full">
-              {children}
-            </div>
-          </main>
-        </div>
+    <div style={{ minHeight: "100vh", background: "#060606", color: "#f0f0f0", display: "flex" }}>
+      {/* Sidebar handles both desktop (sticky) and mobile (drawer) */}
+      <AdminSidebar
+        mobileOpen={mobileOpen}
+        onMobileClose={() => setMobileOpen(false)}
+      />
+
+      {/* Main content */}
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: "100vh", overflow: "hidden" }}>
+        <AdminHeader onMobileMenuToggle={() => setMobileOpen(o => !o)} />
+        <main style={{ flex: 1, overflowX: "hidden", overflowY: "auto", padding: "24px 20px", background: "#060606" }}>
+          <div style={{ maxWidth: 1280, margin: "0 auto", width: "100%" }}>
+            {children}
+          </div>
+        </main>
       </div>
     </div>
   )

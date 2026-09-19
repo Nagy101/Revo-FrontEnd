@@ -21,6 +21,7 @@ const config: Config = {
         "slide-in-left": "slideInLeft 1s ease-out forwards",
         "slide-in-right": "slideInRight 1s ease-out forwards",
         "scale-in": "scaleIn 1s ease-out forwards",
+        "shimmer": "shimmer 1.5s infinite",
       },
       keyframes: {
         fadeIn: {
@@ -38,6 +39,9 @@ const config: Config = {
         scaleIn: {
           "0%": { opacity: "0", transform: "scale(0.8)" },
           "100%": { opacity: "1", transform: "scale(1)" },
+        },
+        shimmer: {
+          "100%": { transform: "translateX(100%)" },
         },
       },
     },

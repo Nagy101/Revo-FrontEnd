@@ -15,7 +15,7 @@ export class ApiError extends Error {
 }
 
 const getBaseUrl = () => {
-  return process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api"
+  return process.env.NEXT_PUBLIC_API_URL || "https://localhost:7286/api"
 }
 
 export const httpClient = {
@@ -26,16 +26,34 @@ export const httpClient = {
     const config: RequestInit = {
       ...options,
       credentials: "include",
-      headers: {
+      headers: options.headers || {
         "Content-Type": "application/json",
-        ...options.headers,
       },
+    }
+
+    // Clean up Content-Type if we explicitly set it to empty string or if it's not meant to be JSON
+    // A cleaner approach: if body is FormData, don't set Content-Type
+    if (config.body instanceof FormData) {
+      if (config.headers && typeof config.headers === 'object') {
+        const headersRecord = config.headers as Record<string, string>;
+        if (headersRecord['Content-Type'] === 'application/json') {
+          delete headersRecord['Content-Type'];
+        }
+      }
     }
 
     const response = await fetch(url, config)
 
     if (!response.ok) {
-      throw new ApiError(`HTTP Error: ${response.status}`, response.status)
+      let errorData;
+      try {
+        errorData = await response.json();
+      } catch (e) {
+        errorData = null;
+      }
+      const error = new ApiError(errorData?.message || `HTTP Error: ${response.status}`, response.status);
+      (error as any).data = errorData;
+      throw error;
     }
     
     // Handle 204 No Content
@@ -51,18 +69,32 @@ export const httpClient = {
   },
 
   post<T>(endpoint: string, body: any, options: RequestInit = {}) {
+    const isFormData = body instanceof FormData
+    const headers = { ...options.headers } as Record<string, string>
+    if (isFormData && headers["Content-Type"] === "application/json") {
+      delete headers["Content-Type"]
+    }
+
     return this.fetch<T>(endpoint, {
       ...options,
+      headers: isFormData ? headers : options.headers,
       method: "POST",
-      body: JSON.stringify(body),
+      body: isFormData ? body : JSON.stringify(body),
     })
   },
 
   put<T>(endpoint: string, body: any, options: RequestInit = {}) {
+    const isFormData = body instanceof FormData
+    const headers = { ...options.headers } as Record<string, string>
+    if (isFormData && headers["Content-Type"] === "application/json") {
+      delete headers["Content-Type"]
+    }
+
     return this.fetch<T>(endpoint, {
       ...options,
+      headers: isFormData ? headers : options.headers,
       method: "PUT",
-      body: JSON.stringify(body),
+      body: isFormData ? body : JSON.stringify(body),
     })
   },
 
