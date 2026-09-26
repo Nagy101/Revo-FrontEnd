@@ -1,10 +1,10 @@
 import { AboutHero } from "@/features/about/components/about-hero"
-import { AboutMission } from "@/features/about/components/about-mission"
-import { AboutValues } from "@/features/about/components/about-values"
-import { AboutTeam } from "@/features/about/components/about-team"
-import { CTASection } from "@/components/sections/cta-section"
 import dynamic from "next/dynamic"
 
+const AboutMission = dynamic(() => import("@/features/about/components/about-mission").then(m => m.AboutMission), { ssr: true })
+const AboutValues = dynamic(() => import("@/features/about/components/about-values").then(m => m.AboutValues), { ssr: true })
+const AboutTeam = dynamic(() => import("@/features/about/components/about-team").then(m => m.AboutTeam), { ssr: true })
+const CTASection = dynamic(() => import("@/components/sections/cta-section").then(m => m.CTASection), { ssr: true })
 const AmbientLight = dynamic(() => import("@/components/effects/ambient-light"))
 
 export default function AboutPage() {

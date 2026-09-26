@@ -1,11 +1,10 @@
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { TextPlugin } from 'gsap/TextPlugin'
-import { MorphSVGPlugin } from 'gsap/MorphSVGPlugin'
 
 // Register GSAP plugins
 if (typeof window !== 'undefined') {
-  gsap.registerPlugin(ScrollTrigger, TextPlugin, MorphSVGPlugin)
+  gsap.registerPlugin(ScrollTrigger, TextPlugin)
 }
 
 // GSAP configuration

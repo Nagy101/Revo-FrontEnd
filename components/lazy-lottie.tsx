@@ -2,11 +2,13 @@
 
 import { useState, useRef, useEffect } from 'react'
 import dynamic from 'next/dynamic'
+import type { LottieProps } from 'lottie-react'
+import type { ComponentType } from 'react'
 import { useIntersectionObserver } from '@/hooks/use-intersection-observer'
 import { gsap } from '@/lib/gsap'
 
 // Dynamically import Lottie to reduce initial bundle size
-const Lottie = dynamic(() => import('lottie-react').then((module) => module.Lottie), {
+const Lottie = dynamic(() => import('lottie-react').then((m) => ({ default: m.Lottie as ComponentType<LottieProps> })), {
   loading: () => (
     <div className="flex items-center justify-center">
       <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />

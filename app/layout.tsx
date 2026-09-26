@@ -1,18 +1,7 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Inter, Sora } from "next/font/google"
 import "./globals.css"
 import ClientLayout from "./ClientLayout"
-
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-})
-
-const sora = Sora({
-  subsets: ["latin"],
-  variable: "--font-sora",
-})
 
 export const metadata: Metadata = {
   title: "REVO - Creative Digital Agency",
@@ -56,8 +45,13 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={`${inter.variable} ${sora.variable}`} suppressHydrationWarning>
-      <body className="font-inter antialiased">
+    <html lang="en" suppressHydrationWarning className="overflow-x-hidden">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Sora:wght@100..800&display=swap" rel="stylesheet" />
+      </head>
+      <body className="font-inter antialiased overflow-x-hidden">
         <ClientLayout>{children}</ClientLayout>
       </body>
     </html>

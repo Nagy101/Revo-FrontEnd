@@ -4,7 +4,9 @@ import { useEffect, useRef, useState } from 'react'
 import { ArrowDown } from 'lucide-react'
 import { gsap } from '@/lib/gsap'
 import { useIntersectionObserver } from '@/hooks/use-intersection-observer'
-import { LazyLottie } from '@/components/lazy-lottie'
+import dynamic from 'next/dynamic'
+
+const LazyLottie = dynamic(() => import('@/components/lazy-lottie').then(m => m.LazyLottie), { ssr: false })
 
 export function OptimizedHeroSection() {
   const containerRef = useRef<HTMLElement>(null)

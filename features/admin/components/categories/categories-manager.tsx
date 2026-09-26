@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Search, Plus, Edit2, Trash2, Image as ImageIcon, CheckCircle2, AlertCircle, X, Loader2 } from "lucide-react"
+import { Search, Plus, Edit2, Trash2, Image as ImageIcon, CheckCircle2, AlertCircle, X, Loader2, ChevronLeft, ChevronRight } from "lucide-react"
 import { useCategories, useCreateCategory, useUpdateCategory, useDeleteCategory } from "@/features/categories/hooks/useCategories"
 import type { Category } from "@/features/categories/types"
 
@@ -37,8 +37,11 @@ function CustomToast({ message, type, onClose }: { message: string, type: 'succe
 // --- Categories Manager ---
 export function CategoriesManager() {
   const [pageIndex, setPageIndex] = useState(1)
-  const { data: response, isLoading } = useCategories(pageIndex, 50)
+  const { data: response, isLoading } = useCategories(pageIndex, 10)
   const categories = response?.data?.data || []
+  const totalPages = response?.data?.totalPages || 1
+  const hasNextPage = response?.data?.hasNextPage || false
+  const hasPreviousPage = response?.data?.hasPreviousPage || false
   
   const createMutation = useCreateCategory()
   const updateMutation = useUpdateCategory()
@@ -270,6 +273,62 @@ export function CategoriesManager() {
           ))
         )}
       </div>
+
+      {/* --- Pagination Controls --- */}
+      {totalPages > 1 && (
+        <motion.div 
+          initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+          style={{ display: 'flex', justifyContent: 'center', marginTop: 24, marginBottom: 8 }}
+        >
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 4, background: '#0a0a0a',
+            border: '1px solid rgba(195,20,61,0.2)', borderRadius: 100, padding: '4px 6px',
+            boxShadow: '0 8px 32px rgba(195,20,61,0.1)'
+          }}>
+            <motion.button 
+              whileHover={hasPreviousPage ? { scale: 1.05 } : {}}
+              whileTap={hasPreviousPage ? { scale: 0.95 } : {}}
+              onClick={() => setPageIndex(p => Math.max(1, p - 1))}
+              disabled={!hasPreviousPage}
+              style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                padding: '8px 16px', borderRadius: 100, 
+                background: hasPreviousPage ? 'rgba(195,20,61,0.1)' : 'transparent', 
+                color: hasPreviousPage ? '#ff4d6d' : 'rgba(255,255,255,0.2)', 
+                cursor: hasPreviousPage ? 'pointer' : 'not-allowed',
+                border: 'none', fontSize: '0.875rem', fontWeight: 600
+              }}
+              className={hasPreviousPage ? "hover:bg-[#C3143D] hover:text-white hover:shadow-[0_0_15px_rgba(195,20,61,0.5)] transition-all duration-300" : ""}
+            >
+              <ChevronLeft size={16} /> <span className="hidden sm:inline">Prev</span>
+            </motion.button>
+            
+            <div style={{ display: 'flex', alignItems: 'center', padding: '0 16px', color: 'rgba(255,255,255,0.4)', fontSize: '0.875rem', fontWeight: 500 }}>
+              <span style={{ color: '#fff', fontWeight: 700, fontSize: '1.05rem', marginRight: 4, textShadow: '0 0 10px rgba(195,20,61,0.6)' }}>{pageIndex}</span> 
+              <span style={{ margin: '0 4px' }}>/</span> 
+              <span style={{ marginLeft: 4 }}>{totalPages}</span>
+            </div>
+
+            <motion.button 
+              whileHover={hasNextPage ? { scale: 1.05 } : {}}
+              whileTap={hasNextPage ? { scale: 0.95 } : {}}
+              onClick={() => setPageIndex(p => Math.min(totalPages, p + 1))}
+              disabled={!hasNextPage}
+              style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                padding: '8px 16px', borderRadius: 100, 
+                background: hasNextPage ? 'rgba(195,20,61,0.1)' : 'transparent', 
+                color: hasNextPage ? '#ff4d6d' : 'rgba(255,255,255,0.2)', 
+                cursor: hasNextPage ? 'pointer' : 'not-allowed',
+                border: 'none', fontSize: '0.875rem', fontWeight: 600
+              }}
+              className={hasNextPage ? "hover:bg-[#C3143D] hover:text-white hover:shadow-[0_0_15px_rgba(195,20,61,0.5)] transition-all duration-300" : ""}
+            >
+              <span className="hidden sm:inline">Next</span> <ChevronRight size={16} />
+            </motion.button>
+          </div>
+        </motion.div>
+      )}
 
       {/* --- Delete Confirmation Modal --- */}
       <AnimatePresence>

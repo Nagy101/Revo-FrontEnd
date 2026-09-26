@@ -25,6 +25,8 @@ export function Navigation() {
   const [isOpen, setIsOpen] = useState(false)
   const pathname = usePathname()
 
+  const [scrolled, setScrolled] = useState(false)
+
   // Auto-logout when accessing main navigation from admin
   useEffect(() => {
     const wasInAdmin = sessionStorage.getItem("was-in-admin")
@@ -33,6 +35,13 @@ export function Navigation() {
       sessionStorage.removeItem("was-in-admin")
       console.log("Auto-logout: Accessed main navigation from admin")
     }
+    
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 50)
+    }
+    window.addEventListener("scroll", handleScroll)
+    handleScroll()
+    return () => window.removeEventListener("scroll", handleScroll)
   }, [])
 
   const toggleMenu = () => setIsOpen(!isOpen)
@@ -40,7 +49,7 @@ export function Navigation() {
   const closeMenu = () => setIsOpen(false)
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
+    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? "bg-background/90 backdrop-blur-md border-b border-border py-0" : "bg-transparent border-b border-transparent py-2"}`}>
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}

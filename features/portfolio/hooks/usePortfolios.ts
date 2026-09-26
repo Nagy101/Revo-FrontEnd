@@ -1,61 +1,69 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import type { Portfolio } from "@/types/index"
-import { portfolioService } from "../services/portfolio.service"
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { portfolioService } from "../services/portfolio.service";
+import { PortfolioPayload } from "../types";
 
-export function usePublicPortfolios() {
+export const PORTFOLIO_QUERY_KEYS = {
+  all: ["portfolios"] as const,
+  lists: () => [...PORTFOLIO_QUERY_KEYS.all, "list"] as const,
+  list: (filters: { pageIndex: number; pageSize: number; categoryId?: string }) => [...PORTFOLIO_QUERY_KEYS.lists(), filters] as const,
+  details: () => [...PORTFOLIO_QUERY_KEYS.all, "detail"] as const,
+  detail: (id: string) => [...PORTFOLIO_QUERY_KEYS.details(), id] as const,
+};
+
+export const usePortfolios = (pageIndex: number = 1, pageSize: number = 10, categoryId?: string) => {
   return useQuery({
-    queryKey: ["portfolios", "public"],
-    queryFn: () => portfolioService.getPublicPortfolios(),
-  })
-}
+    queryKey: PORTFOLIO_QUERY_KEYS.list({ pageIndex, pageSize, categoryId }),
+    queryFn: () => portfolioService.getAll(pageIndex, pageSize, categoryId),
+  });
+};
 
-export function usePortfolioDetail(slugOrId: string) {
+export const usePublicPortfolios = () => {
   return useQuery({
-    queryKey: ["portfolios", "detail", slugOrId],
-    queryFn: () => portfolioService.getPortfolioBySlugOrId(slugOrId),
-    enabled: !!slugOrId,
-  })
-}
+    queryKey: PORTFOLIO_QUERY_KEYS.list({ pageIndex: 1, pageSize: 50 }),
+    queryFn: () => portfolioService.getAll(1, 50),
+    select: (res) => res.data?.data || []
+  });
+};
 
-
-// Admin Hooks
-export function useAdminPortfolios() {
+export const usePortfolioDetails = (id: string | null) => {
   return useQuery({
-    queryKey: ["portfolios", "admin"],
-    queryFn: () => portfolioService.getAdminPortfolios(),
-  })
-}
+    queryKey: PORTFOLIO_QUERY_KEYS.detail(id!),
+    queryFn: () => portfolioService.getById(id!),
+    enabled: !!id,
+  });
+};
 
-
-
-export function useCreatePortfolio() {
-  const queryClient = useQueryClient()
+export const useCreatePortfolio = () => {
+  const queryClient = useQueryClient();
+  
   return useMutation({
-    mutationFn: (data: Omit<Portfolio, "id">) => portfolioService.createPortfolio(data),
+    mutationFn: (payload: PortfolioPayload) => portfolioService.create(payload),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["portfolios"] })
+      queryClient.invalidateQueries({ queryKey: PORTFOLIO_QUERY_KEYS.lists() });
     },
-  })
-}
+  });
+};
 
-export function useUpdatePortfolio() {
-  const queryClient = useQueryClient()
+export const useUpdatePortfolio = () => {
+  const queryClient = useQueryClient();
+
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Partial<Portfolio> }) => 
-      portfolioService.updatePortfolio(id, data),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["portfolios"] })
-      queryClient.invalidateQueries({ queryKey: ["portfolios", "detail", variables.id] })
+    mutationFn: ({ id, payload }: { id: string; payload: PortfolioPayload }) => 
+      portfolioService.update(id, payload),
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({ queryKey: PORTFOLIO_QUERY_KEYS.lists() });
+      queryClient.invalidateQueries({ queryKey: PORTFOLIO_QUERY_KEYS.detail(variables.id) });
     },
-  })
-}
+  });
+};
 
-export function useDeletePortfolio() {
-  const queryClient = useQueryClient()
+export const useDeletePortfolio = () => {
+  const queryClient = useQueryClient();
+
   return useMutation({
-    mutationFn: (id: string) => portfolioService.deletePortfolio(id),
+    mutationFn: (id: string) => portfolioService.delete(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["portfolios"] })
+      queryClient.invalidateQueries({ queryKey: PORTFOLIO_QUERY_KEYS.lists() });
     },
-  })
-}
+  });
+};

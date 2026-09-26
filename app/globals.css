@@ -1,9 +1,12 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 /* Core design tokens. Only colors updated to match the logo. */
 :root {
+  --font-inter: 'Inter', sans-serif;
+  --font-sora: 'Sora', sans-serif;
   --background: #121212;
   --foreground: #f0f0f0;
   --primary: #c3143d; /* Revo Crimson */
