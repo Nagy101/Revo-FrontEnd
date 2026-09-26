@@ -6,6 +6,9 @@ const nextConfig = {
     domains: ['placeholder.svg'],
     unoptimized: true,
   },
+  experimental: {
+    optimizePackageImports: ['lucide-react', 'framer-motion'],
+  },
 }
 
 const withBundleAnalyzer = bundleAnalyzer({

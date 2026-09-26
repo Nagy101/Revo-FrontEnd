@@ -13,7 +13,7 @@ import dynamic from "next/dynamic"
 
 const CustomCursor = dynamic(() => import("@/components/custom-cursor").then(m => m.CustomCursor), { ssr: false })
 
-import SplashScreen from "@/features/ui/components/splash-screen"
+const SplashScreen = dynamic(() => import("@/features/ui/components/splash-screen"), { ssr: false })
 
 export default function ClientLayout({
   children,

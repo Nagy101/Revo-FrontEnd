@@ -1,7 +1,7 @@
 import { ClientsSection } from "@/features/clients/components/clients-section"
-import { CTASection } from "@/components/sections/cta-section"
 import dynamic from "next/dynamic"
 
+const CTASection = dynamic(() => import("@/components/sections/cta-section").then(m => m.CTASection), { ssr: true })
 const AmbientLight = dynamic(() => import("@/components/effects/ambient-light"))
 
 export const metadata = {

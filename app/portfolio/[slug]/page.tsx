@@ -2,9 +2,9 @@ import { Metadata, ResolvingMetadata } from "next"
 import { notFound } from "next/navigation"
 import { portfolioService } from "@/features/portfolio/services/portfolio.service"
 import { PortfolioDetailContent } from "@/features/portfolio/components/portfolio-detail-content"
-import { CTASection } from "@/components/sections/cta-section"
 import dynamic from "next/dynamic"
 
+const CTASection = dynamic(() => import("@/components/sections/cta-section").then(m => m.CTASection), { ssr: true })
 const AmbientLight = dynamic(() => import("@/components/effects/ambient-light"))
 
 interface Props {
@@ -18,7 +18,8 @@ export async function generateMetadata(
   const { slug } = await params
   
   try {
-    const portfolio = await portfolioService.getPortfolioBySlugOrId(slug)
+    const response = await portfolioService.getById(slug)
+    const portfolio = response?.data
     
     if (!portfolio) {
       return {
@@ -27,12 +28,12 @@ export async function generateMetadata(
     }
 
     return {
-      title: `${portfolio.titleEn} | REVO Portfolio`,
-      description: portfolio.descriptionEn,
+      title: `${portfolio.captionEn} | REVO Portfolio`,
+      description: portfolio.captionAr,
       openGraph: {
-        title: portfolio.titleEn,
-        description: portfolio.descriptionEn,
-        images: portfolio.mediaType === "image" ? [portfolio.mediaUrl] : [],
+        title: portfolio.captionEn,
+        description: portfolio.captionAr,
+        images: portfolio.mediaItems?.[0]?.mediaUrl ? [portfolio.mediaItems[0].mediaUrl] : [],
       },
     }
   } catch (error) {

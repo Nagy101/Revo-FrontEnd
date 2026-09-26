@@ -24,13 +24,13 @@ export function PortfolioSection() {
 
   // Derive categories from data
   const categories = useMemo(() => {
-    const cats = new Set(portfolios.map(p => p.categoryId))
+    const cats = new Set(portfolios.map(p => p.categoryNameEn))
     return ["All", ...Array.from(cats)]
   }, [portfolios])
 
   const filteredPortfolios = useMemo(() => {
     if (selectedCategory === "All") return portfolios
-    return portfolios.filter(p => p.categoryId === selectedCategory)
+    return portfolios.filter(p => p.categoryNameEn === selectedCategory)
   }, [portfolios, selectedCategory])
 
   useEffect(() => {
@@ -140,8 +140,8 @@ export function PortfolioSection() {
                 <div key={project.id} className="w-full flex-shrink-0">
                   <div className="relative aspect-[16/9] group cursor-pointer">
                     <Image
-                      src={project.mediaUrl || "/placeholder.svg?height=900&width=1600"}
-                      alt={project.titleEn}
+                      src={project.thumbnailUrl || "/images/placeholder.jpg"}
+                      alt={project.captionEn || "Project image"}
                       fill
                       sizes="(max-width: 768px) 100vw, (max-width: 1280px) 100vw, 1280px"
                       className="object-cover"
@@ -149,7 +149,7 @@ export function PortfolioSection() {
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
                     
-                    {project.mediaType === "video" && (
+                    {project.thumbnailType === 2 && (
                       <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                         <div className="w-20 h-20 bg-primary rounded-full flex items-center justify-center hover:scale-110 transition-transform duration-300">
                           <Play className="w-8 h-8 text-white ml-1" fill="currentColor" />
@@ -160,14 +160,14 @@ export function PortfolioSection() {
                     <div className="absolute bottom-0 left-0 right-0 p-8">
                       <div className="flex flex-wrap gap-2 mb-4">
                         <span className="px-3 py-1 bg-primary text-white text-xs font-medium rounded-full">
-                          {project.categoryId}
+                          {project.categoryNameEn}
                         </span>
                         <span className="px-3 py-1 bg-background/20 backdrop-blur-sm text-white text-xs font-medium rounded-full">
-                          {project.clientName}
+                          {project.categoryNameAr}
                         </span>
                       </div>
-                      <h3 className="text-2xl md:text-3xl font-sora font-bold text-white mb-2">{project.titleEn}</h3>
-                      <p className="text-white/80 text-sm md:text-base max-w-2xl">{project.descriptionEn}</p>
+                      <h3 className="text-2xl md:text-3xl font-sora font-bold text-white mb-2">{project.captionEn}</h3>
+                      <p className="text-white/80 text-sm md:text-base max-w-2xl">{project.captionAr}</p>
                     </div>
                   </div>
                 </div>
