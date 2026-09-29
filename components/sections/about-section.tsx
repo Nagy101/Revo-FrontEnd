@@ -1,239 +1,145 @@
 "use client"
 
+import { useRef } from "react"
+import { motion, useScroll, useTransform } from "framer-motion"
 import Image from "next/image"
-import { gsap } from "@/lib/gsap"
-import { useGSAP } from "@/hooks/use-gsap"
+import { Play } from "lucide-react"
 
 export function AboutSection() {
-  const containerRef = useGSAP(() => {
-    // Text animations
-    gsap.fromTo(
-      ".about-title",
-      { y: 80, opacity: 0 },
-      {
-        y: 0,
-        opacity: 1,
-        duration: 1.2,
-        ease: "power3.out",
-        scrollTrigger: {
-          trigger: ".about-title",
-          start: "top 80%",
-          toggleActions: "play none none reverse",
-        },
-      },
-    )
-
-    gsap.fromTo(
-      ".about-text",
-      { y: 50, opacity: 0 },
-      {
-        y: 0,
-        opacity: 1,
-        duration: 1,
-        ease: "power2.out",
-        stagger: 0.2,
-        scrollTrigger: {
-          trigger: ".about-text",
-          start: "top 85%",
-          toggleActions: "play none none reverse",
-        },
-      },
-    )
-
-    // Stats counter animation
-    gsap.fromTo(
-      ".stat-number",
-      { textContent: 0 },
-      {
-        textContent: (i: number, target: Element) => (target as HTMLElement).dataset.count,
-        duration: 2,
-        ease: "power2.out",
-        snap: { textContent: 1 },
-        scrollTrigger: {
-          trigger: ".stats-container",
-          start: "top 80%",
-          toggleActions: "play none none reverse",
-        },
-      },
-    )
-
-    // Image reveal animation
-    gsap.fromTo(
-      ".about-image",
-      { scale: 1.2, opacity: 0 },
-      {
-        scale: 1,
-        opacity: 1,
-        duration: 1.5,
-        ease: "power2.out",
-        scrollTrigger: {
-          trigger: ".about-image",
-          start: "top 80%",
-          toggleActions: "play none none reverse",
-        },
-      },
-    )
-
-    // Badge entrance animation
-    gsap.fromTo(
-      ".about-badge",
-      { scale: 0, rotation: -180 },
-      {
-        scale: 1,
-        rotation: 0,
-        duration: 1,
-        ease: "back.out(1.7)",
-        scrollTrigger: {
-          trigger: ".about-badge",
-          start: "top 80%",
-          toggleActions: "play none none reverse",
-        },
-      },
-    )
-
-    // Parallax effect for image
-    gsap.to(".about-image", {
-      yPercent: -20,
-      ease: "none",
-      scrollTrigger: {
-        trigger: containerRef.current!,
-        start: "top bottom",
-        end: "bottom top",
-        scrub: true,
-      },
-    })
+  const containerRef = useRef<HTMLElement>(null)
+  
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start end", "end start"]
   })
 
+  // Parallax for the massive image
+  const imageY = useTransform(scrollYProgress, [0, 1], ["-15%", "15%"])
+  
+  // Staggered reveal variants
+  const containerVariants = {
+    hidden: {},
+    show: {
+      transition: {
+        staggerChildren: 0.2
+      }
+    }
+  }
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 40 },
+    show: { opacity: 1, y: 0, transition: { duration: 1, ease: [0.16, 1, 0.3, 1] as any } }
+  }
+
+  const stats = [
+    { label: "Years of Excellence", value: "10+" },
+    { label: "Global Partners", value: "150+" },
+    { label: "Industry Awards", value: "24" },
+    { label: "Client Retention", value: "98%" },
+  ]
+
   return (
-    <section ref={containerRef} className="py-32 noise-overlay">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="grid lg:grid-cols-2 gap-16 items-center">
-          <div>
-            <h2 className="about-title text-5xl md:text-6xl font-sora font-bold uppercase mb-8">
-              About <span className="gradient-text">REVO</span>
-            </h2>
-            <p className="about-text text-xl text-foreground/80 mb-8 leading-relaxed">
-              We are a premium creative agency specializing in cinematic storytelling, brand identity, and digital
-              experiences that leave lasting impressions.
-            </p>
-            <p className="about-text text-lg text-foreground/70 mb-12 leading-relaxed">
-              Our team of visionaries, strategists, and creators work together to transform ideas into powerful visual
-              narratives that connect with audiences on an emotional level.
-            </p>
+    <section ref={containerRef} className="pt-10 md:pt-20 pb-32 md:pb-48 bg-[#050505] relative overflow-hidden">
+      
+      {/* ── AMBIENT GLOW ── */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[#C3143D]/5 rounded-full blur-[150px] pointer-events-none" />
 
-            <div className="stats-container grid grid-cols-3 gap-8">
-              <div className="text-center">
-                <div className="stat-number text-3xl font-bold text-primary mb-2" data-count="150">
-                  0
-                </div>
-                <div className="text-sm text-foreground/60">Projects Completed</div>
-              </div>
-              <div className="text-center">
-                <div className="stat-number text-3xl font-bold text-secondary mb-2" data-count="50">
-                  0
-                </div>
-                <div className="text-sm text-foreground/60">Happy Clients</div>
-              </div>
-              <div className="text-center">
-                <div className="stat-number text-3xl font-bold text-primary mb-2" data-count="5">
-                  0
-                </div>
-                <div className="text-sm text-foreground/60">Years Experience</div>
-              </div>
+      <div className="max-w-[1400px] mx-auto px-6 md:px-12 relative z-10">
+        
+        {/* ── MANIFESTO HEADER (LUXURY REVEAL) ── */}
+        <motion.div 
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, margin: "-100px" }}
+          className="flex flex-col items-center text-center max-w-5xl mx-auto"
+        >
+          <motion.div variants={itemVariants} className="flex items-center gap-4 mb-10">
+            <div className="w-12 h-px bg-[#C3143D]" />
+            <span className="text-[#C3143D] text-xs font-bold uppercase tracking-[0.3em]">
+              The Manifesto
+            </span>
+            <div className="w-12 h-px bg-[#C3143D]" />
+          </motion.div>
+          
+          <div className="text-4xl md:text-6xl lg:text-[6rem] font-sora font-light uppercase text-white/90 leading-[1.1] mb-12 tracking-tight flex flex-col items-center">
+            <div className="overflow-hidden">
+              <motion.span variants={{ hidden: { y: "100%", opacity: 0 }, show: { y: 0, opacity: 1, transition: { duration: 1, ease: [0.16, 1, 0.3, 1] as any } } }} className="block">
+                We don't just build.
+              </motion.span>
+            </div>
+            <div className="overflow-hidden mt-2 md:mt-4">
+              <motion.span variants={{ hidden: { y: "100%", opacity: 0 }, show: { y: 0, opacity: 1, transition: { duration: 1, ease: [0.16, 1, 0.3, 1] as any } } }} className="block font-serif italic text-transparent bg-clip-text bg-gradient-to-r from-[#C3143D] to-red-400 pr-4">
+                We engineer
+              </motion.span>
+            </div>
+            <div className="overflow-hidden mt-2 md:mt-4">
+              <motion.span variants={{ hidden: { y: "100%", opacity: 0 }, show: { y: 0, opacity: 1, transition: { duration: 1, ease: [0.16, 1, 0.3, 1] as any } } }} className="block">
+                digital empires.
+              </motion.span>
             </div>
           </div>
 
-          <div className="relative">
-            <div className="about-image relative">
-              <Image
-                src="/placeholder.svg?height=600&width=500"
-                alt="REVO Creative Team"
-                width={500}
-                height={600}
-                className="rounded-2xl shadow-2xl"
-              />
+          <motion.p variants={itemVariants} className="text-white/50 text-base md:text-xl font-light leading-relaxed max-w-2xl mx-auto mb-24">
+            REVO is a collective of visionaries, strategists, and creators. We transcend traditional boundaries to craft immersive digital experiences that elevate brands, disrupt industries, and leave a lasting legacy.
+          </motion.p>
+        </motion.div>
 
-              {/* Animated REVO badge */}
-              <div
-                className="about-badge absolute -bottom-6 -right-6 w-24 h-24 rounded-full overflow-hidden ring-2 ring-white/25 shadow-[0_10px_35px_rgba(220,38,38,0.35)] float-y"
-                aria-label="REVO badge"
-              >
-                {/* Base crimson gradient */}
-                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary to-secondary" />
-
-                {/* Breathing ambient glow expanded beyond bounds, clipped by overflow-hidden */}
-                <div className="absolute -inset-6 rounded-full bg-gradient-to-br from-primary to-secondary blur-2xl opacity-60 pulse-soft" />
-
-                {/* Rotating sheen using a conic gradient */}
-                <div
-                  className="absolute inset-0 rounded-full mix-blend-screen opacity-35 spin-slow"
-                  style={{
-                    background:
-                      "conic-gradient(from 0deg, rgba(255,255,255,0) 0deg, rgba(255,255,255,0.28) 55deg, rgba(255,255,255,0) 120deg, rgba(255,255,255,0.18) 185deg, rgba(255,255,255,0) 240deg, rgba(255,255,255,0.2) 300deg, rgba(255,255,255,0) 360deg)",
-                  }}
-                  aria-hidden="true"
-                />
-
-                {/* Label */}
-                <div className="relative z-10 flex h-full items-center justify-center">
-                  <span className="text-white font-bold text-lg tracking-wide">REVO</span>
-                </div>
-              </div>
+        {/* ── CINEMATIC IMAGE/VIDEO CONTAINER ── */}
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] as any }}
+          className="w-full aspect-[4/3] md:aspect-[21/9] rounded-3xl overflow-hidden relative group cursor-pointer shadow-[0_0_80px_rgba(0,0,0,0.5)]"
+          data-cursor="Play"
+        >
+          <motion.div style={{ y: imageY, height: "130%" }} className="absolute inset-0 w-full top-[-15%]">
+            <Image 
+              src="/images/auth-bg.jpg" 
+              alt="REVO Behind the Scenes" 
+              fill 
+              className="object-cover transition-transform duration-[2s] group-hover:scale-105 opacity-60 grayscale-[30%]"
+            />
+          </motion.div>
+          
+          <div className="absolute inset-0 bg-[#050505]/20 group-hover:bg-transparent transition-colors duration-700" />
+          
+          {/* Centered Play Button */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="w-20 h-20 md:w-28 md:h-28 bg-[#C3143D]/90 backdrop-blur-md rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform duration-500">
+              <Play className="w-8 h-8 md:w-12 md:h-12 text-white ml-2" fill="currentColor" />
             </div>
           </div>
-        </div>
+        </motion.div>
+
+        {/* ── STATS GRID ── */}
+        <motion.div 
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, margin: "-100px" }}
+          className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12 mt-24 pt-16 border-t border-white/5"
+        >
+          {stats.map((stat, i) => (
+            <motion.div 
+              key={i} 
+              variants={itemVariants} 
+              whileHover={{ scale: 1.05, y: -10 }}
+              transition={{ type: "spring", stiffness: 400, damping: 10 }}
+              className="flex flex-col items-center md:items-start text-center md:text-left cursor-default group"
+            >
+              <span className="text-4xl md:text-5xl lg:text-6xl font-sora font-light text-white mb-4 group-hover:text-[#C3143D] transition-colors duration-500">
+                {stat.value}
+              </span>
+              <span className="text-white/40 text-xs md:text-sm font-medium uppercase tracking-[0.2em] group-hover:text-white/80 transition-colors duration-500">
+                {stat.label}
+              </span>
+            </motion.div>
+          ))}
+        </motion.div>
+
       </div>
-
-      {/* Scoped animation styles with motion preferences */}
-      <style jsx>{`
-        .spin-slow {
-          animation: spinSlow 12s linear infinite;
-          will-change: transform;
-        }
-        .pulse-soft {
-          animation: pulseSoft 4s ease-in-out infinite;
-          will-change: transform, opacity;
-        }
-        .float-y {
-          animation: floatY 6s ease-in-out infinite;
-          will-change: transform;
-        }
-        @keyframes spinSlow {
-          from {
-            transform: rotate(0deg);
-          }
-          to {
-            transform: rotate(360deg);
-          }
-        }
-        @keyframes pulseSoft {
-          0%,
-          100% {
-            transform: scale(1);
-            opacity: 0.9;
-          }
-          50% {
-            transform: scale(1.04);
-            opacity: 1;
-          }
-        }
-        @keyframes floatY {
-          0%,
-          100% {
-            transform: translateY(0);
-          }
-          50% {
-            transform: translateY(-4px);
-          }
-        }
-        @media (prefers-reduced-motion: reduce) {
-          .spin-slow,
-          .pulse-soft,
-          .float-y {
-            animation: none !important;
-          }
-        }
-      `}</style>
     </section>
   )
 }

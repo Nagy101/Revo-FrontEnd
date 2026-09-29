@@ -9,6 +9,9 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      transitionDuration: {
+        '1500': '1.5s',
+      },
       colors: {
         primary: "#C3143D", // Revo Crimson (from logo play icon)
         secondary: "#F04F6A", // Light Crimson accent for gradients

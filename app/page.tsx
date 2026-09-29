@@ -22,16 +22,16 @@ const AmbientLight = dynamic(() => import("@/components/effects/ambient-light"))
 
 export default function Home() {
   return (
-    <div className="relative w-full -mt-20">
+    <div className="relative w-full">
       {/* Background Effects */}
       <AmbientLight />
 
       {/* Page Sections */}
       <OptimizedHeroSection />
+      <ClientsSection />
       <PortfolioSection />
       <AboutSection />
       <ServicesSection />
-      <ClientsSection />
       <CTASection />
     </div>
   )

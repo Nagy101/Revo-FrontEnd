@@ -11,7 +11,7 @@ import { Toaster } from "@/components/ui/toaster"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import dynamic from "next/dynamic"
 
-const CustomCursor = dynamic(() => import("@/components/custom-cursor").then(m => m.CustomCursor), { ssr: false })
+const CustomCursor = dynamic(() => import("@/components/effects/custom-cursor").then(m => m.CustomCursor), { ssr: false })
 
 const SplashScreen = dynamic(() => import("@/features/ui/components/splash-screen"), { ssr: false })
 
@@ -59,7 +59,7 @@ export default function ClientLayout({
             transition: 'opacity 0.8s ease-in-out' 
           }}>
             {!isAdminRoute && <Navigation />}
-            <main className={!isAdminRoute ? "pt-20" : ""}>{children}</main>
+            <main>{children}</main>
             {!isAdminRoute && <Footer />}
           </div>
           

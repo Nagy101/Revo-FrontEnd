@@ -6,7 +6,7 @@ const AmbientLight = dynamic(() => import("@/components/effects/ambient-light"))
 
 export default function ServicesPage() {
   return (
-    <div className="relative overflow-hidden">
+    <div className="relative w-full">
       <AmbientLight />
       
       {/* Page Sections */}

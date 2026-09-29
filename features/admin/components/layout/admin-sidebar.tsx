@@ -15,8 +15,7 @@ const navItems = [
   { title: "Portfolio",        href: "/admin/portfolio",  icon: FolderOpen      },
   { title: "Categories",       href: "/admin/categories", icon: Tags            },
   { title: "Services",         href: "/admin/services",   icon: Wrench          },
-  { title: "Clients",          href: "/admin/clients",    icon: Users           },
-  { title: "Contact Requests", href: "/admin/contact",    icon: MessageSquare   },
+  { title: "Contact Requests", href: "/admin/contact-requests", icon: MessageSquare   },
   { title: "Analytics",        href: "/admin/analytics",  icon: BarChart3       },
 ]
 

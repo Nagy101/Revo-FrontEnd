@@ -89,18 +89,15 @@ export function AboutHero() {
           {/* Content Column */}
           <div>
             <h1 className="text-5xl md:text-7xl font-sora font-bold uppercase mb-8 leading-tight">
-              About <span className="gradient-text">REVO</span>
+              The <span className="gradient-text">REVO</span> Standard
             </h1>
 
             <div className="space-y-6">
               <p className="text-xl text-foreground/80 leading-relaxed">
-                We are a premium creative agency born from the belief that every brand has a unique story worth
-                telling. Our mission is to transform ideas into powerful visual narratives that connect, inspire, and
-                drive results.
+                We are the architects of the digital frontier. Born from a relentless pursuit of perfection, REVO doesn't just build brands—we forge industry leaders. Our mission is to fuse cinematic artistry with cutting-edge technology, crafting narratives that dominate the digital space.
               </p>
               <p className="text-lg text-foreground/70 leading-relaxed">
-                Founded in 2019, REVO has grown from a small creative collective to a full-service agency working with
-                brands across fashion, technology, sports, and entertainment industries.
+                Since our inception, we've transcended traditional boundaries. From a fearless creative collective to a powerhouse agency, we've redefined the digital presence of trailblazing brands across fashion, technology, sports, and entertainment.
               </p>
             </div>
 

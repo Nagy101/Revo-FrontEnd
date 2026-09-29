@@ -20,7 +20,7 @@ export function AdminShell({ children }: AdminShellProps) {
   }
 
   return (
-    <div style={{ minHeight: "100vh", background: "#060606", color: "#f0f0f0", display: "flex" }}>
+    <div style={{ height: "100vh", background: "#060606", color: "#f0f0f0", display: "flex", overflow: "hidden" }}>
       {/* Sidebar handles both desktop (sticky) and mobile (drawer) */}
       <AdminSidebar
         mobileOpen={mobileOpen}
@@ -28,7 +28,7 @@ export function AdminShell({ children }: AdminShellProps) {
       />
 
       {/* Main content */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: "100vh", overflow: "hidden" }}>
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }}>
         <AdminHeader onMobileMenuToggle={() => setMobileOpen(o => !o)} />
         <main style={{ flex: 1, overflowX: "hidden", overflowY: "auto", padding: "24px 20px", background: "#060606" }}>
           <div style={{ maxWidth: 1280, margin: "0 auto", width: "100%" }}>

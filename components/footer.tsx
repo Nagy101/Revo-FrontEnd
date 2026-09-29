@@ -1,128 +1,121 @@
 "use client"
 
 import Link from "next/link"
-import { Mail, Phone, MapPin, Facebook, Twitter, Instagram, Linkedin } from "lucide-react"
+import { ArrowUpRight } from "lucide-react"
 
 const footerLinks = {
-  company: [
-    { name: "About", href: "/about" },
-    { name: "Services", href: "/services" },
+  menu: [
+    { name: "About Us", href: "/about" },
+    { name: "Our Services", href: "/services" },
     { name: "Portfolio", href: "/portfolio" },
-    { name: "Clients", href: "/clients" },
     { name: "Contact", href: "/contact" },
   ],
-  resources: [
-    { name: "Privacy", href: "/privacy" },
-    { name: "Terms", href: "/terms" },
+  socials: [
+    { name: "Facebook", href: "https://facebook.com/revoagency" },
+    { name: "Instagram", href: "https://instagram.com/revoagency" },
+    { name: "LinkedIn", href: "https://linkedin.com/company/revoagency" },
   ],
 }
 
-const socialLinks = [
-  { name: "Facebook", href: "https://facebook.com/revoagency", icon: Facebook },
-  { name: "Twitter", href: "https://twitter.com/revoagency", icon: Twitter },
-  { name: "Instagram", href: "https://instagram.com/revoagency", icon: Instagram },
-  { name: "LinkedIn", href: "https://linkedin.com/company/revoagency", icon: Linkedin },
-]
+// ── SWEET ANIMATION: Staggered Letter Reveal on Hover ──
+const AnimatedLink = ({ text, href, external = false }: { text: string, href: string, external?: boolean }) => {
+  const content = (
+    <span className="relative flex overflow-hidden">
+      {text.split('').map((char, i) => (
+        <span key={i} className="relative inline-block whitespace-pre">
+          <span 
+            className="inline-block transition-transform duration-500 ease-[0.16,1,0.3,1] group-hover:-translate-y-full" 
+            style={{ transitionDelay: `${i * 20}ms` }}
+          >
+            {char}
+          </span>
+          <span 
+            className="absolute left-0 top-0 inline-block translate-y-full transition-transform duration-500 ease-[0.16,1,0.3,1] group-hover:translate-y-0 text-white font-medium" 
+            style={{ transitionDelay: `${i * 20}ms` }}
+          >
+            {char}
+          </span>
+        </span>
+      ))}
+      {external && <ArrowUpRight size={12} className="ml-1 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 text-[#C3143D] self-center" />}
+    </span>
+  )
+
+  if (external) {
+    return (
+      <a href={href} target="_blank" rel="noopener noreferrer" className="group text-white/50 hover:text-white transition-colors duration-300 font-light text-sm cursor-none flex items-center" data-cursor="Open">
+        {content}
+      </a>
+    )
+  }
+
+  return (
+    <Link href={href} className="group text-white/50 hover:text-white transition-colors duration-300 font-light text-sm cursor-none flex items-center" data-cursor="Go">
+      {content}
+    </Link>
+  )
+}
 
 export function Footer() {
   return (
-    <footer className="bg-background border-t border-border">
-      {/* Main Footer Content */}
-      <div className="max-w-7xl mx-auto px-6 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* Company Info */}
-          <div>
-            <Link href="/" className="inline-block mb-4">
-              <span className="text-2xl font-sora font-bold gradient-text">REVO</span>
+    <footer className="bg-[#050505] pt-24 pb-10 relative overflow-hidden border-t border-white/5 z-20">
+      <div className="max-w-[1400px] mx-auto px-6 md:px-12">
+        
+        <div className="flex flex-col md:flex-row justify-between items-start gap-16 mb-20">
+          
+          {/* ── LEFT: BRANDING & CONTACT ── */}
+          <div className="flex flex-col max-w-sm">
+            <Link href="/" className="inline-block mb-6 cursor-none" data-cursor="Revo">
+              <span className="text-3xl font-sora font-black tracking-widest text-white">REVO<span className="text-[#C3143D]">.</span></span>
             </Link>
-            <p className="text-foreground/70 mb-6 text-sm leading-relaxed">
-              Creative digital agency transforming brands with cutting-edge solutions.
+            <p className="text-white/40 text-sm font-light leading-relaxed mb-8">
+              A creative digital agency engineering immersive experiences and building brand empires.
             </p>
-
-            {/* Contact Info */}
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 text-foreground/60 text-sm">
-                <Mail size={14} className="text-primary" />
-                <a href="mailto:hello@revoagency.com" className="hover:text-primary transition-colors">
-                  hello@revoagency.com
-                </a>
-              </div>
-              <div className="flex items-center gap-2 text-foreground/60 text-sm">
-                <Phone size={14} className="text-primary" />
-                <a href="tel:+1234567890" className="hover:text-primary transition-colors">
-                  +1 (234) 567-8900
-                </a>
-              </div>
-              <div className="flex items-center gap-2 text-foreground/60 text-sm">
-                <MapPin size={14} className="text-primary" />
-                <span>New York, NY</span>
-              </div>
-            </div>
+            <a href="mailto:hello@revoagency.com" className="group inline-flex items-center gap-4 text-white/70 hover:text-white transition-colors text-lg font-light cursor-none w-fit" data-cursor="Email">
+              <span className="relative overflow-hidden">
+                <span className="inline-block transition-transform duration-500 group-hover:-translate-y-full">hello@revo.com</span>
+                <span className="absolute left-0 top-0 inline-block translate-y-full transition-transform duration-500 group-hover:translate-y-0 text-[#C3143D]">hello@revo.com</span>
+              </span>
+            </a>
           </div>
 
-          {/* Navigation Links */}
-          <div className="grid grid-cols-2 gap-8">
-            {/* Company Links */}
-            <div>
-              <h3 className="text-foreground font-medium mb-4 text-sm">Company</h3>
-              <ul className="space-y-2">
-                {footerLinks.company.map((link) => (
+          {/* ── RIGHT: NAVIGATION ── */}
+          <div className="flex gap-16 md:gap-32">
+            <div className="flex flex-col gap-6">
+              <span className="text-white/30 text-xs font-medium uppercase tracking-widest">Navigation</span>
+              <ul className="flex flex-col gap-4">
+                {footerLinks.menu.map((link) => (
                   <li key={link.name}>
-                    <Link href={link.href} className="text-foreground/60 hover:text-primary transition-colors text-sm">
-                      {link.name}
-                    </Link>
+                    <AnimatedLink text={link.name} href={link.href} />
                   </li>
                 ))}
               </ul>
             </div>
 
-            {/* Resources Links */}
-            <div>
-              <h3 className="text-foreground font-medium mb-4 text-sm">Resources</h3>
-              <ul className="space-y-2">
-                {footerLinks.resources.map((link) => (
+            <div className="flex flex-col gap-6">
+              <span className="text-white/30 text-xs font-medium uppercase tracking-widest">Socials</span>
+              <ul className="flex flex-col gap-4">
+                {footerLinks.socials.map((link) => (
                   <li key={link.name}>
-                    <Link href={link.href} className="text-foreground/60 hover:text-primary transition-colors text-sm">
-                      {link.name}
-                    </Link>
+                    <AnimatedLink text={link.name} href={link.href} external />
                   </li>
                 ))}
               </ul>
             </div>
           </div>
+        </div>
 
-          {/* Social Links */}
-          <div>
-            <h3 className="text-foreground font-medium mb-4 text-sm">Follow Us</h3>
-            <div className="flex gap-3">
-              {socialLinks.map((social) => {
-                const Icon = social.icon
-                return (
-                  <a
-                    key={social.name}
-                    href={social.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="p-2 bg-muted hover:bg-primary/10 rounded-lg transition-all duration-200 hover:scale-105 group"
-                    aria-label={social.name}
-                  >
-                    <Icon size={16} className="text-foreground/60 group-hover:text-primary transition-colors" />
-                  </a>
-                )
-              })}
-            </div>
+        {/* ── BOTTOM: COPYRIGHT ── */}
+        <div className="border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center gap-6">
+          <span className="text-white/30 text-[10px] md:text-xs font-light uppercase tracking-widest">
+            © {new Date().getFullYear()} Revo Agency. All rights reserved.
+          </span>
+          <div className="flex items-center gap-6 text-white/30 text-[10px] md:text-xs font-light uppercase tracking-widest">
+            <AnimatedLink text="Privacy Policy" href="/privacy" />
+            <AnimatedLink text="Terms of Service" href="/terms" />
           </div>
         </div>
-      </div>
 
-      {/* Bottom Bar */}
-      <div className="border-t border-border bg-muted/20">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-2">
-            <p className="text-foreground/50 text-sm">© 2024 REVO Agency. All rights reserved.</p>
-            <p className="text-foreground/50 text-sm">Made with ❤️ by REVO Team</p>
-          </div>
-        </div>
       </div>
     </footer>
   )

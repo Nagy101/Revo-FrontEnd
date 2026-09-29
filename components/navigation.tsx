@@ -17,7 +17,6 @@ const navItems: NavItem[] = [
   { name: "About", href: "/about" },
   { name: "Services", href: "/services" },
   { name: "Portfolio", href: "/portfolio" },
-  { name: "Clients", href: "/clients" },
   { name: "Contact", href: "/contact" },
 ]
 
@@ -35,14 +34,19 @@ export function Navigation() {
       sessionStorage.removeItem("was-in-admin")
       console.log("Auto-logout: Accessed main navigation from admin")
     }
+  }, [])
+
+  // Reset scroll state on route change & track scroll
+  useEffect(() => {
+    // Force reset on route change
+    setScrolled(window.scrollY > 50)
     
     const handleScroll = () => {
       setScrolled(window.scrollY > 50)
     }
     window.addEventListener("scroll", handleScroll)
-    handleScroll()
     return () => window.removeEventListener("scroll", handleScroll)
-  }, [])
+  }, [pathname])
 
   const toggleMenu = () => setIsOpen(!isOpen)
 
