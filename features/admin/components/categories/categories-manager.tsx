@@ -68,7 +68,10 @@ export function CategoriesManager() {
     let msg = errorData?.title || errorData?.message || error.message || "Something went wrong"
     
     if (errorData?.errors) {
-      if (Array.isArray(errorData.errors)) {
+      if (typeof errorData.errors === 'string') {
+        // If errors is directly a string message
+        msg = errorData.errors
+      } else if (Array.isArray(errorData.errors)) {
         // FluentValidation custom array
         if (errorData.errors.length > 0) {
           msg = errorData.errors[0].message || errorData.errors[0].errorMessage || msg
@@ -78,6 +81,7 @@ export function CategoriesManager() {
         msg = Object.values(errorData.errors).flat()[0] as string || msg
       }
     }
+
     showToast(msg, 'error')
   }
 
@@ -86,6 +90,11 @@ export function CategoriesManager() {
     const formData = new FormData(e.currentTarget)
     const file = formData.get("imageUrl") as File
     const hasImage = file && file.size > 0
+
+    if (modalState.type === 'create' && !hasImage) {
+      showToast("Please select a cover image for the category", 'error');
+      return;
+    }
 
     const payload = {
       nameAr: formData.get("nameAr") as string,
@@ -402,9 +411,10 @@ export function CategoriesManager() {
               <motion.div 
                 initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
                 onClick={e => e.stopPropagation()}
+                className="[&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-[#C3143D]/50 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-[#C3143D]"
                 style={{
                   background: '#0a0a0a', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 20,
-                  width: '100%', maxWidth: 500, boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
+                  width: '100%', maxWidth: 600, boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
                   maxHeight: '90vh', overflowY: 'auto'
                 }}
               >

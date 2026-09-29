@@ -6,7 +6,7 @@ const AmbientLight = dynamic(() => import("@/components/effects/ambient-light"))
 
 export default function PortfolioPage() {
   return (
-    <div className="relative w-full -mt-20">
+    <div className="relative w-full">
       <AmbientLight />
       
       {/* Portfolio Listing */}

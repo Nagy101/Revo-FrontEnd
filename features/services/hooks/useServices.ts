@@ -1,58 +1,59 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import type { Service } from "@/types/index"
-import { servicesFeatureService } from "../services/services.service"
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { servicesService } from "../services/services.service";
+import { ServiceRequestPayload } from "../types";
 
+export function useServices(pageIndex: number = 1, pageSize: number = 10) {
+  return useQuery({
+    queryKey: ["services", pageIndex, pageSize],
+    queryFn: () => servicesService.getAll(pageIndex, pageSize),
+  });
+}
+
+// Hook for public facing pages that just need the flat array of services
 export function usePublicServices() {
-  return useQuery({
-    queryKey: ["services", "public"],
-    queryFn: () => servicesFeatureService.getPublicServices(),
-  })
+  const query = useServices(1, 100);
+  return {
+    ...query,
+    data: query.data?.data?.data || [],
+  };
 }
 
-export function useServiceDetail(slugOrId: string) {
+export function useServiceDetails(id: string) {
   return useQuery({
-    queryKey: ["services", "detail", slugOrId],
-    queryFn: () => servicesFeatureService.getServiceBySlugOrId(slugOrId),
-    enabled: !!slugOrId,
-  })
-}
-
-// Admin Hooks
-export function useAdminServices() {
-  return useQuery({
-    queryKey: ["services", "admin"],
-    queryFn: () => servicesFeatureService.getAdminServices(),
-  })
+    queryKey: ["services", id],
+    queryFn: () => servicesService.getById(id),
+    enabled: !!id,
+  });
 }
 
 export function useCreateService() {
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: Omit<Service, "id">) => servicesFeatureService.createService(data),
+    mutationFn: (payload: ServiceRequestPayload) => servicesService.create(payload),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["services"] })
+      queryClient.invalidateQueries({ queryKey: ["services"] });
     },
-  })
+  });
 }
 
 export function useUpdateService() {
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Partial<Service> }) => 
-      servicesFeatureService.updateService(id, data),
+    mutationFn: ({ id, payload }: { id: string; payload: ServiceRequestPayload }) =>
+      servicesService.update(id, payload),
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["services"] })
-      queryClient.invalidateQueries({ queryKey: ["services", "detail", variables.id] })
+      queryClient.invalidateQueries({ queryKey: ["services"] });
+      queryClient.invalidateQueries({ queryKey: ["services", variables.id] });
     },
-  })
+  });
 }
 
 export function useDeleteService() {
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => servicesFeatureService.deleteService(id),
+    mutationFn: (id: string) => servicesService.delete(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["services"] })
+      queryClient.invalidateQueries({ queryKey: ["services"] });
     },
-  })
+  });
 }
