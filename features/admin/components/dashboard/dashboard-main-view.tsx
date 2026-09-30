@@ -1,5 +1,6 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { Users, FolderOpen, Calendar, FileText, TrendingUp, Eye, Clock, Star } from "lucide-react"
 import { StatsCard } from "./stats-card"
@@ -7,23 +8,48 @@ import { AnalyticsChart } from "./analytics-chart"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-
-// Temporary fallbacks for phase 2 cleanup
-const adminStats = {
-  totalViews: 0,
-  activeProjects: 0,
-  pendingReservations: 0,
-  newsletterSubscribers: 0,
-  totalVisitors: 0,
-  todayVisitors: 0,
-  weeklyGrowth: 0,
-}
-const adminNotifications: any[] = []
-const mockProjects: any[] = []
+import { portfolioAdapter } from "@/lib/adapters/portfolio.adapter"
+import { servicesAdapter } from "@/lib/adapters/services.adapter"
+import type { Portfolio } from "@/types/index"
 
 export function DashboardMainView() {
-  const recentProjects = mockProjects.slice(0, 3)
-  const recentNotifications = adminNotifications.slice(0, 5)
+  const [adminStats, setAdminStats] = useState({
+    totalViews: 0,
+    activeProjects: 0,
+    pendingReservations: 0,
+    newsletterSubscribers: 0,
+    totalVisitors: 0,
+    todayVisitors: 0,
+    weeklyGrowth: 0,
+    servicesCount: 0,
+    contactRequests: 0,
+  });
+  const [recentProjects, setRecentProjects] = useState<Portfolio[]>([]);
+  const [recentNotifications, setRecentNotifications] = useState<any[]>([]);
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const [portfolios, services] = await Promise.all([
+          portfolioAdapter.getAdminPortfolios().catch(() => []),
+          servicesAdapter.getAdminServices().catch(() => [])
+        ]);
+
+        const publishedPortfolios = portfolios.filter(p => p.isPublished);
+
+        setAdminStats(prev => ({
+          ...prev,
+          activeProjects: publishedPortfolios.length,
+          servicesCount: services.length,
+        }));
+
+        setRecentProjects(portfolios.slice(0, 3));
+      } catch (error) {
+        console.error("Failed to load dashboard data", error);
+      }
+    }
+    loadData();
+  }, []);
 
   return (
     <div className="flex-1 space-y-6">
@@ -46,22 +72,22 @@ export function DashboardMainView() {
         <StatsCard
           title="Active Projects"
           value={adminStats.activeProjects}
-          change="2 completed this week"
+          change="Currently published"
           changeType="positive"
           icon={FolderOpen}
           index={1}
         />
         <StatsCard
           title="Contact Requests"
-          value={0}
-          change="3 new today"
+          value={adminStats.contactRequests}
+          change="Waiting for reply"
           changeType="neutral"
           icon={Calendar}
           index={2}
         />
         <StatsCard
           title="Services"
-          value={0}
+          value={adminStats.servicesCount}
           change="Active offerings"
           changeType="positive"
           icon={FileText}
@@ -136,32 +162,29 @@ export function DashboardMainView() {
                 >
                   <div className="aspect-video bg-gradient-to-br from-primary/20 to-secondary/20 rounded-lg mb-3 overflow-hidden">
                     <img
-                      src={project.image || "/placeholder.svg"}
-                      alt={project.title}
+                      src={project.mediaUrl || "/placeholder.svg"}
+                      alt={project.titleEn}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                   </div>
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <h3 className="text-white font-medium text-sm group-hover:text-primary transition-colors">
-                        {project.title}
+                        {project.titleEn}
                       </h3>
-                      {project.featured && <Star className="h-4 w-4 text-yellow-400" />}
                     </div>
-                    <p className="text-white/60 text-xs line-clamp-2">{project.description}</p>
+                    <p className="text-white/60 text-xs line-clamp-2">{project.descriptionEn}</p>
                     <div className="flex items-center justify-between">
                       <Badge
                         className={`text-xs ${
-                          project.status === "completed"
+                          project.isPublished
                             ? "bg-green-600/20 text-green-400 border-green-600/30"
-                            : project.status === "in-progress"
-                              ? "bg-blue-600/20 text-blue-400 border-blue-600/30"
-                              : "bg-yellow-600/20 text-yellow-400 border-yellow-600/30"
+                            : "bg-yellow-600/20 text-yellow-400 border-yellow-600/30"
                         }`}
                       >
-                        {project.status}
+                        {project.isPublished ? "Published" : "Draft"}
                       </Badge>
-                      <span className="text-white/40 text-xs">{project.client}</span>
+                      <span className="text-white/40 text-xs">{project.clientName}</span>
                     </div>
                   </div>
                 </motion.div>
