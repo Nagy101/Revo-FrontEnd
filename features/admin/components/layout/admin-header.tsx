@@ -3,7 +3,8 @@
 import { useState } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
-import { Bell, Search, User, LogOut, Settings, X } from "lucide-react"
+import { Search, User, LogOut, Settings, X } from "lucide-react"
+import { NotificationBell } from "./notification-bell"
 
 const breadcrumbMap: Record<string, string> = {
   "/admin":            "Dashboard",
@@ -24,9 +25,14 @@ export function AdminHeader({ onMobileMenuToggle }: { onMobileMenuToggle?: () =>
 
   const pageName = breadcrumbMap[pathname ?? ""] ?? "Dashboard"
 
-  const handleLogout = () => {
-    localStorage.removeItem("admin-authenticated")
-    router.push("/admin/auth")
+  const handleLogout = async () => {
+    try {
+      const { authService } = await import('@/lib/auth.service');
+      authService.logout();
+      router.push("/admin/auth");
+    } catch(e) {
+      console.error(e);
+    }
   }
 
   return (
@@ -122,20 +128,7 @@ export function AdminHeader({ onMobileMenuToggle }: { onMobileMenuToggle?: () =>
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
 
         {/* Notifications */}
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          style={{
-            width: 36, height: 36, borderRadius: 10,
-            background: "rgba(255,255,255,0.03)",
-            border: "1px solid rgba(255,255,255,0.07)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            cursor: "pointer", color: "rgba(255,255,255,0.45)",
-            position: "relative",
-          }}
-        >
-          <Bell style={{ width: 16, height: 16 }} />
-        </motion.button>
+        <NotificationBell />
 
         {/* Divider */}
         <div style={{ width: 1, height: 24, background: "rgba(255,255,255,0.07)" }} />

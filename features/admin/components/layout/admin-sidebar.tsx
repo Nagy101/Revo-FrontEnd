@@ -16,7 +16,6 @@ const navItems = [
   { title: "Categories",       href: "/admin/categories", icon: Tags            },
   { title: "Services",         href: "/admin/services",   icon: Wrench          },
   { title: "Contact Requests", href: "/admin/contact-requests", icon: MessageSquare   },
-  { title: "Analytics",        href: "/admin/analytics",  icon: BarChart3       },
 ]
 
 /* ─── Shared nav content ─── */
@@ -208,10 +207,15 @@ export function AdminSidebar({
   const pathname = usePathname()
   const router   = useRouter()
 
-  const handleLogout = () => {
-    localStorage.removeItem("admin-authenticated")
-    router.push("/admin/auth")
-    onMobileClose?.()
+  const handleLogout = async () => {
+    try {
+      const { authService } = await import('@/lib/auth.service');
+      authService.logout();
+      router.push("/admin/auth");
+      onMobileClose?.();
+    } catch(e) {
+      console.error(e);
+    }
   }
 
   return (

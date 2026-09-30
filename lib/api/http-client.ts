@@ -22,13 +22,22 @@ export const httpClient = {
   async fetch<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const url = `${getBaseUrl()}${endpoint}`
     
-    // Ensure credentials (cookies) are sent with every request
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+      ...(options.headers as Record<string, string> || {})
+    };
+
+    if (typeof window !== 'undefined') {
+      const token = localStorage.getItem('token');
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+    }
+
     const config: RequestInit = {
       ...options,
-      credentials: "include",
-      headers: options.headers || {
-        "Content-Type": "application/json",
-      },
+      credentials: "include", // kept for backwards compatibility if needed
+      headers,
     }
 
     // Clean up Content-Type if we explicitly set it to empty string or if it's not meant to be JSON
@@ -45,6 +54,15 @@ export const httpClient = {
     const response = await fetch(url, config)
 
     if (!response.ok) {
+      if (response.status === 401 || response.status === 403) {
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+          window.location.href = '/admin/auth';
+        }
+      }
+
       let errorData;
       try {
         errorData = await response.json();
@@ -53,6 +71,7 @@ export const httpClient = {
       }
       const error = new ApiError(errorData?.message || `HTTP Error: ${response.status}`, response.status);
       (error as any).data = errorData;
+      (error as any).response = { status: response.status, data: errorData }; // Align with Axios error format just in case
       throw error;
     }
     

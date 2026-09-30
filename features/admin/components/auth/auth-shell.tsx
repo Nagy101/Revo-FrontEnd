@@ -6,9 +6,11 @@ import { useRouter } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import { Eye, EyeOff, AlertCircle, ArrowRight, Lock, Mail, ShieldCheck } from "lucide-react"
 
+import { authService } from "@/lib/auth.service"
+
 export function AuthShell() {
-  const [email, setEmail]           = useState("")
-  const [password, setPassword]     = useState("")
+  const [email, setEmail]           = useState("admin1@revo.com")
+  const [password, setPassword]     = useState("Password@123")
   const [showPassword, setShowPass] = useState(false)
   const [isLoading, setIsLoading]   = useState(false)
   const [error, setError]           = useState("")
@@ -22,12 +24,19 @@ export function AuthShell() {
     e.preventDefault()
     setIsLoading(true)
     setError("")
-    await new Promise((r) => setTimeout(r, 1200))
-    if (email === "admin@revo.com" && password === "admin123") {
-      localStorage.setItem("admin-authenticated", "true")
-      router.push("/admin")
-    } else {
-      setError("Invalid credentials. Please try again.")
+    
+    try {
+      const response = await authService.login({ email, password });
+
+      if (response.isSuccess && response.data.isAuthenticated) {
+        authService.setAuthData(response.data);
+        router.push("/admin")
+      } else {
+        setError("Email or password is wrong.")
+      }
+    } catch (err: any) {
+      setError("Email or password is wrong.")
+    } finally {
       setIsLoading(false)
     }
   }
@@ -220,8 +229,8 @@ export function AuthShell() {
           <span style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.25)" }}>Your data is secure with us</span>
         </div>
         <div style={{ textAlign: "right" }}>
-          <div style={{ fontSize: "0.62rem", color: "rgba(255,255,255,0.2)", fontFamily: "monospace" }}>admin@revo.com</div>
-          <div style={{ fontSize: "0.62rem", color: "rgba(255,255,255,0.2)", fontFamily: "monospace" }}>admin123</div>
+          <div style={{ fontSize: "0.62rem", color: "rgba(255,255,255,0.2)", fontFamily: "monospace" }}>admin1@revo.com</div>
+          <div style={{ fontSize: "0.62rem", color: "rgba(255,255,255,0.2)", fontFamily: "monospace" }}>Password@123</div>
         </div>
       </motion.div>
     </motion.div>
@@ -242,7 +251,7 @@ export function AuthShell() {
         <div style={{ position: "absolute", inset: 0, background: "rgba(195,20,61,0.08)", mixBlendMode: "multiply" as const }} />
         {/* Wordmark in hero */}
         <div style={{ position: "absolute", top: 28, left: 24 }}>
-          <Wordmark size={1} />
+          {Wordmark({ size: 1 })}
         </div>
         {/* Welcome text */}
         <div style={{ position: "absolute", bottom: 28, left: 24 }}>
@@ -269,7 +278,7 @@ export function AuthShell() {
           {/* Content */}
           <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", justifyContent: "space-between", padding: "2.5rem", zIndex: 10 }}>
             <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
-              <Wordmark size={1.1} />
+              {Wordmark({ size: 1.1 })}
             </motion.div>
             <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}>
               <div style={{ width: 36, height: 3, background: "#C3143D", borderRadius: 9999, marginBottom: 20 }} />
@@ -298,7 +307,7 @@ export function AuthShell() {
             style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at center, rgba(195,20,61,0.1) 0%, transparent 65%)", pointerEvents: "none" }}
           />
           <div style={{ width: "100%", maxWidth: 380, position: "relative", zIndex: 10 }}>
-            <LoginForm />
+            {LoginForm()}
           </div>
         </div>
       </div>
