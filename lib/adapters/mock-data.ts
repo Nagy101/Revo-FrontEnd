@@ -46,12 +46,24 @@ export const mockServices: Service[] = [
 ]
 
 export const mockClients: Client[] = [
-  {
-    id: "cl1",
-    name: "Acme Corp",
-    logoUrl: "/placeholder.svg?height=80&width=160",
-    order: 1,
-  },
+  { id: "cl1", name: "SODIC", logoUrl: "/placeholder.svg?height=80&width=160", order: 1 },
+  { id: "cl2", name: "CAIROKEE BAND", logoUrl: "/placeholder.svg?height=80&width=160", order: 2 },
+  { id: "cl3", name: "AMER GROUP HOLDING", logoUrl: "/placeholder.svg?height=80&width=160", order: 3 },
+  { id: "cl4", name: "DORRA", logoUrl: "/placeholder.svg?height=80&width=160", order: 4 },
+  { id: "cl5", name: "MASSAR EGBARI", logoUrl: "/placeholder.svg?height=80&width=160", order: 5 },
+  { id: "cl6", name: "REEDY GROUP", logoUrl: "/placeholder.svg?height=80&width=160", order: 6 },
+  { id: "cl7", name: "CITY CLUB", logoUrl: "/placeholder.svg?height=80&width=160", order: 7 },
+  { id: "cl8", name: "AZZAR LEGACY", logoUrl: "/placeholder.svg?height=80&width=160", order: 8 },
+  { id: "cl9", name: "RAMY GAMAL", logoUrl: "/placeholder.svg?height=80&width=160", order: 9 },
+  { id: "cl10", name: "REDA ELBAHRAWY", logoUrl: "/placeholder.svg?height=80&width=160", order: 10 },
+  { id: "cl11", name: "MAKER FAIRE CAIRO", logoUrl: "/placeholder.svg?height=80&width=160", order: 11 },
+  { id: "cl12", name: "SAN3ATECH", logoUrl: "/placeholder.svg?height=80&width=160", order: 12 },
+  { id: "cl13", name: "UPWARD", logoUrl: "/placeholder.svg?height=80&width=160", order: 13 },
+  { id: "cl14", name: "TEB SPACE", logoUrl: "/placeholder.svg?height=80&width=160", order: 14 },
+  { id: "cl15", name: "RUSHUB", logoUrl: "/placeholder.svg?height=80&width=160", order: 15 },
+  { id: "cl16", name: "ICON", logoUrl: "/placeholder.svg?height=80&width=160", order: 16 },
+  { id: "cl17", name: "ZG", logoUrl: "/placeholder.svg?height=80&width=160", order: 17 },
+  { id: "cl18", name: "PR", logoUrl: "/placeholder.svg?height=80&width=160", order: 18 },
 ]
 
 export const mockContactRequests: ContactRequest[] = [

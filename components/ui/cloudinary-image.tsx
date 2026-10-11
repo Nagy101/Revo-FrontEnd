@@ -3,6 +3,7 @@
 import Image, { ImageProps } from "next/image"
 
 const cloudinaryLoader = ({ src, width, quality }: { src: string, width: number, quality?: number }) => {
+  if (!src || typeof src !== "string") return "/images/revo-hero-bg.jpg"
   // If the src is not a Cloudinary URL (like our mock placeholders), return it as is
   if (!src.includes("cloudinary.com")) return src
 

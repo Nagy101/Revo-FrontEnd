@@ -41,27 +41,39 @@ function NavContent({
         borderBottom: "1px solid rgba(255,255,255,0.05)",
         gap: 10, flexShrink: 0, position: "relative",
       }}>
-        {/* R icon */}
-        <div style={{
-          width: 36, height: 36, borderRadius: 10,
-          background: "linear-gradient(135deg, #C3143D, #8f0f2c)",
-          display: "flex", alignItems: "center", justifyContent: "center",
-          flexShrink: 0, boxShadow: "0 0 16px rgba(195,20,61,0.3)",
-        }}>
-          <svg width="12" height="14" viewBox="0 0 12 14" fill="white">
-            <path d="M1 1H7.5C9.7 1 11.5 2.8 11.5 5C11.5 6.8 10.4 8.3 8.8 8.8L11.5 13H8.5L5.5 9H4V13H1V1Z" />
-          </svg>
-        </div>
+        <Link href="/" style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none" }}>
+          <img
+            src="/images/revo-logo.png"
+            alt="REVO"
+            style={{
+              height: collapsed ? 24 : 30,
+              width: "auto",
+              objectFit: "contain",
+              transition: "height 0.2s ease",
+            }}
+          />
+        </Link>
 
         <AnimatePresence initial={false}>
           {!collapsed && (
             <motion.div
               initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -8 }} transition={{ duration: 0.18 }}
-              style={{ overflow: "hidden", whiteSpace: "nowrap", flex: 1 }}
+              style={{ overflow: "hidden", whiteSpace: "nowrap" }}
             >
-              <div style={{ fontSize: "0.9rem", fontWeight: 700, color: "#fff", letterSpacing: "0.04em" }}>REVO</div>
-              <div style={{ fontSize: "0.6rem", color: "rgba(255,255,255,0.3)", letterSpacing: "0.08em", textTransform: "uppercase" }}>Admin Panel</div>
+              <span style={{
+                fontSize: "0.6rem",
+                color: "#C3143D",
+                fontWeight: 700,
+                letterSpacing: "0.12em",
+                textTransform: "uppercase",
+                padding: "2px 6px",
+                background: "rgba(195,20,61,0.12)",
+                borderRadius: 4,
+                border: "1px solid rgba(195,20,61,0.25)",
+              }}>
+                Admin
+              </span>
             </motion.div>
           )}
         </AnimatePresence>

@@ -1,11 +1,12 @@
 import { ServiceDetailsPage } from "@/features/services/components/service-details-page"
 
 interface PageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
-export default function Page({ params }: PageProps) {
-  return <ServiceDetailsPage id={params.id} />
+export default async function Page({ params }: PageProps) {
+  const { id } = await params
+  return <ServiceDetailsPage id={id} />
 }

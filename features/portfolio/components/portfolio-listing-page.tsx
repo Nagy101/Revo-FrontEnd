@@ -9,6 +9,9 @@ import {
   Search,
   ChevronLeft,
   ChevronRight,
+  Sparkles,
+  ArrowDown,
+  Flame,
 } from "lucide-react";
 import {
   motion,
@@ -20,7 +23,9 @@ import {
 } from "framer-motion";
 import { CloudinaryImage } from "@/components/ui/cloudinary-image";
 import { usePublicPortfolios } from "../hooks/usePortfolios";
+import { PortfolioItem, MediaType } from "../types";
 import { useCategories } from "@/features/categories/hooks/useCategories";
+import { useLanguage } from "@/lib/i18n/language-context";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -32,123 +37,212 @@ import {
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 
-// Marquee items
-const MARQUEE_ITEMS = [
-  "Creative Direction",
-  "Brand Identity",
-  "Web Development",
-  "UI/UX Design",
-  "Digital Marketing",
-  "Motion Design",
-];
-
 function MarqueeStrip() {
-  // Triple the items to ensure a perfectly seamless endless loop
-  const items = [...MARQUEE_ITEMS, ...MARQUEE_ITEMS, ...MARQUEE_ITEMS];
-
-  const MarqueeContent = ({ filled }: { filled?: boolean }) => (
-    <motion.div
-      className="flex gap-16 md:gap-24 whitespace-nowrap items-center w-max"
-      animate={{ x: ["0%", "-33.333333%"] }}
-      transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
-    >
-      {items.map((item, i) => (
-        <div key={i} className="flex items-center gap-16 md:gap-24">
-          <span
-            className={`text-2xl md:text-4xl font-black uppercase tracking-tighter cursor-default transition-all ${
-              filled ? "text-white/95" : "text-transparent"
-            }`}
-            style={{
-              WebkitTextStroke: filled ? "none" : "1px rgba(255,255,255,0.15)",
-              textShadow: filled ? "0 0 12px rgba(255,255,255,0.2)" : "none",
-            }}
-          >
-            {item}
-          </span>
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
-            className={`text-lg md:text-2xl ${filled ? "text-white/95" : "text-[#C3143D]"}`}
-            style={{
-              filter: filled
-                ? "drop-shadow(0 0 6px rgba(255,255,255,0.3))"
-                : "none",
-            }}
-          >
-            ✦
-          </motion.div>
-        </div>
-      ))}
-    </motion.div>
-  );
+  const { isArabic } = useLanguage();
+  const marqueeItems = isArabic ? [
+    "حفلات الاستادات الضخمة",
+    "أفلام سينمائية وإعلانية",
+    "إنتاج الفعاليات الحية",
+    "الهويات البصرية للنجوم",
+    "حملات تجارية كبرى",
+    "هندسة الصوت والألوان",
+    "سويت شو ريل ريفو",
+  ] : [
+    "Stadium Concerts",
+    "Cinematic Films",
+    "Live Event Production",
+    "Artist Visuals",
+    "Commercial Campaigns",
+    "Sound & Color Finishing",
+    "REVO Showreel Suite",
+  ];
 
   return (
-    <div className="overflow-hidden py-6 md:py-8 bg-[#030303] border-y border-white/[0.04] relative group mt-8 md:mt-16">
-      {/* Subtle background glow on hover */}
-      <div className="absolute inset-0 bg-[#C3143D]/[0.02] opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
-
-      {/* Base Layer: Outlined Text */}
-      <MarqueeContent />
-
-      {/* Overlay Layer: Filled Text with Spotlight Mask */}
-      <div
-        className="absolute inset-y-0 left-0 right-0 flex items-center pointer-events-none"
-        style={{
-          WebkitMaskImage:
-            "linear-gradient(to right, transparent 0%, transparent 20%, black 40%, black 60%, transparent 80%, transparent 100%)",
-          maskImage:
-            "linear-gradient(to right, transparent 0%, transparent 20%, black 40%, black 60%, transparent 80%, transparent 100%)",
-        }}
+    <div className="relative py-4 bg-[#080808] border-y border-white/10 overflow-hidden select-none z-10" dir="ltr">
+      <div className="absolute inset-0 bg-gradient-to-r from-[#050505] via-transparent to-[#050505] z-10 pointer-events-none" />
+      <motion.div
+        animate={{ x: [0, -1400] }}
+        transition={{ repeat: Infinity, duration: 28, ease: "linear" }}
+        className="flex items-center gap-8 whitespace-nowrap text-xs md:text-sm font-sora font-extrabold uppercase tracking-[0.3em] text-white/40"
       >
-        <MarqueeContent filled />
-      </div>
+        {[...Array(6)].map((_, i) => (
+          <div key={i} className="flex items-center gap-8 shrink-0">
+            {marqueeItems.map((item, idx) => (
+              <span key={idx} className="flex items-center gap-8">
+                <span
+                  className={
+                    idx === 6
+                      ? "text-[#C3143D] font-bold"
+                      : idx % 2 === 0
+                        ? "text-white"
+                        : "text-white/80"
+                  }
+                >
+                  {item}
+                </span>
+                <span className="w-1.5 h-1.5 rounded-full bg-[#C3143D]" />
+              </span>
+            ))}
+          </div>
+        ))}
+      </motion.div>
     </div>
   );
 }
 
+const FALLBACK_CATEGORIES = [
+  { id: "concerts", nameEn: "Live Concerts", nameAr: "حفلات لايف" },
+  { id: "production", nameEn: "Media Production", nameAr: "إنتاج سينمائي" },
+  { id: "commercial", nameEn: "Commercial Campaigns", nameAr: "إعلانات تجارية" },
+];
+
+const FALLBACK_PROJECTS: PortfolioItem[] = [
+  {
+    id: "cairokee-empire",
+    captionEn: "Cairokee Empire Festival — Live Arena",
+    captionAr: "مهرجان إمبراطورية كايروكي — لايف أرينا",
+    orderIndex: 1,
+    categoryNameEn: "Live Concerts",
+    categoryNameAr: "حفلات لايف",
+    categoryId: "concerts",
+    thumbnailUrl: "/images/revo-hero-bg.jpg",
+    thumbnailType: MediaType.Video,
+  },
+  {
+    id: "revo-live-vocals",
+    captionEn: "Raw Vocals & Stage Energy",
+    captionAr: "طاقة المسرح والأداء الحي",
+    orderIndex: 2,
+    categoryNameEn: "Live Concerts",
+    categoryNameAr: "حفلات لايف",
+    categoryId: "concerts",
+    thumbnailUrl: "/images/revo-portfolio-card1.jpg",
+    thumbnailType: MediaType.Image,
+  },
+  {
+    id: "guitar-solo-mastery",
+    captionEn: "Electric Solo — Stadium Tour",
+    captionAr: "صولو جيتار — جولة الاستاد",
+    orderIndex: 3,
+    categoryNameEn: "Media Production",
+    categoryNameAr: "إنتاج سينمائي",
+    categoryId: "production",
+    thumbnailUrl: "/images/revo-portfolio-card2.jpg",
+    thumbnailType: MediaType.Video,
+  },
+  {
+    id: "acoustic-sunset",
+    captionEn: "Acoustic Sunset Sessions",
+    captionAr: "جلسات أكوستيك وقت الغروب",
+    orderIndex: 4,
+    categoryNameEn: "Commercial Campaigns",
+    categoryNameAr: "إعلانات تجارية",
+    categoryId: "commercial",
+    thumbnailUrl: "/images/revo-band.jpg",
+    thumbnailType: MediaType.Image,
+  },
+  {
+    id: "arena-live-production",
+    captionEn: "Reda Elbahrawy — Arena Live Spectacle",
+    captionAr: "رضا البحراوي — حفل أرينا الضخم",
+    orderIndex: 5,
+    categoryNameEn: "Live Concerts",
+    categoryNameAr: "حفلات لايف",
+    categoryId: "concerts",
+    thumbnailUrl: "/images/revo-singer.jpg",
+    thumbnailType: MediaType.Video,
+  },
+  {
+    id: "stadium-visual-symphony",
+    captionEn: "Stadium Visual Symphony & Fireworks",
+    captionAr: "سمفونية الإبهار البصري والألعاب النارية",
+    orderIndex: 6,
+    categoryNameEn: "Media Production",
+    categoryNameAr: "إنتاج سينمائي",
+    categoryId: "production",
+    thumbnailUrl: "/images/revo-services-card2.jpg",
+    thumbnailType: MediaType.Video,
+  },
+];
+
 export function PortfolioListingPage() {
+  const { isArabic, t } = useLanguage();
   const { data: portfolios = [], isLoading: isLoadingPortfolios } =
     usePublicPortfolios();
   const { data: categoriesResponse, isLoading: isLoadingCategories } =
     useCategories();
-  const categories = categoriesResponse?.data?.data || [];
+
+  const categories =
+    categoriesResponse?.data?.data && categoriesResponse.data.data.length > 0
+      ? categoriesResponse.data.data
+      : FALLBACK_CATEGORIES;
+
+  const rawProjects: PortfolioItem[] =
+    portfolios && portfolios.length > 0 ? portfolios : FALLBACK_PROJECTS;
+
+  // Active categories: trim trailing whitespace and filter out categories with 0 projects
+  const activeCategories = categories
+    .map((cat) => ({
+      ...cat,
+      nameEn: (cat.nameEn || "").trim(),
+      nameAr: (cat.nameAr || "").trim(),
+      displayName: isArabic ? (cat.nameAr || cat.nameEn || "").trim() : (cat.nameEn || cat.nameAr || "").trim(),
+      count: rawProjects.filter((p) => p.categoryId === cat.id).length,
+    }))
+    .filter((cat) => cat.count > 0);
 
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
 
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  const projectsRef = useRef<HTMLDivElement>(null);
+
+  // Window scroll Parallax (100% resilient across SSR & client)
   const { scrollY } = useScroll();
+  const heroY = useTransform(scrollY, [0, 800], ["0%", "30%"]);
+  const heroOpacity = useTransform(scrollY, [0, 600], [1, 0]);
+  const heroScale = useTransform(scrollY, [0, 800], [1, 1.08]);
 
-  // Parallax effects (using absolute pixels instead of ref progress to avoid hydration crashes)
-  const heroY = useTransform(scrollY, [0, 1000], ["0%", "25%"]);
-  const heroScale = useTransform(scrollY, [0, 1000], [1, 0.85]);
-  const heroOpacity = useTransform(scrollY, [0, 800], [1, 0]);
-
-  // Mouse tracking for red glow
+  // Mouse Tracking for Global Ambient Spotlight
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
-  const smoothX = useSpring(mouseX, { damping: 40, stiffness: 150, mass: 0.5 });
-  const smoothY = useSpring(mouseY, { damping: 40, stiffness: 150, mass: 0.5 });
-  const imgX1 = useTransform(smoothX, [-1000, 1000], [-40, 40]);
-  const imgY1 = useTransform(smoothY, [-1000, 1000], [-40, 40]);
-  const imgX2 = useTransform(smoothX, [-1000, 1000], [50, -50]);
-  const imgY2 = useTransform(smoothY, [-1000, 1000], [30, -30]);
-  const imgX3 = useTransform(smoothX, [-1000, 1000], [-30, 30]);
-  const imgY3 = useTransform(smoothY, [-1000, 1000], [50, -50]);
-  const imgX4 = useTransform(smoothX, [-1000, 1000], [40, -40]);
-  const imgY4 = useTransform(smoothY, [-1000, 1000], [-40, 40]);
+  const mousePixelX = useMotionValue(0);
+  const mousePixelY = useMotionValue(0);
+
+  const smoothPixelX = useSpring(mousePixelX, { damping: 40, stiffness: 150, mass: 0.5 });
+  const smoothPixelY = useSpring(mousePixelY, { damping: 40, stiffness: 150, mass: 0.5 });
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      mouseX.set(e.clientX);
-      mouseY.set(e.clientY);
+      mouseX.set((e.clientX / window.innerWidth) * 2 - 1);
+      mouseY.set((e.clientY / window.innerHeight) * 2 - 1);
+      mousePixelX.set(e.clientX);
+      mousePixelY.set(e.clientY);
     };
-    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mousemove", handleMouseMove, { passive: true });
     return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, [mouseX, mouseY]);
+  }, [mouseX, mouseY, mousePixelX, mousePixelY]);
+
+  // GPU-Accelerated Spotlight Transform
+  const spotlightX = useTransform(smoothPixelX, (x) => x - 800);
+  const spotlightY = useTransform(smoothPixelY, (y) => y - 800);
+
+  const handleScrollToProjects = () => {
+    if (projectsRef.current) {
+      const y =
+        projectsRef.current.getBoundingClientRect().top + window.scrollY - 80;
+      window.scrollTo({ top: y, behavior: "smooth" });
+    }
+  };
 
   // Filtering logic executed directly on render
-  let filteredProjects = portfolios;
+  let filteredProjects: PortfolioItem[] = rawProjects;
   if (selectedCategory !== "All") {
     filteredProjects = filteredProjects.filter(
       (p) => p.categoryId === selectedCategory,
@@ -174,9 +268,6 @@ export function PortfolioListingPage() {
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE,
   );
-
-  const projectsRef = useRef<HTMLDivElement>(null);
-
   const handlePageChange = (newPage: number) => {
     setCurrentPage(newPage);
     if (projectsRef.current) {
@@ -186,200 +277,254 @@ export function PortfolioListingPage() {
     }
   };
 
-  if (isLoadingPortfolios || isLoadingCategories) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[#050505]">
-        <div className="w-12 h-12 border-4 border-[#C3143D]/30 border-t-[#C3143D] rounded-full animate-spin" />
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-[#050505]">
       {/* ─── HERO SECTION ─── */}
-      <div className="relative w-full overflow-hidden bg-[#050505] min-h-[90dvh] flex items-center justify-center pt-20">
-        {/* ── BACKGROUND LAYER (Subtle parallax) ── */}
+      {/* ─── HERO SECTION (Exact 100vh Screen-Fit Like Home & About) ─── */}
+      <section
+        className="relative w-full min-h-screen py-20 md:py-0 flex items-center justify-center overflow-hidden bg-[#050505]"
+      >
+        {/* BASE BACKGROUND (Exact Stadium Fireworks Background Like Home & About) */}
         <motion.div
-          style={{ y: heroY, scale: heroScale, opacity: heroOpacity }}
-          className="absolute inset-0 z-0 origin-top"
+          style={{ y: heroY, scale: heroScale }}
+          className="absolute inset-0 z-0 origin-top will-change-transform"
         >
           <img
-            src="/images/auth-bg.jpg"
-            alt="Creative Agency Background"
-            className="w-full h-full object-cover opacity-[0.15] grayscale-[60%]"
+            src="/images/revo-hero-bg.jpg"
+            alt="REVO Portfolio Background"
+            className="w-full h-full object-cover object-bottom opacity-85"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#050505]/80 via-[#050505]/60 to-[#050505]" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent h-full" />
+          <div className="absolute inset-0 bg-black/35" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#050505]/80 via-transparent to-[#050505]/60" />
         </motion.div>
 
-        {/* ── DYNAMIC SPOTLIGHT GLOW ── */}
-        <motion.div
-          className="absolute pointer-events-none z-0 rounded-full"
-          style={{
-            width: 800,
-            height: 800,
-            x: smoothX,
-            y: smoothY,
-            translateX: "-50%",
-            translateY: "-50%",
-            background:
-              "radial-gradient(circle, rgba(195, 20, 61, 0.15) 0%, transparent 60%)",
-          }}
-        />
+        {/* MOUSE SPOTLIGHT (GPU ACCELERATED) */}
+        {isMounted && (
+          <motion.div
+            className="fixed top-0 left-0 w-[1600px] h-[1600px] rounded-full pointer-events-none z-0 will-change-transform"
+            style={{
+              background:
+                "radial-gradient(circle, rgba(195, 20, 61, 0.15) 0%, transparent 60%)",
+              x: spotlightX,
+              y: spotlightY,
+            }}
+          />
+        )}
 
-        {/* ── FLOATING PORTFOLIO IMAGES (UNIQUE TO PORTFOLIO) ── */}
-        <div className="absolute inset-0 z-0 pointer-events-none hidden lg:block max-w-[1800px] mx-auto w-full">
-          <motion.div
-            style={{
-              x: imgX1,
-              y: imgY1,
-              rotate: -6,
-            }}
-            className="absolute left-[5%] top-[10%] w-48 h-64 rounded-2xl overflow-hidden border border-white/5 shadow-2xl opacity-60"
-          >
-            <img
-              src="/images/agency_hero_bg.jpg"
-              className="w-full h-full object-cover scale-110"
-              alt="Work"
-            />
-            <div className="absolute inset-0 bg-[#C3143D]/20 mix-blend-overlay" />
-          </motion.div>
-          <motion.div
-            style={{
-              x: imgX2,
-              y: imgY2,
-              rotate: 12,
-            }}
-            className="absolute right-[8%] top-[15%] w-56 h-72 rounded-3xl overflow-hidden border border-[#C3143D]/20 shadow-[0_0_40px_rgba(195,20,61,0.15)] opacity-80"
-          >
-            <img
-              src="/images/auth-bg.jpg"
-              className="w-full h-full object-cover scale-110"
-              alt="Work"
-            />
-            <div className="absolute inset-0 bg-gradient-to-tr from-[#050505] to-transparent opacity-30" />
-          </motion.div>
-          <motion.div
-            style={{
-              x: imgX3,
-              y: imgY3,
-              rotate: -15,
-            }}
-            className="absolute left-[12%] bottom-[15%] w-60 h-80 rounded-3xl overflow-hidden border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.5)] opacity-90"
-          >
-            <img
-              src="/images/auth-bg.jpg"
-              className="w-full h-full object-cover scale-110 grayscale"
-              alt="Work"
-            />
-          </motion.div>
-          <motion.div
-            style={{
-              x: imgX4,
-              y: imgY4,
-              rotate: 8,
-            }}
-            className="absolute right-[15%] bottom-[10%] w-44 h-56 rounded-2xl overflow-hidden border border-white/10 shadow-xl opacity-50 backdrop-blur-sm"
-          >
-            <img
-              src="/images/agency_hero_bg.jpg"
-              className="w-full h-full object-cover scale-110"
-              alt="Work"
-            />
-          </motion.div>
-        </div>
-
-        {/* ── NOISE OVERLAY ── */}
+        {/* NOISE OVERLAY */}
         <div
-          className="absolute inset-0 z-0 opacity-[0.03] pointer-events-none mix-blend-overlay"
+          className="absolute inset-0 z-0 opacity-[0.02] pointer-events-none"
           style={{ backgroundImage: 'url("/images/noise.png")' }}
         />
 
-        {/* ── MAIN CONTENT ── */}
+        {/* MAIN HERO CONTENT (Calibrated to fit 100vh screen exactly like Home & About) */}
         <motion.div
           style={{ opacity: heroOpacity }}
-          className="relative z-10 w-full max-w-7xl mx-auto px-6 flex flex-col items-center justify-center text-center mt-10 md:mt-20"
+          className="relative z-10 w-full max-w-4xl mx-auto px-6 flex flex-col items-center justify-center pt-24 pb-6 md:py-0 text-center"
         >
           {/* Intro Tag */}
           <motion.div
-            initial={{ opacity: 0, y: -30 }}
+            initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, ease: EASE, delay: 0.2 }}
-            className="flex items-center gap-4 mb-8 md:mb-12"
+            className="flex items-center gap-3 mb-2.5 md:mb-4"
           >
-            <div className="w-12 md:w-20 h-px bg-gradient-to-r from-transparent to-[#C3143D]" />
-            <span className="text-white text-xs md:text-sm font-bold tracking-[0.3em] uppercase flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-[#C3143D] animate-pulse" />
-              Featured Work
+            <div className="w-8 md:w-14 h-[1px] bg-gradient-to-r from-transparent to-[#C3143D]" />
+            <span className="flex items-center gap-2 text-white/90 text-xs md:text-sm font-semibold tracking-[0.3em] uppercase drop-shadow">
+              <Sparkles className="w-3.5 h-3.5 text-[#C3143D]" /> {isArabic ? "أرشيف أعمال ريفو" : "REVO SHOWCASE ARCHIVE"}
             </span>
-            <div className="w-12 md:w-20 h-px bg-gradient-to-l from-transparent to-[#C3143D]" />
+            <div className="w-8 md:w-14 h-[1px] bg-gradient-to-l from-transparent to-[#C3143D]" />
           </motion.div>
 
-          {/* Main Title Group */}
-          <div className="flex flex-col items-center text-center w-full">
-            <div className="overflow-hidden pb-2">
+          {/* Main Title Group (LESS TALK. MORE SHOWREEL.) */}
+          <div className="flex flex-col items-center text-center">
+            <div className="overflow-hidden pb-1">
               <motion.h1
-                initial={{ y: "100%", opacity: 0, rotate: 2 }}
-                animate={{ y: 0, opacity: 1, rotate: 0 }}
+                initial={{ y: "100%", opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
                 transition={{ duration: 1.2, ease: EASE, delay: 0.3 }}
-                className="text-[4rem] sm:text-6xl md:text-[8rem] lg:text-[10rem] font-sora font-black uppercase tracking-tighter text-white leading-[0.9] drop-shadow-2xl"
+                className="text-3xl sm:text-4xl md:text-5xl lg:text-[3.5rem] font-sora font-black uppercase tracking-tight text-white leading-[1.05] drop-shadow-2xl whitespace-nowrap"
               >
-                Digital
+                {isArabic ? "كلام أقل." : "Less Talk."}
               </motion.h1>
             </div>
 
-            <div className="flex flex-wrap items-center justify-center gap-4 md:gap-8 overflow-hidden w-full mt-2 md:mt-4 relative">
+            <div className="flex items-center justify-center gap-3 md:gap-5 overflow-hidden w-full mt-0.5">
               <motion.div
                 initial={{ scaleX: 0, opacity: 0 }}
                 animate={{ scaleX: 1, opacity: 1 }}
                 transition={{ duration: 1.2, ease: EASE, delay: 0.6 }}
-                className="hidden md:block flex-1 h-[2px] bg-gradient-to-r from-transparent via-white/20 to-white/50 origin-right max-w-[150px]"
+                className="hidden md:block flex-1 h-[2px] bg-gradient-to-r from-transparent via-white/20 to-white/50 origin-right max-w-[80px]"
               />
               <motion.div
                 initial={{ y: "100%", opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ duration: 1.2, ease: EASE, delay: 0.4 }}
-                className="relative"
+                className="relative whitespace-nowrap"
               >
-                <h1 className="text-[3.5rem] sm:text-6xl md:text-[7rem] lg:text-[8.5rem] font-serif italic leading-[1] text-transparent bg-clip-text bg-gradient-to-br from-[#C3143D] via-[#ff2a5f] to-[#C3143D] pr-4 drop-shadow-[0_0_30px_rgba(195,20,61,0.4)]">
-                  Showcase
+                <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[3.5rem] font-serif italic leading-[1.05] text-transparent bg-clip-text bg-gradient-to-r from-white via-red-200 to-[#C3143D] pr-2 drop-shadow-2xl">
+                  {isArabic ? "إبداع سينمائي أكثر." : "More Showreel."}
                 </h1>
-                {/* Subtle text glow */}
-                <h1 className="absolute inset-0 text-[3.5rem] sm:text-6xl md:text-[7rem] lg:text-[8.5rem] font-serif italic leading-[1] text-[#C3143D] opacity-30 blur-2xl pointer-events-none">
-                  Showcase
+                <h1 className="absolute inset-0 text-3xl sm:text-4xl md:text-5xl lg:text-[3.5rem] font-serif italic leading-[1.05] text-[#C3143D] opacity-25 blur-2xl pointer-events-none">
+                  {isArabic ? "إبداع سينمائي أكثر." : "More Showreel."}
                 </h1>
               </motion.div>
               <motion.div
                 initial={{ scaleX: 0, opacity: 0 }}
                 animate={{ scaleX: 1, opacity: 1 }}
                 transition={{ duration: 1.2, ease: EASE, delay: 0.6 }}
-                className="hidden md:block flex-1 h-[2px] bg-gradient-to-l from-transparent via-[#C3143D]/50 to-[#C3143D] origin-left max-w-[150px]"
+                className="hidden md:block flex-1 h-[2px] bg-gradient-to-l from-transparent via-[#C3143D]/50 to-[#C3143D] origin-left max-w-[80px]"
               />
             </div>
           </div>
 
-          {/* Description */}
-          <motion.p
+          {/* User's Exact Description Paragraphs */}
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, ease: EASE, delay: 0.7 }}
-            className="max-w-3xl text-center text-white/90 text-sm md:text-xl font-light mt-4 md:mt-6 leading-relaxed relative z-20"
+            className="max-w-2xl text-center space-y-2 mt-2.5 md:mt-3.5 leading-relaxed [text-shadow:_0_1px_12px_rgba(0,0,0,0.8)]"
           >
-            Step into our curated exhibition of creative engineering. Witness how we transform bold visions into industry-defining realities that captivate and dominate.
-          </motion.p>
+            <p className="text-white/95 text-xs sm:text-sm md:text-base font-normal">
+              {isArabic
+                ? "نظرة على اللحظات التي وثقناها، والقصص التي صغناها، والأفكار التي بثثنا فيها الحياة."
+                : "A look at the moments we’ve captured, the stories we’ve shaped, and the ideas we’ve brought to life."}
+            </p>
+            <p className="text-white/75 text-xs sm:text-sm font-light">
+              {isArabic
+                ? "من الفعاليات الكبرى إلى الحملات الإعلانية والأفلام السينمائية، استكشف الأعمال التي تجسد الروح الإبداعية لـ REVO."
+                : "From high-energy events to brand campaigns and cinematic films, explore the work that brings the REVO creative spirit to the screen."}
+            </p>
+          </motion.div>
+
+          {/* User's Exact Punchline Tagline */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, ease: EASE, delay: 0.8 }}
+            className="flex items-center gap-3 mt-2.5 text-red-200/90 font-serif italic text-xs sm:text-sm tracking-wide [text-shadow:_0_1px_10px_rgba(0,0,0,0.8)]"
+          >
+            <span className="w-6 h-px bg-gradient-to-r from-transparent to-[#C3143D]" />
+            <span>
+              {isArabic
+                ? "“لكل مشروع قصة.. وهذه بعض من قصصنا.”"
+                : "“Every project has a story. Here are some of ours.”"}
+            </span>
+            <span className="w-6 h-px bg-gradient-to-l from-transparent to-[#C3143D]" />
+          </motion.div>
+
+          {/* Action Buttons */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, ease: EASE, delay: 0.9 }}
+            className="flex flex-row items-center gap-3.5 md:gap-4 mt-4 md:mt-5"
+          >
+            <button
+              onClick={handleScrollToProjects}
+              className="group relative px-6 py-2.5 md:px-7 md:py-3 bg-[#C3143D] text-white overflow-hidden rounded-full font-semibold tracking-widest uppercase text-xs md:text-sm shadow-[0_0_25px_rgba(195,20,61,0.4)] hover:shadow-[0_0_45px_rgba(195,20,61,0.6)] hover:scale-105 transition-all duration-300 inline-flex items-center justify-center cursor-pointer"
+            >
+              <div className="absolute inset-0 w-full h-full bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-[0.16,1,0.3,1]" />
+              <span className="relative flex items-center gap-2">
+                {isArabic ? "استكشف المشاريع" : "Explore Projects"}{" "}
+                <ArrowDown size={14} className="group-hover:translate-y-0.5 transition-transform" />
+              </span>
+            </button>
+
+            <Link
+              href="/contact"
+              className="group px-6 py-2.5 md:px-7 md:py-3 bg-black/40 backdrop-blur-md text-white border border-white/20 rounded-full font-semibold tracking-widest uppercase text-xs md:text-sm hover:border-white hover:bg-white/10 hover:scale-105 transition-all duration-300 inline-flex items-center justify-center cursor-pointer"
+            >
+              {isArabic ? "تواصل معنا" : "Let’s Talk"} <ArrowUpRight size={14} className="ml-1 rtl:rotate-180" />
+            </Link>
+          </motion.div>
+
+          {/* ── CINEMATIC SHOWCASE CARDS DUO (IMAGES FROM USER) ── */}
+          <motion.div
+            initial={{ opacity: 0, y: 25 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, ease: EASE, delay: 1 }}
+            className="flex flex-row items-center justify-center gap-4 sm:gap-6 mt-4 sm:mt-5 w-full max-w-xl mx-auto z-20"
+          >
+            {/* Card 1: Live Concert Duo (Landscape natural photo) */}
+            <div
+              onClick={handleScrollToProjects}
+              className="cursor-pointer h-[150px] sm:h-[175px] md:h-[195px] aspect-[16/10]"
+            >
+              <motion.div
+                whileHover={{ scale: 1.05, y: -5 }}
+                className="group relative w-full h-full rounded-2xl p-1.5 bg-black/50 backdrop-blur-xl border border-white/15 shadow-[0_12px_30px_rgba(0,0,0,0.6),0_0_20px_rgba(195,20,61,0.2)] hover:border-[#C3143D]/70 hover:shadow-[0_20px_50px_rgba(195,20,61,0.5)] transition-all duration-300 -rotate-1 hover:rotate-0"
+              >
+                <div className="relative w-full h-full rounded-xl overflow-hidden">
+                  <img
+                    src="/images/revo-portfolio-card1.jpg"
+                    alt="Live Concert Duo"
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                  />
+                  {/* Soft bottom shadow only - leaves performers 100% clear */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent pointer-events-none" />
+                  
+                  {/* Clean Bottom Label */}
+                  <div className="absolute bottom-1.5 left-2.5 right-2.5 flex items-center justify-between text-white">
+                    <p className="text-[11px] sm:text-xs font-bold truncate drop-shadow-[0_1px_4px_rgba(0,0,0,0.9)]">
+                      {isArabic ? "أصوات المسرح الحية" : "Stage Vocals"}
+                    </p>
+                    <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center group-hover:bg-[#C3143D] transition-colors shrink-0">
+                      <Play size={7} className="fill-current text-white translate-x-0.5" />
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+
+            {/* Card 2: Solo Guitarist (Portrait natural photo) */}
+            <div
+              onClick={handleScrollToProjects}
+              className="cursor-pointer h-[150px] sm:h-[175px] md:h-[195px] aspect-[2/3]"
+            >
+              <motion.div
+                whileHover={{ scale: 1.05, y: -5 }}
+                className="group relative w-full h-full rounded-2xl p-1.5 bg-black/50 backdrop-blur-xl border border-white/15 shadow-[0_12px_30px_rgba(0,0,0,0.6),0_0_20px_rgba(195,20,61,0.2)] hover:border-[#C3143D]/70 hover:shadow-[0_20px_50px_rgba(195,20,61,0.5)] transition-all duration-300 rotate-1 hover:rotate-0"
+              >
+                <div className="relative w-full h-full rounded-xl overflow-hidden">
+                  <img
+                    src="/images/revo-portfolio-card2.jpg"
+                    alt="Live Guitar Solo"
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                  />
+                  {/* Soft bottom shadow only - leaves performers 100% clear */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent pointer-events-none" />
+                  
+                  {/* Clean Bottom Label */}
+                  <div className="absolute bottom-1.5 left-2.5 right-2.5 flex items-center justify-between text-white">
+                    <p className="text-[11px] sm:text-xs font-bold truncate drop-shadow-[0_1px_4px_rgba(0,0,0,0.9)]">
+                      {isArabic ? "طاقة العزف المنفرد" : "Solo Energy"}
+                    </p>
+                    <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center group-hover:bg-[#C3143D] transition-colors shrink-0">
+                      <Play size={7} className="fill-current text-white translate-x-0.5" />
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+          </motion.div>
         </motion.div>
 
         {/* ── ROTATING BADGE ── */}
         <motion.div
+          onClick={handleScrollToProjects}
+          role="button"
+          tabIndex={0}
+          aria-label="Scroll to projects"
           initial={{ opacity: 0, scale: 0 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1.5, delay: 1.2, ease: EASE }}
-          className="absolute bottom-10 right-10 md:bottom-20 md:right-20 w-32 h-32 md:w-40 md:h-40 hidden lg:flex items-center justify-center pointer-events-none z-20"
+          className="absolute bottom-16 right-6 md:bottom-20 md:right-8 w-24 h-24 md:w-28 md:h-28 hidden lg:flex items-center justify-center cursor-pointer group z-20 select-none"
         >
           <motion.div
             animate={{ rotate: 360 }}
             transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
-            className="absolute inset-0 flex items-center justify-center opacity-40 transition-opacity duration-700"
+            className="absolute inset-0 flex items-center justify-center opacity-50 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700 pointer-events-none"
           >
             <svg
               viewBox="0 0 100 100"
@@ -392,213 +537,312 @@ export function PortfolioListingPage() {
               />
               <text className="text-[10px] uppercase font-bold tracking-[0.25em]">
                 <textPath href="#circlePathPort" startOffset="0%">
-                  ★ CRAFTING MASTERPIECES ★ DIGITAL AGENCY
+                  {isArabic
+                    ? "★ أرشيف أعمال ريفو ★ إبداع سينمائي ★"
+                    : "★ REVO PORTFOLIO ARCHIVE ★ CREATIVE EXCELLENCE"}
                 </textPath>
               </text>
             </svg>
           </motion.div>
+
+          <div className="relative z-10 w-9 h-9 rounded-full bg-white/5 border border-white/20 backdrop-blur-md flex items-center justify-center group-hover:bg-[#C3143D] group-hover:border-[#C3143D] group-hover:scale-110 transition-all duration-300">
+            <ArrowDown
+              size={14}
+              className="text-white group-hover:translate-y-0.5 transition-transform"
+            />
+          </div>
         </motion.div>
 
         {/* Bottom edge fade */}
         <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-[#050505] to-transparent z-20 pointer-events-none" />
-      </div>
+      </section>
 
       {/* ─── MARQUEE ─── */}
       <MarqueeStrip />
 
-      {/* ─── WORKS SECTION ─── */}
+      {/* ─── WORKS SECTION (SERVICES-TIER LUXURY AESTHETIC) ─── */}
       <div
+        id="portfolio-grid"
         ref={projectsRef}
-        className="max-w-[1600px] mx-auto px-6 md:px-12 pt-20 pb-32"
+        className="max-w-[1400px] mx-auto px-6 pt-20 pb-10 relative z-10 scroll-mt-20"
       >
-        {/* Section label + filters */}
+        {/* Section Header */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.8, ease: EASE }}
-          className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 mb-16"
+          className="flex flex-col md:flex-row md:items-end justify-between gap-6"
         >
-          {/* Unified Filter Bar */}
-          <div className="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto">
-            {/* Search Input */}
-            <div className="relative w-full sm:w-64">
-              <Search
-                className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40"
-                size={18}
-              />
-              <Input
-                placeholder="Search projects..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-transparent border-white/20 text-white placeholder:text-white/40 pl-11 h-12 rounded-full focus-visible:ring-[#C3143D]"
-              />
+          <div>
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/[0.03] border border-white/10 mb-3">
+              <Flame className="w-3.5 h-3.5 text-[#C3143D]" />
+              <span className="text-[#C3143D] text-[11px] font-bold tracking-[0.3em] uppercase">
+                {isArabic ? "مختارات من أعمالنا" : "Curated Portfolio"}
+              </span>
             </div>
-
-            {/* Category Select */}
-            <div className="w-full sm:w-56">
-              <Select
-                value={selectedCategory}
-                onValueChange={setSelectedCategory}
-              >
-                <SelectTrigger className="w-full bg-transparent border-white/20 text-white h-12 rounded-full focus:ring-[#C3143D]">
-                  <SelectValue placeholder="All Categories" />
-                </SelectTrigger>
-                <SelectContent className="bg-[#111] border-white/10 text-white rounded-2xl">
-                  <SelectItem
-                    value="All"
-                    className="focus:bg-[#C3143D] focus:text-white rounded-xl cursor-pointer"
-                  >
-                    All Categories
-                  </SelectItem>
-                  {categories.map((cat) => (
-                    <SelectItem
-                      key={cat.id}
-                      value={cat.id}
-                      className="focus:bg-[#C3143D] focus:text-white rounded-xl cursor-pointer"
-                    >
-                      {cat.nameEn}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-sora font-extrabold text-white tracking-tight uppercase">
+              {isArabic ? (
+                <>
+                  روائع الأعمال{" "}
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-red-200 to-[#C3143D]">
+                    السينمائية.
+                  </span>
+                </>
+              ) : (
+                <>
+                  Signature{" "}
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-red-200 to-[#C3143D]">
+                    Masterpieces.
+                  </span>
+                </>
+              )}
+            </h2>
           </div>
 
-          <div className="flex items-center gap-3 shrink-0">
-            <div className="w-16 h-px bg-white/20" />
-            <div className="w-2 h-2 rounded-full bg-[#C3143D]" />
-            <span className="text-white/80 text-sm font-medium tracking-wide">
-              Featured Projects
-            </span>
-          </div>
+          <p className="text-white/50 max-w-md text-sm font-light leading-relaxed">
+            {isArabic
+              ? "من أضخم الحفلات الحية في الاستادات إلى القصص الإعلانية والسينمائية، اكتشف كيف تصنع ريفو بصمات بصرية تستحوذ على الأنظار عالمياً."
+              : "From stadium live shows to cinematic commercial stories, explore how REVO crafts visual legacies that command global attention."}
+          </p>
         </motion.div>
 
-        {/* Grid */}
+        {/* Editorial Underline Navigation & Minimalist Search Bar */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mt-10 border-b border-white/10"
+        >
+          {/* Editorial Underline Tabs Track */}
+          <div className="flex items-center gap-6 sm:gap-8 lg:gap-10 overflow-x-auto no-scrollbar scroll-smooth">
+            {/* All Works Tab */}
+            <button
+              onClick={() => setSelectedCategory("All")}
+              className="relative py-4 text-xs sm:text-[13px] font-sora uppercase tracking-[0.2em] transition-colors duration-300 whitespace-nowrap cursor-pointer flex items-center gap-2 group shrink-0"
+            >
+              <span
+                className={`transition-colors duration-300 ${
+                  selectedCategory === "All"
+                    ? "text-white font-extrabold"
+                    : "text-white/40 group-hover:text-white/80 font-semibold"
+                }`}
+              >
+                {isArabic ? "جميع الأعمال" : "All Works"}
+              </span>
+              <span
+                className={`text-[10px] font-mono transition-colors duration-300 ${
+                  selectedCategory === "All"
+                    ? "text-[#C3143D] font-bold"
+                    : "text-white/30 group-hover:text-white/60"
+                }`}
+              >
+                [{String(rawProjects.length).padStart(2, "0")}]
+              </span>
+
+              {selectedCategory === "All" && (
+                <motion.div
+                  layoutId="editorialTabUnderline"
+                  className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-[#C3143D] shadow-[0_0_12px_rgba(195,20,61,0.9)]"
+                  transition={{ type: "spring", stiffness: 400, damping: 32 }}
+                />
+              )}
+            </button>
+
+            {/* Dynamic Category Tabs */}
+            {activeCategories.map((cat) => {
+              const isActive = selectedCategory === cat.id;
+              return (
+                <button
+                  key={cat.id}
+                  onClick={() => setSelectedCategory(cat.id)}
+                  className="relative py-4 text-xs sm:text-[13px] font-sora uppercase tracking-[0.2em] transition-colors duration-300 whitespace-nowrap cursor-pointer flex items-center gap-2 group shrink-0"
+                >
+                  <span
+                    className={`transition-colors duration-300 ${
+                      isActive
+                        ? "text-white font-extrabold"
+                        : "text-white/40 group-hover:text-white/80 font-semibold"
+                    }`}
+                  >
+                    {cat.displayName || cat.nameEn}
+                  </span>
+                  <span
+                    className={`text-[10px] font-mono transition-colors duration-300 ${
+                      isActive
+                        ? "text-[#C3143D] font-bold"
+                        : "text-white/30 group-hover:text-white/60"
+                    }`}
+                  >
+                    [{String(cat.count).padStart(2, "0")}]
+                  </span>
+
+                  {isActive && (
+                    <motion.div
+                      layoutId="editorialTabUnderline"
+                      className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-[#C3143D] shadow-[0_0_12px_rgba(195,20,61,0.9)]"
+                      transition={{
+                        type: "spring",
+                        stiffness: 400,
+                        damping: 32,
+                      }}
+                    />
+                  )}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Minimalist Search Box */}
+          <div className="relative w-full lg:w-64 mb-2.5 shrink-0">
+            <Search
+              className="absolute left-3.5 rtl:left-auto rtl:right-3.5 top-1/2 -translate-y-1/2 text-white/35 pointer-events-none"
+              size={14}
+            />
+            <Input
+              placeholder={isArabic ? "ابحث في المشاريع..." : "Search projects..."}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-white/[0.03] hover:bg-white/[0.06] focus:bg-white/[0.08] border-white/10 text-white placeholder:text-white/35 pl-9 pr-8 rtl:pr-9 rtl:pl-8 h-9 rounded-full text-xs font-sora tracking-wide focus-visible:ring-[#C3143D] focus-visible:border-[#C3143D] transition-all"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery("")}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-white/40 hover:text-white text-xs w-4 h-4 rounded-full flex items-center justify-center hover:bg-white/10 transition-colors cursor-pointer"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+        </motion.div>
+      </div>
+
+      {/* ── PROJECTS GRID ── */}
+      <div className="max-w-[1400px] mx-auto px-6 pb-24">
         {filteredProjects.length === 0 ? (
-          <div className="text-center py-32 rounded-lg border border-white/5 bg-white/[0.01]">
-            <h3 className="text-2xl font-bold text-white mb-2">
-              No projects found
+          <div className="text-center py-24 rounded-3xl border border-white/5 bg-white/[0.01]">
+            <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-4 border border-white/10">
+              <Sparkles className="w-6 h-6 text-white/40" />
+            </div>
+            <h3 className="text-xl font-sora font-bold text-white mb-2">
+              {isArabic ? "لم يتم العثور على أي أعمال" : "No projects found"}
             </h3>
-            <p className="text-white/30">Try selecting a different category.</p>
+            <p className="text-white/40 text-sm max-w-sm mx-auto">
+              {isArabic
+                ? "لا توجد مشاريع تطابق البحث الحالي. جرّب اختيار 'جميع الأعمال' أو مسح البحث."
+                : "No works match your current selection. Try selecting 'All Works' or clearing your search."}
+            </p>
+            <button
+              onClick={() => {
+                setSelectedCategory("All");
+                setSearchQuery("");
+              }}
+              className="mt-6 px-6 py-2.5 rounded-full bg-[#C3143D] text-white text-xs font-bold uppercase tracking-widest hover:scale-105 transition-all cursor-pointer shadow-[0_0_20px_rgba(195,20,61,0.4)]"
+            >
+              {isArabic ? "إعادة تعيين الفلاتر" : "Reset Filters"}
+            </button>
           </div>
         ) : (
-          <div className="space-y-12">
+          <div className="space-y-16">
             <motion.div
               layout
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8"
             >
               <AnimatePresence mode="popLayout">
                 {paginatedProjects.map((project, index) => {
+                  const absoluteIndex =
+                    (currentPage - 1) * ITEMS_PER_PAGE + index;
                   const category = categories.find(
                     (c) => c.id === project.categoryId,
                   );
+                  const categoryTitle = (
+                    isArabic
+                      ? project.categoryNameAr || category?.nameAr || project.categoryNameEn || category?.nameEn || "إنتاج حي"
+                      : project.categoryNameEn || category?.nameEn || "Live Production"
+                  ).trim();
+                  const imageSrc =
+                    project.thumbnailUrl || "/images/revo-hero-bg.jpg";
+                  const projectCaption = (
+                    isArabic
+                      ? project.captionAr || project.captionEn || "مشروع سينمائي"
+                      : project.captionEn || project.captionAr || "Cinematic Project"
+                  ).trim();
 
                   return (
                     <motion.div
                       key={project.id}
                       layout
-                      initial={{ opacity: 0, y: 40 }}
+                      initial={{ opacity: 0, y: 30 }}
                       whileInView={{ opacity: 1, y: 0 }}
                       viewport={{ once: true, margin: "-40px" }}
                       exit={{ opacity: 0, scale: 0.95 }}
                       transition={{ duration: 0.5, ease: EASE }}
-                      className="group relative rounded-[2rem] overflow-hidden aspect-[4/5] sm:aspect-square border border-white/10 hover:border-white/20 transition-all duration-700 hover:shadow-[0_0_50px_rgba(195,20,61,0.15)] bg-[#050505]"
                     >
                       <Link
                         href={`/portfolio/${project.id}`}
-                        className="block w-full h-full"
+                        className="block h-full group"
                       >
-                        {/* Background Image */}
-                        <div className="absolute inset-0">
-                          <CloudinaryImage
-                            src={
-                              project.thumbnailUrl || "/images/placeholder.jpg"
-                            }
-                            alt={project.captionEn || "Project thumbnail"}
-                            fill
-                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                            className="object-cover transition-transform duration-1500 ease-out group-hover:scale-110"
-                          />
-                        </div>
-
-                        {/* Top Gradient Overlay (for index pill readability) */}
-                        <div className="absolute inset-x-0 top-0 h-1/3 bg-gradient-to-b from-black/60 to-transparent opacity-60" />
-
-                        {/* Bottom Gradient Overlay (for text readability) */}
-                        <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black via-black/60 to-transparent opacity-90 transition-opacity duration-700 group-hover:opacity-100" />
-
-                        {/* Content Container (Absolute) */}
-                        <div className="absolute inset-0 p-6 md:p-8 flex flex-col justify-between">
-                          {/* Top Row: Index & Play Button */}
-                          <div className="flex justify-between items-start z-10">
-                            {/* Index Pill */}
-                            <div className="backdrop-blur-md bg-white/10 border border-white/20 px-4 py-1.5 rounded-full flex items-center justify-center transform group-hover:bg-[#C3143D] group-hover:border-[#C3143D] transition-all duration-500">
-                              <span className="text-white font-black text-xs tracking-[0.2em]">
-                                {String(
-                                  (currentPage - 1) * ITEMS_PER_PAGE +
-                                    index +
-                                    1,
-                                ).padStart(2, "0")}
-                              </span>
-                            </div>
-
-                            {/* Video play button */}
-                            {project.thumbnailType === 2 && (
-                              <div className="w-12 h-12 bg-black/40 backdrop-blur-md border border-white/20 rounded-full flex items-center justify-center group-hover:bg-[#C3143D] group-hover:border-[#C3143D] group-hover:scale-110 transition-all duration-500 shadow-[0_0_30px_rgba(195,20,61,0)] group-hover:shadow-[0_0_30px_rgba(195,20,61,0.5)]">
-                                <Play
-                                  fill="white"
-                                  className="w-4 h-4 ms-1 text-white"
-                                />
-                              </div>
-                            )}
+                        <motion.div
+                          whileHover={{ y: -6, scale: 1.02 }}
+                          transition={{ duration: 0.4, ease: EASE }}
+                          className="relative rounded-2xl md:rounded-[1.75rem] overflow-hidden aspect-[4/5] sm:aspect-[3/4] border border-white/10 hover:border-[#C3143D]/60 transition-all duration-500 shadow-[0_15px_40px_rgba(0,0,0,0.7)] hover:shadow-[0_20px_50px_rgba(195,20,61,0.25)] bg-[#0c0c0c] cursor-pointer h-full flex flex-col justify-between p-6 md:p-7"
+                        >
+                          {/* Background Image */}
+                          <div className="absolute inset-0 z-0 overflow-hidden">
+                            <CloudinaryImage
+                              src={imageSrc}
+                              alt={projectCaption}
+                              fill
+                              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                              className="object-cover transition-transform duration-700 ease-out group-hover:scale-108"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/55 to-black/25" />
+                            <div className="absolute inset-0 bg-gradient-to-tr from-[#C3143D]/25 via-transparent to-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
                           </div>
 
-                          {/* Bottom Row: Text & Arrow */}
-                          <div className="flex flex-col gap-4 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500 ease-out z-10 text-start">
-                            <div className="flex flex-col gap-2">
-                              <div className="flex gap-2 items-center opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-75">
-                                <div className="w-2 h-2 rounded-full bg-[#C3143D]" />
-                                <span
-                                  className={`text-white/80 text-xs font-bold tracking-[0.15em] uppercase ${project.categoryNameAr ? "rtl:hidden" : ""}`}
-                                >
-                                  {project.categoryNameEn ||
-                                    category?.nameEn ||
-                                    "Portfolio"}
-                                </span>
-                                {project.categoryNameAr && (
-                                  <span className="text-white/80 text-xs font-bold tracking-[0.15em] uppercase hidden rtl:block">
-                                    {project.categoryNameAr}
-                                  </span>
-                                )}
-                              </div>
-
-                              <h3
-                                className={`text-2xl md:text-3xl font-black text-white leading-tight drop-shadow-lg ${project.captionAr ? "rtl:hidden" : ""}`}
-                              >
-                                {project.captionEn}
-                              </h3>
-                              {project.captionAr && (
-                                <h3 className="text-2xl md:text-3xl font-black text-white leading-tight drop-shadow-lg hidden rtl:block">
-                                  {project.captionAr}
-                                </h3>
+                          {/* Top Bar: Category Pill & Index Number */}
+                          <div className="relative z-10 flex items-center justify-between">
+                            <div className="px-3 py-1 rounded-full bg-black/75 backdrop-blur-md border border-white/10 text-white/90 text-[10px] font-bold tracking-widest uppercase flex items-center gap-1.5 shadow-lg group-hover:border-[#C3143D]/40 transition-colors">
+                              <span className="w-1.5 h-1.5 rounded-full bg-[#C3143D] animate-pulse shadow-[0_0_8px_#C3143D]" />
+                              {categoryTitle}
+                            </div>
+                            <div className="flex items-center gap-2">
+                              {project.thumbnailType === MediaType.Video && (
+                                <div className="w-7 h-7 rounded-full bg-black/60 backdrop-blur-md border border-white/20 flex items-center justify-center group-hover:bg-[#C3143D] group-hover:border-[#C3143D] transition-colors">
+                                  <Play
+                                    size={10}
+                                    className="fill-current text-white translate-x-0.5"
+                                  />
+                                </div>
                               )}
-                            </div>
-
-                            {/* Arrow Button / View Project */}
-                            <div className="flex items-center gap-4 mt-2">
-                              <div className="w-12 h-12 rounded-full bg-white text-black flex items-center justify-center group-hover:bg-[#C3143D] group-hover:text-white transition-colors duration-500">
-                                <ArrowUpRight
-                                  size={24}
-                                  className="group-hover:rotate-45 transition-transform duration-500"
-                                />
-                              </div>
-                              <span className="text-white font-bold text-sm tracking-widest uppercase opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-500 delay-75">
-                                View Project
+                              <span className="text-white/30 font-sora font-extrabold text-sm tracking-wider group-hover:text-white/80 transition-colors">
+                                {String(absoluteIndex + 1).padStart(2, "0")}
                               </span>
                             </div>
                           </div>
-                        </div>
+
+                          {/* Bottom Content Area */}
+                          <div className="relative z-10 mt-auto pt-8">
+                            <h3 className="text-xl md:text-2xl font-sora font-extrabold text-white tracking-tight group-hover:text-red-100 transition-colors drop-shadow-md leading-snug">
+                              {projectCaption}
+                            </h3>
+
+                            {/* Action Link Pill */}
+                            <div className="mt-4 pt-4 border-t border-white/10 flex items-center justify-between">
+                              <span className="text-[11px] font-semibold uppercase tracking-wider text-[#C3143D] group-hover:text-red-300 transition-colors">
+                                {isArabic ? "عرض تفاصيل المشروع" : "View Case Study"}
+                              </span>
+                              <div className="w-8 h-8 rounded-full bg-white/10 backdrop-blur-md group-hover:bg-[#C3143D] flex items-center justify-center transition-colors">
+                                <ArrowUpRight
+                                  size={14}
+                                  className="text-white group-hover:rotate-45 rtl:group-hover:-rotate-45 transition-transform duration-300"
+                                />
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Light Sheen Streak */}
+                          <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full bg-gradient-to-r from-transparent via-white/10 to-transparent transition-transform duration-1000 pointer-events-none" />
+                        </motion.div>
                       </Link>
                     </motion.div>
                   );
@@ -606,48 +850,73 @@ export function PortfolioListingPage() {
               </AnimatePresence>
             </motion.div>
 
-            {/* Pagination Controls */}
+            {/* ── PAGINATION BAR (EXACT SERVICES STYLE) ── */}
             {totalPages > 1 && (
-              <motion.div
-                layout
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="flex justify-center items-center gap-3 mt-16"
-              >
-                <button
-                  onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
-                  disabled={currentPage === 1}
-                  className="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center text-white hover:bg-white/10 disabled:opacity-30 disabled:hover:bg-transparent transition-all"
-                >
-                  <ChevronLeft size={20} />
-                </button>
-
-                <div className="flex gap-2 mx-2">
-                  {Array.from({ length: totalPages }).map((_, i) => (
-                    <button
-                      key={i}
-                      onClick={() => handlePageChange(i + 1)}
-                      className={`w-12 h-12 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-300 ${
-                        currentPage === i + 1
-                          ? "bg-[#C3143D] text-white"
-                          : "bg-white/5 text-white/50 hover:bg-white/20 hover:text-white"
-                      }`}
-                    >
-                      {i + 1}
-                    </button>
-                  ))}
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-10 border-t border-white/10">
+                <div className="text-xs text-white/40 tracking-wider uppercase font-semibold">
+                  {isArabic ? (
+                    <>
+                      صفحة <span className="text-white font-bold">{currentPage}</span> من{" "}
+                      <span className="text-white font-bold">{totalPages}</span> — إجمالي{" "}
+                      <span className="text-white font-bold">{filteredProjects.length}</span> مشروع
+                    </>
+                  ) : (
+                    <>
+                      Page <span className="text-white font-bold">{currentPage}</span>{" "}
+                      of <span className="text-white font-bold">{totalPages}</span> —
+                      Total{" "}
+                      <span className="text-white font-bold">
+                        {filteredProjects.length}
+                      </span>{" "}
+                      Projects
+                    </>
+                  )}
                 </div>
 
-                <button
-                  onClick={() =>
-                    handlePageChange(Math.min(totalPages, currentPage + 1))
-                  }
-                  disabled={currentPage === totalPages}
-                  className="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center text-white hover:bg-white/10 disabled:opacity-30 disabled:hover:bg-transparent transition-all"
-                >
-                  <ChevronRight size={20} />
-                </button>
-              </motion.div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    className={`px-4 py-2 rounded-full text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5 transition-all duration-300 ${
+                      currentPage === 1
+                        ? "bg-white/[0.02] text-white/20 cursor-not-allowed border border-white/5"
+                        : "bg-white/5 text-white/80 hover:bg-white/10 hover:text-white border border-white/10 cursor-pointer"
+                    }`}
+                  >
+                    <ChevronLeft size={14} className="rtl:rotate-180" /> {isArabic ? "السابق" : "Previous"}
+                  </button>
+
+                  {Array.from({ length: totalPages }).map((_, i) => {
+                    const pageNumber = i + 1;
+                    const isActive = currentPage === pageNumber;
+                    return (
+                      <button
+                        key={pageNumber}
+                        onClick={() => handlePageChange(pageNumber)}
+                        className={`w-10 h-10 rounded-full text-xs font-bold font-sora transition-all duration-300 cursor-pointer flex items-center justify-center ${
+                          isActive
+                            ? "bg-[#C3143D] text-white shadow-[0_0_20px_rgba(195,20,61,0.6)] scale-105"
+                            : "bg-white/5 text-white/50 hover:bg-white/10 hover:text-white border border-white/10"
+                        }`}
+                      >
+                        {String(pageNumber).padStart(2, "0")}
+                      </button>
+                    );
+                  })}
+
+                  <button
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                    className={`px-4 py-2 rounded-full text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5 transition-all duration-300 ${
+                      currentPage === totalPages
+                        ? "bg-white/[0.02] text-white/20 cursor-not-allowed border border-white/5"
+                        : "bg-white/5 text-white/80 hover:bg-white/10 hover:text-white border border-white/10 cursor-pointer"
+                    }`}
+                  >
+                    {isArabic ? "التالي" : "Next"} <ChevronRight size={14} className="rtl:rotate-180" />
+                  </button>
+                </div>
+              </div>
             )}
           </div>
         )}

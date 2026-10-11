@@ -24,11 +24,15 @@ export function DeferredVimeoPlayer({ videoId, title, thumbnailUrl, onClick }: D
       const url = new URL(videoId)
       if (videoId.includes('youtu.be')) {
         id = url.pathname.slice(1).split('?')[0]
+      } else if (url.pathname.includes('/shorts/')) {
+        id = url.pathname.replace('/shorts/', '').split('/')[0].split('?')[0]
       } else {
-        id = url.searchParams.get('v') || ''
+        id = url.searchParams.get('v') || url.pathname.split('/').filter(Boolean).pop() || ''
       }
     } catch {
-      // fallback if URL parsing fails
+      // fallback regex if URL constructor fails
+      const match = videoId.match(/(?:shorts\/|v=|youtu\.be\/)([\w-]+)/)
+      if (match) id = match[1]
     }
   } else if (videoId.includes('vimeo.com')) {
     const parts = videoId.split('/')

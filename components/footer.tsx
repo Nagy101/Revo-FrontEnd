@@ -2,20 +2,7 @@
 
 import Link from "next/link"
 import { ArrowUpRight } from "lucide-react"
-
-const footerLinks = {
-  menu: [
-    { name: "About Us", href: "/about" },
-    { name: "Our Services", href: "/services" },
-    { name: "Portfolio", href: "/portfolio" },
-    { name: "Contact", href: "/contact" },
-  ],
-  socials: [
-    { name: "Facebook", href: "https://facebook.com/revoagency" },
-    { name: "Instagram", href: "https://instagram.com/revoagency" },
-    { name: "LinkedIn", href: "https://linkedin.com/company/revoagency" },
-  ],
-}
+import { useLanguage } from "@/lib/i18n/language-context"
 
 // ── SWEET ANIMATION: Staggered Letter Reveal on Hover ──
 const AnimatedLink = ({ text, href, external = false }: { text: string, href: string, external?: boolean }) => {
@@ -57,6 +44,21 @@ const AnimatedLink = ({ text, href, external = false }: { text: string, href: st
 }
 
 export function Footer() {
+  const { isArabic } = useLanguage()
+
+  const menuLinks = [
+    { name: isArabic ? "من نحن" : "About Us", href: "/about" },
+    { name: isArabic ? "خدماتنا" : "Our Services", href: "/services" },
+    { name: isArabic ? "معرض الأعمال" : "Portfolio", href: "/portfolio" },
+    { name: isArabic ? "اتصل بنا" : "Contact", href: "/contact" },
+  ]
+
+  const socials = [
+    { name: "Facebook", href: "https://facebook.com/revoagency" },
+    { name: "Instagram", href: "https://instagram.com/revoagency" },
+    { name: "LinkedIn", href: "https://linkedin.com/company/revoagency" },
+  ]
+
   return (
     <footer className="bg-[#050505] pt-24 pb-10 relative overflow-hidden border-t border-white/5 z-20">
       <div className="max-w-[1400px] mx-auto px-6 md:px-12">
@@ -65,13 +67,19 @@ export function Footer() {
           
           {/* ── LEFT: BRANDING & CONTACT ── */}
           <div className="flex flex-col max-w-sm">
-            <Link href="/" className="inline-block mb-6 cursor-none" data-cursor="Revo">
-              <span className="text-3xl font-sora font-black tracking-widest text-white">REVO<span className="text-[#C3143D]">.</span></span>
+            <Link href="/" className="inline-block mb-6 cursor-none group" data-cursor="Revo">
+              <img
+                src="/images/revo-logo.png"
+                alt="REVO Media Production"
+                className="h-12 sm:h-14 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
+              />
             </Link>
             <p className="text-white/40 text-sm font-light leading-relaxed mb-8">
-              A creative digital agency engineering immersive experiences and building brand empires.
+              {isArabic
+                ? "وكالة إنتاج إعلامي وسينمائي تصنع تجارب بصرية مبهرة وتبني هويات استثنائية."
+                : "A creative digital agency engineering immersive experiences and building brand empires."}
             </p>
-            <a href="mailto:hello@revoagency.com" className="group inline-flex items-center gap-4 text-white/70 hover:text-white transition-colors text-lg font-light cursor-none w-fit" data-cursor="Email">
+            <a href="mailto:hello@revo.com" className="group inline-flex items-center gap-4 text-white/70 hover:text-white transition-colors text-lg font-light cursor-none w-fit" data-cursor="Email">
               <span className="relative overflow-hidden">
                 <span className="inline-block transition-transform duration-500 group-hover:-translate-y-full">hello@revo.com</span>
                 <span className="absolute left-0 top-0 inline-block translate-y-full transition-transform duration-500 group-hover:translate-y-0 text-[#C3143D]">hello@revo.com</span>
@@ -82,10 +90,12 @@ export function Footer() {
           {/* ── RIGHT: NAVIGATION ── */}
           <div className="flex gap-16 md:gap-32">
             <div className="flex flex-col gap-6">
-              <span className="text-white/30 text-xs font-medium uppercase tracking-widest">Navigation</span>
+              <span className="text-white/30 text-xs font-medium uppercase tracking-widest">
+                {isArabic ? "روابط سريعة" : "Navigation"}
+              </span>
               <ul className="flex flex-col gap-4">
-                {footerLinks.menu.map((link) => (
-                  <li key={link.name}>
+                {menuLinks.map((link) => (
+                  <li key={link.href}>
                     <AnimatedLink text={link.name} href={link.href} />
                   </li>
                 ))}
@@ -93,9 +103,11 @@ export function Footer() {
             </div>
 
             <div className="flex flex-col gap-6">
-              <span className="text-white/30 text-xs font-medium uppercase tracking-widest">Socials</span>
+              <span className="text-white/30 text-xs font-medium uppercase tracking-widest">
+                {isArabic ? "تواصل معنا" : "Socials"}
+              </span>
               <ul className="flex flex-col gap-4">
-                {footerLinks.socials.map((link) => (
+                {socials.map((link) => (
                   <li key={link.name}>
                     <AnimatedLink text={link.name} href={link.href} external />
                   </li>
@@ -108,11 +120,13 @@ export function Footer() {
         {/* ── BOTTOM: COPYRIGHT ── */}
         <div className="border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center gap-6">
           <span className="text-white/30 text-[10px] md:text-xs font-light uppercase tracking-widest">
-            © {new Date().getFullYear()} Revo Agency. All rights reserved.
+            {isArabic
+              ? `© ${new Date().getFullYear()} وكالة ريفو. جميع الحقوق محفوظة.`
+              : `© ${new Date().getFullYear()} Revo Agency. All rights reserved.`}
           </span>
           <div className="flex items-center gap-6 text-white/30 text-[10px] md:text-xs font-light uppercase tracking-widest">
-            <AnimatedLink text="Privacy Policy" href="/privacy" />
-            <AnimatedLink text="Terms of Service" href="/terms" />
+            <AnimatedLink text={isArabic ? "سياسة الخصوصية" : "Privacy Policy"} href="/privacy" />
+            <AnimatedLink text={isArabic ? "شروط الخدمة" : "Terms of Service"} href="/terms" />
           </div>
         </div>
 

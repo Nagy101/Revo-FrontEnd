@@ -4,32 +4,42 @@ import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import Image from "next/image"
 import { ArrowUpRight } from "lucide-react"
+import { useLanguage } from "@/lib/i18n/language-context"
 
 const services = [
   {
     title: 'Photography',
+    titleAr: 'التصوير الفوتوغرافي',
     description: 'Corporate, product, fashion, events, and lifestyle photography with artistic precision and professional excellence.',
-    image: '/images/agency_hero_bg.jpg', 
+    descriptionAr: 'تصوير احترافي للفعاليات، الحفلات، جلسات الفنانين، وتوثيق المنتجات بدقة فنية وجودة سينمائية.',
+    image: '/images/revo-services-card1.jpg', 
   },
   {
     title: 'Cinematics',
+    titleAr: 'الإنتاج السينمائي والكليبات',
     description: 'Commercial ads, brand videos, social media reels, and event coverage that tells your story with cinematic impact.',
-    image: '/images/auth-bg.jpg', 
+    descriptionAr: 'إعلانات تجارية كبرى، كليبات موسيقية، وتغطية حفلات ضخمة تروي قصتك بتأثير وإخراج سينمائي مبهر.',
+    image: '/images/revo-portfolio-card1.jpg', 
   },
   {
     title: 'Social Media',
+    titleAr: 'محتوى السوشيال ميديا',
     description: 'Tailored visuals for Instagram, Facebook, and TikTok designed to maximize engagement and reach global audiences.',
-    image: '/images/agency_hero_bg.jpg',
+    descriptionAr: 'صناعة محتوى مرئي وفيديوهات ريلز مخصصة لتحقيق أعلى انتشار وتفاعل عبر كافة المنصات الرقمية.',
+    image: '/images/revo-services-card2.jpg',
   },
   {
     title: 'Campaigns',
+    titleAr: 'الحملات الإعلانية المتكاملة',
     description: 'Full-service media strategies for brands with comprehensive creative direction and campaign development.',
-    image: '/images/auth-bg.jpg',
+    descriptionAr: 'استراتيجيات إعلامية متكاملة للعلامات التجارية مع إدارة فنية وإخراج إبداعي شامل للحملة من البداية للنهاية.',
+    image: '/images/revo-portfolio-card2.jpg',
   },
 ]
 
 export function ServicesSection() {
   const [hoveredIndex, setHoveredIndex] = useState<number>(0)
+  const { isArabic } = useLanguage()
 
   return (
     <section className="py-20 md:py-32 bg-[#050505] relative border-t border-white/5">
@@ -39,19 +49,19 @@ export function ServicesSection() {
 
       <div className="max-w-[1500px] mx-auto px-6 md:px-12 flex flex-col lg:flex-row gap-16 lg:gap-24 relative z-10">
         
-        {/* ── LEFT COLUMN (STICKY) ── */}
-        <div className="w-full lg:w-5/12 lg:sticky lg:top-32 h-auto lg:h-[calc(100vh-160px)] flex flex-col justify-between">
+        {/* ── LEFT COLUMN (STICKY INTRO) ── */}
+        <div className="w-full lg:w-5/12 flex flex-col justify-between lg:h-[800px] lg:sticky lg:top-32">
           <div>
             <motion.div 
-              initial={{ opacity: 0, x: -20 }}
+              initial={{ opacity: 0, x: isArabic ? 20 : -20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 1 }}
+              transition={{ duration: 0.8 }}
               className="flex items-center gap-4 mb-8"
             >
               <div className="w-12 h-px bg-[#C3143D]" />
               <span className="text-[#C3143D] text-xs font-bold uppercase tracking-[0.3em]">
-                Our Expertise
+                {isArabic ? "قدراتنا وخبراتنا" : "Our Expertise"}
               </span>
             </motion.div>
             
@@ -62,8 +72,21 @@ export function ServicesSection() {
               transition={{ duration: 1, delay: 0.2 }}
               className="text-4xl md:text-5xl lg:text-7xl font-sora font-light uppercase text-white leading-tight tracking-widest mb-6"
             >
-              We create <br/>
-              <span className="font-serif italic text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-500 pr-4">Impact</span>
+              {isArabic ? (
+                <>
+                  نصنع <br/>
+                  <span className="font-serif italic text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-500 pr-4">
+                    التأثير السينمائي
+                  </span>
+                </>
+              ) : (
+                <>
+                  We create <br/>
+                  <span className="font-serif italic text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-500 pr-4">
+                    Impact
+                  </span>
+                </>
+              )}
             </motion.h2>
             
             <motion.p 
@@ -73,7 +96,10 @@ export function ServicesSection() {
               transition={{ duration: 1, delay: 0.4 }}
               className="text-white/40 max-w-sm text-sm md:text-base font-light leading-relaxed"
             >
-              We offer a comprehensive suite of creative services designed to elevate your brand and connect with your audience on a visceral level.
+              {isArabic 
+                ? "نقدم منظومة شاملة من الخدمات الإبداعية المصممة لترقية علامتك التجارية وربطها بالجمهور بشغف واحترافية مطلقة."
+                : "We offer a comprehensive suite of creative services designed to elevate your brand and connect with your audience on a visceral level."
+              }
             </motion.p>
           </div>
 
@@ -106,29 +132,28 @@ export function ServicesSection() {
             <motion.div
               key={service.title}
               onMouseEnter={() => setHoveredIndex(index)}
-              initial={{ opacity: 0, x: 50 }}
+              initial={{ opacity: 0, x: isArabic ? -50 : 50 }}
               whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true, margin: "-100px" }}
-              transition={{ duration: 0.8, delay: index * 0.1, ease: [0.16, 1, 0.3, 1] }}
-              className="group py-12 md:py-20 border-b border-white/10 flex flex-col md:flex-row gap-6 md:gap-12 md:items-center cursor-none"
-              data-cursor="Discover"
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, delay: index * 0.15 }}
+              className="group py-12 md:py-16 border-b border-white/10 hover:border-white/30 transition-colors duration-500 cursor-pointer"
             >
-              <span className="text-[#C3143D] text-lg md:text-xl font-sora font-medium opacity-50 group-hover:opacity-100 transition-opacity duration-500">
-                {String(index + 1).padStart(2, '0')}
-              </span>
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-xs font-mono text-[#C3143D] tracking-widest">
+                  [ 0{index + 1} ]
+                </span>
+                <div className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center group-hover:bg-[#C3143D] group-hover:border-[#C3143D] transition-all duration-300">
+                  <ArrowUpRight className="w-4 h-4 text-white/50 group-hover:text-white transition-colors" />
+                </div>
+              </div>
               
-              <div className="flex-1">
-                <h3 className="text-3xl md:text-5xl font-sora font-light uppercase text-white/80 group-hover:text-white group-hover:translate-x-4 transition-all duration-500 mb-4 tracking-wider">
-                  {service.title}
-                </h3>
-                <p className="text-white/40 text-sm md:text-base font-light leading-relaxed max-w-lg group-hover:text-white/60 transition-colors duration-500 group-hover:translate-x-4">
-                  {service.description}
-                </p>
-              </div>
-
-              <div className="hidden md:flex w-16 h-16 rounded-full border border-white/10 items-center justify-center group-hover:bg-[#C3143D] group-hover:border-[#C3143D] transition-all duration-500 shrink-0">
-                <ArrowUpRight className="text-white/30 group-hover:text-white group-hover:rotate-45 transition-all duration-500 w-6 h-6" />
-              </div>
+              <h3 className="text-3xl md:text-5xl font-sora font-semibold text-white tracking-wide mb-4 group-hover:translate-x-4 rtl:group-hover:-translate-x-4 transition-transform duration-500">
+                {isArabic ? service.titleAr : service.title}
+              </h3>
+              
+              <p className="text-white/40 text-sm md:text-base font-light max-w-xl leading-relaxed">
+                {isArabic ? service.descriptionAr : service.description}
+              </p>
             </motion.div>
           ))}
         </div>
