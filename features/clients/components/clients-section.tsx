@@ -1,96 +1,145 @@
 "use client"
 
-import { useMemo } from "react"
 import { motion } from "framer-motion"
-import Image from "next/image"
-import { usePublicClients } from "../hooks/useClients"
+import { Sparkles } from "lucide-react"
+import { useLanguage } from "@/lib/i18n/language-context"
+
+// Real client portfolio from client assets
+const TRACK_ONE_CLIENTS = [
+  "SODIC",
+  "CAIROKEE BAND",
+  "AMER GROUP HOLDING",
+  "DORRA",
+  "MASSAR EGBARI",
+  "REEDY GROUP",
+  "CITY CLUB",
+  "AZZAR LEGACY",
+  "ZG",
+]
+
+const TRACK_TWO_CLIENTS = [
+  "RAMY GAMAL",
+  "MAKER FAIRE CAIRO",
+  "REDA ELBAHRAWY",
+  "SAN3ATECH",
+  "UPWARD",
+  "TEB SPACE",
+  "RUSHUB",
+  "ICON",
+  "PR",
+]
 
 export function ClientsSection() {
-  const { data: clients = [], isLoading } = usePublicClients()
+  const { isArabic } = useLanguage()
 
-  const marqueeItems = useMemo(() => {
-    if (!clients || clients.length === 0) return []
-    let duplicated = [...clients]
-    while (duplicated.length < 10) {
-      duplicated = [...duplicated, ...clients]
-    }
-    return [...duplicated, ...duplicated]
-  }, [clients])
+  // Exactly two identical halves (2 x 2 sets) for a mathematically seamless 50% loop
+  const singleHalfOne = [...TRACK_ONE_CLIENTS, ...TRACK_ONE_CLIENTS]
+  const trackOneItems = [...singleHalfOne, ...singleHalfOne]
 
-  if (isLoading || clients.length === 0) return null
+  const singleHalfTwo = [...TRACK_TWO_CLIENTS, ...TRACK_TWO_CLIENTS]
+  const trackTwoItems = [...singleHalfTwo, ...singleHalfTwo]
 
   return (
-    <section className="relative w-full min-h-[400px] md:min-h-[500px] bg-[#050505] overflow-hidden flex flex-col items-center justify-center z-20 py-20">
+    <section className="relative w-full py-20 md:py-28 bg-[#050505] overflow-hidden flex flex-col items-center justify-center z-20 border-t border-white/5">
       
-      {/* ── BACKGROUND GLOW ── */}
-      <div className="absolute inset-0 bg-gradient-to-b from-[#050505] via-[#C3143D]/5 to-[#050505] pointer-events-none" />
+      {/* ── BACKGROUND AMBIENT GLOW ── */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_50%,rgba(195,20,61,0.08),transparent)] pointer-events-none" />
 
-      {/* ── OUTLINE BACKGROUND MARQUEE (Right Scrolling) ── */}
-      <div className="absolute top-[20%] md:top-[15%] left-[-10%] right-[-10%] w-[120%] transform rotate-[4deg] md:rotate-[3deg] flex items-center overflow-hidden opacity-20 pointer-events-none z-0 will-change-transform">
-        <motion.div 
-          animate={{ x: ["-50%", "0%"] }} 
-          transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
-          className="flex items-center w-max gap-8 whitespace-nowrap will-change-transform"
-        >
-          {[...Array(10)].map((_, i) => (
-            <span 
-              key={i} 
-              className="text-[5rem] md:text-[8rem] font-sora font-black uppercase text-transparent" 
-              style={{ WebkitTextStroke: '2px rgba(255,255,255,0.8)' }}
-            >
-              GLOBAL VISIONARIES ✦
-            </span>
-          ))}
-        </motion.div>
+      {/* ── SECTION HEADER ── */}
+      <div className="relative z-10 flex flex-col items-center text-center px-6 mb-12 md:mb-16">
+        <div className="flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-white/[0.04] border border-white/10 backdrop-blur-md mb-4 shadow-sm">
+          <Sparkles className="w-3.5 h-3.5 text-[#C3143D]" />
+          <span className="text-[11px] md:text-xs font-semibold uppercase tracking-[0.25em] text-white/90">
+            {isArabic ? "سجل عملائنا وشركاء النجاح" : "Our Customer Portfolio"}
+          </span>
+        </div>
+        <h2 className="text-2xl sm:text-3xl md:text-5xl font-sora font-extrabold uppercase tracking-tight text-white">
+          {isArabic ? (
+            <>
+              موثوق به من كبرى <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-red-200 to-[#C3143D]">العلامات والنجوم</span>
+            </>
+          ) : (
+            <>
+              Trusted by Leading <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-red-200 to-[#C3143D]">Brands & Stars</span>
+            </>
+          )}
+        </h2>
       </div>
 
-      {/* ── MAIN CRIMSON MARQUEE (Left Scrolling) ── */}
-      <div className="absolute top-[40%] md:top-[35%] left-[-10%] right-[-10%] w-[120%] h-24 md:h-36 bg-[#C3143D] border-y border-white/20 transform -rotate-[4deg] md:-rotate-[3deg] flex items-center overflow-hidden z-10 will-change-transform">
-        <motion.div 
-          animate={{ x: ["0%", "-50%"] }} 
-          transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-          className="flex items-center w-max gap-8 md:gap-16 pl-8 md:pl-16 will-change-transform"
-        >
-          {marqueeItems.map((client, index) => {
-            const hasRealLogo = client.logoUrl && !client.logoUrl.includes("placeholder")
-            return (
-              <div key={`${client.id}-${index}`} className="flex items-center gap-8 md:gap-16">
-                
-                {/* Prefix Text */}
-                <span className="text-white/90 font-sora font-bold uppercase tracking-[0.2em] text-base md:text-2xl whitespace-nowrap">
-                  Trusted By
+      {/* ── CSS KEYFRAMES FOR ROCK-SOLID INFINITE MARQUEE ── */}
+      <style>{`
+        @keyframes revoMarqueeTrackLeft {
+          0% { transform: translate3d(0, 0, 0); }
+          100% { transform: translate3d(-50%, 0, 0); }
+        }
+        @keyframes revoMarqueeTrackRight {
+          0% { transform: translate3d(-50%, 0, 0); }
+          100% { transform: translate3d(0, 0, 0); }
+        }
+        .revo-marquee-left {
+          display: flex;
+          width: max-content;
+          animation: revoMarqueeTrackLeft 32s linear infinite;
+          will-change: transform;
+        }
+        .revo-marquee-right {
+          display: flex;
+          width: max-content;
+          animation: revoMarqueeTrackRight 35s linear infinite;
+          will-change: transform;
+        }
+        .revo-marquee-left:hover,
+        .revo-marquee-right:hover {
+          animation-play-state: paused;
+        }
+      `}</style>
+
+      {/* ── MARQUEE CONTAINER (DUAL RIBBON WITH EDGE FADES) ── */}
+      <div className="relative w-full overflow-hidden flex flex-col gap-5 md:gap-6" dir="ltr">
+        
+        {/* Left & Right Edge Fades */}
+        <div className="absolute top-0 bottom-0 left-0 w-20 md:w-48 bg-gradient-to-r from-[#050505] via-[#050505]/90 to-transparent z-20 pointer-events-none" />
+        <div className="absolute top-0 bottom-0 right-0 w-20 md:w-48 bg-gradient-to-l from-[#050505] via-[#050505]/90 to-transparent z-20 pointer-events-none" />
+
+        {/* ── TRACK 1: SIGNATURE CRIMSON RIBBON (Left Scrolling) ── */}
+        <div className="relative w-full py-4 md:py-5 bg-[#C3143D] border-y border-white/20 shadow-[0_10px_40px_rgba(195,20,61,0.35)] flex items-center overflow-hidden transform -rotate-1 md:-rotate-1 will-change-transform" dir="ltr">
+          <div className="revo-marquee-left items-center gap-8 md:gap-14 select-none">
+            {trackOneItems.map((name, index) => (
+              <div key={`t1-${name}-${index}`} className="flex items-center gap-8 md:gap-14 shrink-0">
+                <span className="text-white font-sora font-black uppercase tracking-[0.18em] text-base sm:text-xl md:text-2xl whitespace-nowrap hover:scale-105 transition-transform duration-300 drop-shadow-md">
+                  {name}
                 </span>
-                
-                {/* Logo or Typographic Fallback */}
-                <div className="flex items-center justify-center">
-                  {hasRealLogo ? (
-                    <div className="relative h-10 md:h-16 w-32 md:w-48 transition-transform duration-500 hover:scale-110 hover:brightness-110 cursor-pointer">
-                      <Image
-                        src={client.logoUrl}
-                        alt={client.name}
-                        fill
-                        sizes="(max-width: 768px) 128px, 192px"
-                        className="object-contain brightness-0 invert opacity-100"
-                      />
-                    </div>
-                  ) : (
-                    <span className="text-white font-serif italic text-3xl md:text-5xl whitespace-nowrap px-4 transition-transform duration-500 hover:scale-105 cursor-pointer">
-                      {client.name}
-                    </span>
-                  )}
-                </div>
-                
-                {/* Separator */}
-                <span className="text-white/50 text-xl md:text-3xl">✦</span>
+                <span className="text-white/60 text-lg md:text-2xl font-bold">✦</span>
               </div>
-            )
-          })}
-        </motion.div>
+            ))}
+          </div>
+        </div>
+
+        {/* ── TRACK 2: DARK LUXURY FROSTED RIBBON (Right Scrolling) ── */}
+        <div className="relative w-full py-4 md:py-5 bg-white/[0.03] backdrop-blur-xl border-y border-white/10 flex items-center overflow-hidden transform rotate-1 md:rotate-1 will-change-transform" dir="ltr">
+          <div className="revo-marquee-right items-center gap-8 md:gap-14 select-none">
+            {trackTwoItems.map((name, index) => (
+              <div key={`t2-${name}-${index}`} className="flex items-center gap-8 md:gap-14 shrink-0">
+                <span className="text-white/90 font-serif italic text-lg sm:text-2xl md:text-3xl whitespace-nowrap hover:text-white hover:scale-105 transition-all duration-300">
+                  {name}
+                </span>
+                <span className="text-[#C3143D] text-lg md:text-2xl font-bold drop-shadow-[0_0_8px_rgba(195,20,61,0.8)]">✦</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
       </div>
 
-      {/* Fade Gradients for the whole section edges */}
-      <div className="absolute top-0 left-0 w-full h-24 bg-gradient-to-b from-[#050505] to-transparent pointer-events-none z-30" />
-      <div className="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-[#050505] to-transparent pointer-events-none z-30" />
+      {/* ── BOTTOM TRUST STATEMENT (FROM CLIENT ASSET) ── */}
+      <div className="relative z-10 mt-12 md:mt-16 px-6 max-w-4xl mx-auto text-center">
+        <div className="w-16 h-[1px] bg-gradient-to-r from-transparent via-[#C3143D] to-transparent mx-auto mb-4" />
+        <p className="text-[11px] sm:text-xs md:text-sm font-light uppercase tracking-[0.25em] text-white/50 leading-relaxed drop-shadow">
+          {isArabic
+            ? "شراكتنا مع هذه المؤسسات والكيانات مبنية دائماً على ثقة راسخة"
+            : "Our collaboration with these institutions has always been built on strong trust"}
+        </p>
+      </div>
 
     </section>
   )

@@ -4,25 +4,32 @@ import "./globals.css"
 import ClientLayout from "./ClientLayout"
 
 export const metadata: Metadata = {
-  title: "REVO - Creative Digital Agency",
+  title: "REVO - Creative Media Production",
   description:
-    "Transform your brand with cutting-edge digital solutions. We create stunning websites, powerful applications, and memorable experiences.",
-  keywords: "digital agency, web design, mobile apps, branding, digital marketing",
-  authors: [{ name: "REVO Agency" }],
-  creator: "REVO Agency",
-  publisher: "REVO Agency",
+    "We create bold visual experiences, stadium concert productions, and cinematic commercial films that captivate audiences.",
+  keywords: "media production, filmmaking, concert coverage, commercial films, visual storytelling, REVO",
+  authors: [{ name: "REVO Media Production" }],
+  creator: "REVO Media Production",
+  publisher: "REVO Media Production",
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/images/revo-icon.png", type: "image/png" },
+    ],
+    apple: "/images/revo-icon.png",
+  },
   openGraph: {
     type: "website",
     locale: "en_US",
     url: "https://revoagency.com",
-    title: "REVO - Creative Digital Agency",
-    description: "Transform your brand with cutting-edge digital solutions.",
-    siteName: "REVO Agency",
+    title: "REVO - Creative Media Production",
+    description: "Bold visual experiences, concert productions, and cinematic commercial films.",
+    siteName: "REVO Media Production",
   },
   twitter: {
     card: "summary_large_image",
-    title: "REVO - Creative Digital Agency",
-    description: "Transform your brand with cutting-edge digital solutions.",
+    title: "REVO - Creative Media Production",
+    description: "Bold visual experiences, concert productions, and cinematic commercial films.",
     creator: "@revoagency",
   },
   robots: {
@@ -36,7 +43,6 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
-    generator: 'v0.app'
 }
 
 export default function RootLayout({
@@ -45,13 +51,13 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" suppressHydrationWarning className="overflow-x-hidden">
+    <html lang="en" suppressHydrationWarning className="overflow-x-hidden selection:bg-[#C3143D] selection:text-white">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Sora:wght@100..800&display=swap" rel="stylesheet" />
       </head>
-      <body className="font-inter antialiased overflow-x-hidden">
+      <body className="font-inter antialiased overflow-x-hidden selection:bg-[#C3143D] selection:text-white">
         <ClientLayout>{children}</ClientLayout>
       </body>
     </html>

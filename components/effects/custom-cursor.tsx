@@ -5,101 +5,125 @@ import { motion, useMotionValue, useSpring } from "framer-motion"
 
 export function CustomCursor() {
   const [isHovered, setIsHovered] = useState(false)
-  const [cursorText, setCursorText] = useState("")
+  const [isClicking, setIsClicking] = useState(false)
   const [isVisible, setIsVisible] = useState(false)
+  const [isText, setIsText] = useState(false)
 
   const mouseX = useMotionValue(-100)
   const mouseY = useMotionValue(-100)
 
-  const springConfig = { damping: 25, stiffness: 300, mass: 0.5 }
-  const cursorX = useSpring(mouseX, springConfig)
-  const cursorY = useSpring(mouseY, springConfig)
+  // Ultra-responsive, smooth physics with zero trailing clutter
+  const springConfig = { damping: 30, stiffness: 500, mass: 0.15 }
+  const smoothX = useSpring(mouseX, springConfig)
+  const smoothY = useSpring(mouseY, springConfig)
 
   useEffect(() => {
-    // Only enable on desktop/devices with a precise pointer
+    // Only enable on desktop with fine pointer
     if (!window.matchMedia("(pointer: fine)").matches) return
-    
-    setIsVisible(true)
-    
-    // Hide default cursor on interactive elements as well to ensure it stays hidden
+
+    // Hide native cursor site-wide, preserve text cursor in inputs
     const style = document.createElement("style")
-    style.innerHTML = `* { cursor: none !important; }`
+    style.innerHTML = `
+      * { cursor: none !important; }
+      input, textarea, [contenteditable="true"] { cursor: text !important; }
+    `
     document.head.appendChild(style)
 
-    const updateMousePosition = (e: MouseEvent) => {
+    const handleMouseMove = (e: MouseEvent) => {
       mouseX.set(e.clientX)
       mouseY.set(e.clientY)
+      if (!isVisible) setIsVisible(true)
     }
+
+    const handleMouseDown = () => setIsClicking(true)
+    const handleMouseUp = () => setIsClicking(false)
+    const handleMouseLeave = () => setIsVisible(false)
+    const handleMouseEnter = () => setIsVisible(true)
 
     const handleMouseOver = (e: MouseEvent) => {
       const target = e.target as HTMLElement
-      
-      // Look for data-cursor attribute
-      const cursorTarget = target.closest('[data-cursor]') as HTMLElement
-      
-      if (cursorTarget) {
-        setIsHovered(true)
-        setCursorText(cursorTarget.getAttribute('data-cursor') || "")
-      } else if (target.closest('button') || target.closest('a')) {
-        setIsHovered(true)
-        setCursorText("")
-      } else {
+      if (!target) return
+
+      const isInput = target.closest("input") || target.closest("textarea") || target.closest("select")
+      const isClickable = target.closest("button") || 
+                          target.closest("a") || 
+                          target.closest("[role='button']") || 
+                          target.closest("[data-cursor]") ||
+                          target.closest(".group") ||
+                          target.closest(".cursor-pointer")
+
+      if (isInput) {
+        setIsText(true)
         setIsHovered(false)
-        setCursorText("")
+      } else if (isClickable) {
+        setIsText(false)
+        setIsHovered(true)
+      } else {
+        setIsText(false)
+        setIsHovered(false)
       }
     }
 
-    window.addEventListener("mousemove", updateMousePosition, { passive: true })
+    window.addEventListener("mousemove", handleMouseMove, { passive: true })
+    window.addEventListener("mousedown", handleMouseDown)
+    window.addEventListener("mouseup", handleMouseUp)
     window.addEventListener("mouseover", handleMouseOver, { passive: true })
+    document.addEventListener("mouseleave", handleMouseLeave)
+    document.addEventListener("mouseenter", handleMouseEnter)
 
     return () => {
-      window.removeEventListener("mousemove", updateMousePosition)
+      window.removeEventListener("mousemove", handleMouseMove)
+      window.removeEventListener("mousedown", handleMouseDown)
+      window.removeEventListener("mouseup", handleMouseUp)
       window.removeEventListener("mouseover", handleMouseOver)
-      document.head.removeChild(style)
+      document.removeEventListener("mouseleave", handleMouseLeave)
+      document.removeEventListener("mouseenter", handleMouseEnter)
+      if (document.head.contains(style)) {
+        document.head.removeChild(style)
+      }
     }
-  }, [mouseX, mouseY])
+  }, [mouseX, mouseY, isVisible])
 
-  if (!isVisible) return null
+  // Don't render on text fields or off-screen
+  if (!isVisible || isText) return null
 
   return (
-    <>
-      {/* ── SMALL DOT ── */}
-      <motion.div
-        className="fixed top-0 left-0 w-2 h-2 bg-[#C3143D] rounded-full pointer-events-none z-[9999]"
-        style={{
-          x: mouseX,
-          y: mouseY,
-          translateX: "-50%",
-          translateY: "-50%",
-          opacity: isHovered ? 0 : 1
-        }}
-      />
-      
-      {/* ── TRAILING RING / TEXT BUBBLE ── */}
-      <motion.div
-        className="fixed top-0 left-0 flex items-center justify-center rounded-full pointer-events-none z-[9998] overflow-hidden"
-        style={{
-          x: cursorX,
-          y: cursorY,
-          translateX: "-50%",
-          translateY: "-50%",
-        }}
-        animate={{
-          width: isHovered ? (cursorText ? 80 : 50) : 32,
-          height: isHovered ? (cursorText ? 80 : 50) : 32,
-          backgroundColor: isHovered ? "#C3143D" : "transparent",
-          border: isHovered ? "0px solid transparent" : "1.5px solid rgba(195, 20, 61, 0.5)",
-        }}
-        transition={{ type: "spring", stiffness: 300, damping: 20 }}
-      >
-        <motion.span 
-          initial={{ opacity: 0, scale: 0.5 }}
-          animate={{ opacity: isHovered && cursorText ? 1 : 0, scale: isHovered && cursorText ? 1 : 0.5 }}
-          className="text-white font-sora text-[10px] font-bold tracking-[0.2em] uppercase"
-        >
-          {cursorText}
-        </motion.span>
-      </motion.div>
-    </>
+    <motion.div
+      className="fixed top-0 left-0 pointer-events-none z-[9999] flex items-center justify-center rounded-full"
+      style={{
+        x: smoothX,
+        y: smoothY,
+        translateX: "-50%",
+        translateY: "-50%",
+      }}
+      animate={{
+        width: isHovered ? 44 : 10,
+        height: isHovered ? 44 : 10,
+        scale: isClicking ? 0.75 : 1,
+        backgroundColor: isHovered ? "rgba(195, 20, 61, 0.2)" : "#C3143D",
+        border: isHovered ? "1.5px solid #C3143D" : "0px solid transparent",
+        boxShadow: isHovered 
+          ? "0 0 24px rgba(195, 20, 61, 0.5), inset 0 0 10px rgba(195, 20, 61, 0.25)" 
+          : "0 0 12px rgba(195, 20, 61, 0.8), 0 0 4px rgba(255, 255, 255, 0.6)",
+        backdropFilter: isHovered ? "blur(3px)" : "none",
+      }}
+      transition={{
+        type: "spring",
+        stiffness: 450,
+        damping: 28,
+        mass: 0.2
+      }}
+    >
+      {/* Precision center pinpoint that appears smoothly when hovering */}
+      {isHovered && (
+        <motion.div
+          initial={{ scale: 0, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ scale: 0, opacity: 0 }}
+          transition={{ duration: 0.15 }}
+          className="w-1.5 h-1.5 rounded-full bg-white shadow-[0_0_6px_#C3143D]"
+        />
+      )}
+    </motion.div>
   )
 }

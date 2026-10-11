@@ -33,6 +33,17 @@ body {
   color: var(--foreground);
 }
 
+/* Global text selection color matching REVO signature crimson */
+::selection {
+  background-color: #C3143D !important;
+  color: #ffffff !important;
+}
+
+::-moz-selection {
+  background-color: #C3143D !important;
+  color: #ffffff !important;
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 8px;

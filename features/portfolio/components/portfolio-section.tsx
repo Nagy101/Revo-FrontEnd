@@ -4,12 +4,13 @@ import { useRef } from "react"
 import { motion, useScroll, useTransform } from "framer-motion"
 import Image from "next/image"
 import { Play, ArrowUpRight } from "lucide-react"
-import { usePublicPortfolios } from "../hooks/usePortfolios"
-
 import Link from "next/link"
+import { usePublicPortfolios } from "../hooks/usePortfolios"
+import { useLanguage } from "@/lib/i18n/language-context"
 
 function ProjectCard({ project, index }: { project: any, index: number }) {
   const cardRef = useRef<HTMLDivElement>(null)
+  const { isArabic } = useLanguage()
   
   const { scrollYProgress } = useScroll({
     target: cardRef,
@@ -46,6 +47,18 @@ function ProjectCard({ project, index }: { project: any, index: number }) {
 
   const layout = layouts[index] || layouts[0]
 
+  const projectTitle = (
+    isArabic
+      ? project.captionAr || project.captionEn || "مشروع سينمائي"
+      : project.captionEn || project.captionAr || "Cinematic Project"
+  ).trim()
+
+  const projectCategory = (
+    isArabic
+      ? project.categoryNameAr || project.categoryNameEn || "عمل مميز"
+      : project.categoryNameEn || project.categoryNameAr || "Featured Work"
+  ).trim()
+
   return (
     <motion.div 
       ref={cardRef}
@@ -63,8 +76,8 @@ function ProjectCard({ project, index }: { project: any, index: number }) {
         >
           <motion.div style={{ y, height: "120%" }} className="absolute inset-0 w-full top-[-10%]">
             <Image
-              src={project.thumbnailUrl || "/images/placeholder.jpg"}
-              alt={project.captionEn || "Project"}
+              src={project.thumbnailUrl || "/images/revo-hero-bg.jpg"}
+              alt={projectTitle}
               fill
               sizes="(max-width: 768px) 100vw, 60vw"
               className="object-cover transition-transform duration-[1.5s] ease-[0.16,1,0.3,1] group-hover:scale-105"
@@ -91,21 +104,21 @@ function ProjectCard({ project, index }: { project: any, index: number }) {
           </span>
           <div className="w-8 h-px bg-white/20" />
           <span className="text-white/50 text-[10px] md:text-xs font-medium uppercase tracking-[0.2em]">
-            {project.categoryNameEn}
+            {projectCategory}
           </span>
         </div>
         
         <h3 className="text-2xl md:text-4xl font-sora font-semibold uppercase text-white/90 mb-8 leading-tight tracking-wide">
-          {project.captionEn}
+          {projectTitle}
         </h3>
 
         <Link href={`/portfolio/${project.id}`}>
-          <button className="group flex items-center gap-4 w-max">
+          <button className="group flex items-center gap-4 w-max cursor-pointer">
             <span className="text-white/80 font-medium uppercase tracking-[0.2em] text-[10px] md:text-xs transition-colors duration-500 group-hover:text-white">
-              Explore Project
+              {isArabic ? "استكشف المشروع" : "Explore Project"}
             </span>
             <div className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center group-hover:bg-white group-hover:border-white transition-all duration-500">
-              <ArrowUpRight className="text-white/50 w-4 h-4 group-hover:rotate-45 group-hover:text-black transition-all duration-500" />
+              <ArrowUpRight className="text-white/50 w-4 h-4 group-hover:rotate-45 rtl:group-hover:-rotate-45 group-hover:text-black transition-all duration-500" />
             </div>
           </button>
         </Link>
@@ -114,21 +127,52 @@ function ProjectCard({ project, index }: { project: any, index: number }) {
   )
 }
 
+const DEFAULT_FEATURED_PROJECTS = [
+  {
+    id: "cairokee-empire",
+    captionEn: "Cairokee Empire Festival",
+    captionAr: "مهرجان إمبراطورية كايروكي",
+    categoryNameEn: "Cinematic Event Coverage",
+    categoryNameAr: "تغطية سينمائية للفعاليات",
+    thumbnailUrl: "/images/revo-hero-bg.jpg",
+    thumbnailType: 2,
+  },
+  {
+    id: "acoustic-sessions",
+    captionEn: "Acoustic Sunset Sessions",
+    captionAr: "جلسات غروب الشمس الأكوستيك",
+    categoryNameEn: "Live Music & Visual Stories",
+    categoryNameAr: "موسيقى لايف وقصص بصرية",
+    thumbnailUrl: "/images/revo-band.jpg",
+    thumbnailType: 1,
+  },
+  {
+    id: "arena-live",
+    captionEn: "Reda Elbahrawy — Arena Live",
+    captionAr: "رضا البحراوي — أرينا لايف",
+    categoryNameEn: "Mega Concert Production",
+    categoryNameAr: "إنتاج أضخم الحفلات",
+    thumbnailUrl: "/images/revo-singer.jpg",
+    thumbnailType: 2,
+  },
+]
+
 export function PortfolioSection() {
   const { data: portfolios = [], isLoading } = usePublicPortfolios()
+  const { isArabic } = useLanguage()
 
-  if (isLoading) {
-    return (
-      <section className="py-24 bg-[#050505] min-h-[600px] flex items-center justify-center">
-        <div className="w-10 h-10 border-2 border-[#C3143D]/30 border-t-[#C3143D] rounded-full animate-spin" />
-      </section>
-    )
-  }
-
-  if (portfolios.length === 0) return null
-
-  // EXACTLY 3 featured portfolios as requested
-  const featuredPortfolios = portfolios.slice(0, 3)
+  // Use API items if available, otherwise use high-production curated fallback
+  const featuredPortfolios = (portfolios && portfolios.length > 0)
+    ? portfolios.slice(0, 3).map((p: any) => ({
+        id: p.id,
+        captionEn: p.captionEn || p.titleEn || "Cinematic Story",
+        captionAr: p.captionAr || p.titleAr,
+        categoryNameEn: p.categoryNameEn || p.category?.nameEn || "Featured Work",
+        categoryNameAr: p.categoryNameAr || p.category?.nameAr || "أعمال مميزة",
+        thumbnailUrl: p.thumbnailUrl || p.mediaUrl || "/images/revo-hero-bg.jpg",
+        thumbnailType: p.thumbnailType ?? (p.mediaType === "video" ? 2 : 1),
+      }))
+    : DEFAULT_FEATURED_PROJECTS
 
   return (
     <section className="py-20 md:py-32 bg-[#050505] relative overflow-hidden">
@@ -153,7 +197,7 @@ export function PortfolioSection() {
             >
               <div className="w-8 h-px bg-[#C3143D]" />
               <span className="text-[#C3143D] text-xs font-bold uppercase tracking-[0.3em]">
-                Portfolio
+                {isArabic ? "معرض الأعمال" : "Portfolio"}
               </span>
             </motion.div>
             
@@ -168,15 +212,15 @@ export function PortfolioSection() {
                   variants={{ hidden: { y: "100%" }, show: { y: 0, transition: { duration: 1, ease: [0.16, 1, 0.3, 1] } } }}
                   className="text-3xl md:text-5xl lg:text-[4rem] font-sora font-light uppercase text-white/90 leading-none tracking-widest"
                 >
-                  Selected
+                  {isArabic ? "مختارات من" : "Selected"}
                 </motion.h2>
               </div>
               <div className="overflow-hidden mt-1 md:mt-2">
                 <motion.h2 
                   variants={{ hidden: { y: "100%" }, show: { y: 0, transition: { duration: 1, ease: [0.16, 1, 0.3, 1] } } }}
-                  className="text-3xl md:text-5xl lg:text-[5rem] font-serif italic text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-500 leading-none pr-4"
+                  className="text-3xl md:text-5xl lg:text-[5rem] font-serif italic text-transparent bg-clip-text bg-gradient-to-r from-white via-red-200 to-[#C3143D] leading-none pr-4"
                 >
-                  Masterpieces.
+                  {isArabic ? "روائع أعمالنا." : "Masterpieces."}
                 </motion.h2>
               </div>
             </motion.div>
@@ -190,7 +234,9 @@ export function PortfolioSection() {
             className="flex items-center gap-6"
           >
             <p className="text-white/40 max-w-xs text-xs md:text-sm font-light leading-relaxed hidden lg:block">
-              A curated selection of our finest work, blending visionary strategy with flawless execution.
+              {isArabic
+                ? "مختارات منتقاة من أبرز أعمالنا، تجمع بين الرؤية الاستراتيجية والتنفيذ السينمائي المتقن."
+                : "A curated selection of our finest work, blending visionary strategy with flawless execution."}
             </p>
           </motion.div>
         </div>
@@ -211,10 +257,11 @@ export function PortfolioSection() {
           className="mt-20 flex justify-center w-full"
         >
           <Link href="/portfolio">
-            <button className="group relative px-10 py-5 bg-transparent border border-white/10 rounded-full overflow-hidden hover:border-white/30 transition-colors duration-500">
+            <button className="group relative px-10 py-5 bg-transparent border border-white/10 rounded-full overflow-hidden hover:border-white/30 transition-colors duration-500 cursor-pointer">
               <div className="absolute inset-0 w-full h-full bg-white/5 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-[0.16,1,0.3,1]" />
               <span className="relative text-white/80 group-hover:text-white font-medium uppercase tracking-[0.3em] text-xs transition-colors duration-500 flex items-center gap-4">
-                View All Projects <ArrowUpRight size={14} />
+                {isArabic ? "عرض جميع المشاريع" : "View All Projects"}{" "}
+                <ArrowUpRight size={14} className="rtl:rotate-180" />
               </span>
             </button>
           </Link>

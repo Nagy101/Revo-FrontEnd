@@ -65,9 +65,13 @@ export function AnimatedLoader() {
           />
         </div>
 
-        {/* REVO Title */}
-        <div className="loader-title text-6xl font-sora font-bold gradient-text mb-8">
-          REVO
+        {/* REVO Logo */}
+        <div className="loader-title mb-8 flex justify-center">
+          <img
+            src="/images/revo-logo.png"
+            alt="REVO Media Production"
+            className="h-16 sm:h-20 w-auto object-contain drop-shadow-[0_10px_35px_rgba(195,20,61,0.4)]"
+          />
         </div>
 
         {/* Progress Bar */}
