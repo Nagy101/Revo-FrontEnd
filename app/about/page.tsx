@@ -28,6 +28,7 @@ import {
   Crown
 } from "lucide-react"
 import Link from "next/link"
+import Image from "next/image"
 import { useLanguage } from "@/lib/i18n/language-context"
 
 const EASE = [0.16, 1, 0.3, 1] as const
@@ -149,10 +150,13 @@ export default function AboutPage() {
           style={{ y: heroY, scale: heroScale }}
           className="absolute inset-0 z-0 origin-top will-change-transform"
         >
-          <img 
+          <Image 
             src="/images/revo-hero-bg.jpg" 
             alt="About REVO Background" 
-            className="w-full h-full object-cover object-bottom opacity-85"
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover object-bottom opacity-85"
           />
           <div className="absolute inset-0 bg-black/35" />
           <div className="absolute inset-0 bg-gradient-to-b from-[#050505]/80 via-transparent to-[#050505]/60" />
@@ -275,7 +279,7 @@ export default function AboutPage() {
               href="/portfolio"
               className="group relative px-6 py-2.5 md:px-7 md:py-3 bg-[#C3143D] text-white overflow-hidden rounded-full font-semibold tracking-widest uppercase text-xs md:text-sm shadow-[0_0_25px_rgba(195,20,61,0.4)] hover:shadow-[0_0_45px_rgba(195,20,61,0.6)] hover:scale-105 transition-all duration-300 inline-flex items-center justify-center cursor-pointer"
             >
-              <div className="absolute inset-0 w-full h-full bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-[0.16,1,0.3,1]" />
+              <div className="absolute inset-0 w-full h-full bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-cinematic" />
               <span className="relative flex items-center gap-2">
                 {isArabic ? "استكشف أعمالنا" : "Explore Our Work"} <Play size={12} className="fill-current rtl:rotate-180" />
               </span>
@@ -303,7 +307,7 @@ export default function AboutPage() {
                 className="group relative w-full aspect-[2/3] rounded-2xl p-1 bg-black/50 backdrop-blur-xl border border-white/15 shadow-[0_12px_30px_rgba(0,0,0,0.6),0_0_20px_rgba(195,20,61,0.2)] hover:border-[#C3143D]/70 hover:shadow-[0_20px_50px_rgba(195,20,61,0.5)] transition-all duration-300 cursor-pointer -rotate-1 hover:rotate-0"
               >
                 <div className="relative w-full h-full rounded-xl overflow-hidden">
-                  <img src="/images/revo-about-card1.jpg" alt="Stage Energy" className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-500" />
+                  <Image src="/images/revo-about-card1.jpg" alt="Stage Energy" fill sizes="(max-width: 640px) 145px, 160px" className="object-cover group-hover:scale-108 transition-transform duration-500" />
                   {/* Soft bottom shadow only - leaves performers 100% clear */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent pointer-events-none" />
                   
@@ -327,7 +331,7 @@ export default function AboutPage() {
                 className="group relative w-full aspect-[2/3] rounded-2xl p-1 bg-black/50 backdrop-blur-xl border border-white/15 shadow-[0_12px_30px_rgba(0,0,0,0.6),0_0_20px_rgba(195,20,61,0.2)] hover:border-[#C3143D]/70 hover:shadow-[0_20px_50px_rgba(195,20,61,0.5)] transition-all duration-300 cursor-pointer rotate-1 hover:rotate-0"
               >
                 <div className="relative w-full h-full rounded-xl overflow-hidden">
-                  <img src="/images/revo-about-card2.jpg" alt="Raw Performance" className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-500" />
+                  <Image src="/images/revo-about-card2.jpg" alt="Raw Performance" fill sizes="(max-width: 640px) 145px, 160px" className="object-cover group-hover:scale-108 transition-transform duration-500" />
                   {/* Soft bottom shadow only - leaves performers 100% clear */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent pointer-events-none" />
                   
@@ -596,10 +600,12 @@ export default function AboutPage() {
               >
                 {/* Background Image Container */}
                 <div className="absolute inset-0 z-0 overflow-hidden">
-                  <img 
+                  <Image 
                     src={member.image} 
                     alt={isArabic ? member.nameAr : member.nameEn} 
-                    className="w-full h-full object-cover object-center group-hover:scale-106 group-hover:contrast-105 transition-all duration-700 ease-out"
+                    fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                    className="object-cover object-center group-hover:scale-106 group-hover:contrast-105 transition-all duration-700 ease-out"
                   />
                   {/* Subtle Gradient Overlays */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-black/15" />

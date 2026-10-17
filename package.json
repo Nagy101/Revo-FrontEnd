@@ -1,5 +1,5 @@
 {
-  "name": "my-v0-project",
+  "name": "revo-media-production",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -27,9 +27,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "framer-motion": "^13.4.0",
-    "geist": "^1.3.1",
     "gsap": "^3.15.0",
-    "lottie-react": "^3.1.2",
     "lucide-react": "^0.454.0",
     "next": "15.2.4",
     "next-themes": "^0.4.6",
@@ -43,6 +41,8 @@
     "@types/node": "^22.20.4",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^15.2.4",
     "postcss": "^8.5.28",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.9.3"

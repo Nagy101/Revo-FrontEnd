@@ -13,6 +13,16 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void })
   useEffect(() => {
     document.body.style.overflow = 'hidden';
 
+    if (videoRef.current) {
+      videoRef.current.play().catch(() => {
+        if (videoRef.current) {
+          videoRef.current.muted = true;
+          setIsMuted(true);
+          videoRef.current.play().catch(() => {});
+        }
+      });
+    }
+
     // Progress bar animation: 0% to 100% over 3.8s
     const startTime = Date.now();
     const duration = 3800;
@@ -34,17 +44,28 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void })
     };
   }, []);
 
-  const handleExit = () => {
+  const handleExit = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
     setIsVisible(false);
     document.body.style.overflow = 'auto';
     setTimeout(onComplete, 700);
   };
 
-  const toggleSound = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const toggleSound = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
     if (videoRef.current) {
-      videoRef.current.muted = !isMuted;
-      setIsMuted(!isMuted);
+      const nextMuted = !videoRef.current.muted;
+      videoRef.current.muted = nextMuted;
+      videoRef.current.volume = 1;
+      setIsMuted(nextMuted);
+    }
+  };
+
+  const handleContainerClick = () => {
+    if (videoRef.current && isMuted) {
+      videoRef.current.muted = false;
+      videoRef.current.volume = 1;
+      setIsMuted(false);
     }
   };
 
@@ -56,7 +77,8 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void })
           initial={{ opacity: 1 }}
           exit={{ opacity: 0, scale: 1.06, filter: 'blur(16px)' }}
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          className="fixed inset-0 z-[9999] flex flex-col justify-between bg-[#050505] overflow-hidden select-none"
+          onClick={handleContainerClick}
+          className="fixed inset-0 z-[9999] flex flex-col justify-between bg-[#050505] overflow-hidden select-none cursor-pointer"
         >
           {/* ── CINEMATIC FULL-SCREEN VIDEO BACKGROUND ── */}
           <div className="absolute inset-0 z-0">
@@ -70,8 +92,7 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void })
               poster="/images/revo-hero-bg.jpg"
               className="w-full h-full object-cover scale-105"
             >
-              <source src="/videos/revo-disco-misr.mov" type="video/mp4" />
-              <source src="/videos/revo-disco-misr.mov" type="video/quicktime" />
+              <source src="/videos/revo-disco-misr.mp4" type="video/mp4" />
             </video>
 
             {/* Cinematic Multilayer Vignette & Gradients */}
@@ -110,17 +131,21 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void })
               transition={{ duration: 0.8, delay: 0.3 }}
               onClick={toggleSound}
               type="button"
-              className="group flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/60 hover:bg-black/90 border border-white/10 hover:border-white/20 text-xs text-white/80 hover:text-white backdrop-blur-md transition-all cursor-pointer"
+              className={`group flex items-center gap-2 px-4 py-2 rounded-full border backdrop-blur-md transition-all cursor-pointer shadow-lg ${
+                isMuted 
+                  ? "bg-[#C3143D]/25 hover:bg-[#C3143D]/40 border-[#C3143D]/60 text-white animate-pulse" 
+                  : "bg-emerald-500/20 hover:bg-emerald-500/30 border-emerald-500/50 text-emerald-200"
+              }`}
             >
               {isMuted ? (
                 <>
-                  <VolumeX className="w-3.5 h-3.5 text-[#C3143D]" />
-                  <span className="text-[11px] font-medium">Unmute Sound</span>
+                  <VolumeX className="w-4 h-4 text-[#C3143D]" />
+                  <span className="text-[11px] font-semibold tracking-wide">تشغيل الصوت • Unmute</span>
                 </>
               ) : (
                 <>
-                  <Volume2 className="w-3.5 h-3.5 text-emerald-400" />
-                  <span className="text-[11px] font-medium text-emerald-300">Sound Playing</span>
+                  <Volume2 className="w-4 h-4 text-emerald-400" />
+                  <span className="text-[11px] font-semibold tracking-wide text-emerald-300">Sound Playing</span>
                 </>
               )}
             </motion.button>
@@ -173,6 +198,19 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void })
             >
               Concerts • Mega Stadium Scale • Commercial Cinema
             </motion.p>
+
+            {/* Sound Prompt Hint */}
+            {isMuted && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.8 }}
+                className="mt-4 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[11px] text-white/70 tracking-wider backdrop-blur-md"
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-[#C3143D] animate-ping" />
+                <span>انقر في أي مكان لتشغيل الصوت • Tap anywhere for sound</span>
+              </motion.div>
+            )}
           </div>
 
           {/* ── BOTTOM BAR: PROGRESS & SKIP BUTTON ── */}

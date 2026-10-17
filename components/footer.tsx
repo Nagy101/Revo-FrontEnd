@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { ArrowUpRight } from "lucide-react"
 import { useLanguage } from "@/lib/i18n/language-context"
 
@@ -11,13 +12,13 @@ const AnimatedLink = ({ text, href, external = false }: { text: string, href: st
       {text.split('').map((char, i) => (
         <span key={i} className="relative inline-block whitespace-pre">
           <span 
-            className="inline-block transition-transform duration-500 ease-[0.16,1,0.3,1] group-hover:-translate-y-full" 
+            className="inline-block transition-transform duration-500 ease-cinematic group-hover:-translate-y-full" 
             style={{ transitionDelay: `${i * 20}ms` }}
           >
             {char}
           </span>
           <span 
-            className="absolute left-0 top-0 inline-block translate-y-full transition-transform duration-500 ease-[0.16,1,0.3,1] group-hover:translate-y-0 text-white font-medium" 
+            className="absolute left-0 top-0 inline-block translate-y-full transition-transform duration-500 ease-cinematic group-hover:translate-y-0 text-white font-medium" 
             style={{ transitionDelay: `${i * 20}ms` }}
           >
             {char}
@@ -54,9 +55,7 @@ export function Footer() {
   ]
 
   const socials = [
-    { name: "Facebook", href: "https://facebook.com/revoagency" },
-    { name: "Instagram", href: "https://instagram.com/revoagency" },
-    { name: "LinkedIn", href: "https://linkedin.com/company/revoagency" },
+    { name: "Instagram", href: "https://www.instagram.com/revomedia.eg?obrf=N3cwbGZhdzJ6cWM0" },
   ]
 
   return (
@@ -68,23 +67,42 @@ export function Footer() {
           {/* ── LEFT: BRANDING & CONTACT ── */}
           <div className="flex flex-col max-w-sm">
             <Link href="/" className="inline-block mb-6 cursor-none group" data-cursor="Revo">
-              <img
+              <Image
                 src="/images/revo-logo.png"
                 alt="REVO Media Production"
+                width={130}
+                height={52}
                 className="h-12 sm:h-14 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
               />
             </Link>
-            <p className="text-white/40 text-sm font-light leading-relaxed mb-8">
+            <p className="text-white/40 text-sm font-light leading-relaxed mb-6">
               {isArabic
                 ? "وكالة إنتاج إعلامي وسينمائي تصنع تجارب بصرية مبهرة وتبني هويات استثنائية."
                 : "A creative digital agency engineering immersive experiences and building brand empires."}
             </p>
-            <a href="mailto:hello@revo.com" className="group inline-flex items-center gap-4 text-white/70 hover:text-white transition-colors text-lg font-light cursor-none w-fit" data-cursor="Email">
-              <span className="relative overflow-hidden">
-                <span className="inline-block transition-transform duration-500 group-hover:-translate-y-full">hello@revo.com</span>
-                <span className="absolute left-0 top-0 inline-block translate-y-full transition-transform duration-500 group-hover:translate-y-0 text-[#C3143D]">hello@revo.com</span>
-              </span>
-            </a>
+
+            <div className="flex flex-col gap-3">
+              {/* Email */}
+              <a href="mailto:revo.media.eg@gmail.com" className="group inline-flex items-center gap-3 text-white/70 hover:text-white transition-colors text-base font-light w-fit">
+                <span className="text-[#C3143D] text-sm">✉</span>
+                <span className="relative overflow-hidden">
+                  <span className="inline-block transition-transform duration-500 group-hover:-translate-y-full">revo.media.eg@gmail.com</span>
+                  <span className="absolute left-0 top-0 inline-block translate-y-full transition-transform duration-500 group-hover:translate-y-0 text-[#C3143D]">revo.media.eg@gmail.com</span>
+                </span>
+              </a>
+
+              {/* Phone */}
+              <a href="tel:+201064102972" className="group inline-flex items-center gap-3 text-white/70 hover:text-white transition-colors text-base font-light font-mono w-fit dir-ltr">
+                <span className="text-[#C3143D] text-sm">✆</span>
+                <span>+20 106 410 2972</span>
+              </a>
+
+              {/* Location */}
+              <div className="inline-flex items-center gap-3 text-white/50 text-sm font-light">
+                <span className="text-[#C3143D] text-sm">📍</span>
+                <span>{isArabic ? "نيو كايرو ١، القاهرة" : "New Cairo 1, Cairo"}</span>
+              </div>
+            </div>
           </div>
 
           {/* ── RIGHT: NAVIGATION ── */}
@@ -104,7 +122,7 @@ export function Footer() {
 
             <div className="flex flex-col gap-6">
               <span className="text-white/30 text-xs font-medium uppercase tracking-widest">
-                {isArabic ? "تواصل معنا" : "Socials"}
+                {isArabic ? "وسائل التواصل" : "Socials"}
               </span>
               <ul className="flex flex-col gap-4">
                 {socials.map((link) => (
@@ -121,13 +139,12 @@ export function Footer() {
         <div className="border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center gap-6">
           <span className="text-white/30 text-[10px] md:text-xs font-light uppercase tracking-widest">
             {isArabic
-              ? `© ${new Date().getFullYear()} وكالة ريفو. جميع الحقوق محفوظة.`
-              : `© ${new Date().getFullYear()} Revo Agency. All rights reserved.`}
+              ? `© ${new Date().getFullYear()} REVO للإنتاج الإعلامي. جميع الحقوق محفوظة.`
+              : `© ${new Date().getFullYear()} REVO Media Production. All rights reserved.`}
           </span>
-          <div className="flex items-center gap-6 text-white/30 text-[10px] md:text-xs font-light uppercase tracking-widest">
-            <AnimatedLink text={isArabic ? "سياسة الخصوصية" : "Privacy Policy"} href="/privacy" />
-            <AnimatedLink text={isArabic ? "شروط الخدمة" : "Terms of Service"} href="/terms" />
-          </div>
+          <span className="text-white/40 text-[10px] md:text-xs font-mono tracking-widest uppercase">
+            {isArabic ? "نيو كايرو ١، القاهرة، مصر" : "New Cairo 1, Cairo, Egypt"}
+          </span>
         </div>
 
       </div>

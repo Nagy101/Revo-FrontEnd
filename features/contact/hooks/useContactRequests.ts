@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { contactRequestsService } from "../services/contact.service";
 import { CreateContactRequestPayload } from "../types";
 import { useToast } from "@/hooks/use-toast";
-import { ApiError } from "@/lib/api/http-client";
+import { ApiError, extractApiErrorMessage } from "@/lib/api/http-client";
 
 export function useContactRequests(pageIndex: number = 1, pageSize: number = 10, isRead?: boolean) {
   return useQuery({
@@ -33,32 +33,16 @@ export function useCreateContactRequest() {
       });
     },
     onError: (error: any) => {
-      let errorMessage = "An unexpected error occurred while sending your request. Please try again.";
-      
-      // If it's our ApiError class, extract the exact message from the backend
-      if (error instanceof ApiError && (error as any).data) {
-        // Backend typically returns message or errors object for validation
-        if ((error as any).data.message) {
-          errorMessage = (error as any).data.message;
-        } else if ((error as any).data.errors) {
-          // If it's a validation error object, try to format it
-          const firstErrorKey = Object.keys((error as any).data.errors)[0];
-          if (firstErrorKey && Array.isArray((error as any).data.errors[firstErrorKey])) {
-            errorMessage = (error as any).data.errors[firstErrorKey][0];
-          } else if (typeof (error as any).data.errors === 'string') {
-            errorMessage = (error as any).data.errors;
-          }
-        }
-      } else if (error.message) {
-        errorMessage = error.message;
-      }
+      const errorMessage = error instanceof ApiError
+        ? error.message
+        : extractApiErrorMessage(error?.data || error?.response?.data, error?.status) || error?.message || "An unexpected error occurred while sending your request. Please try again.";
 
       toast({
         className: "bg-red-950/80 border border-red-500/30 text-white rounded-[1.5rem] backdrop-blur-md",
-        title: "Action Failed",
+        title: "Validation Error",
         description: errorMessage,
         variant: "destructive",
-        duration: 5000,
+        duration: 6000,
       });
     }
   });
@@ -80,9 +64,9 @@ export function useMarkContactRequestAsRead() {
       queryClient.invalidateQueries({ queryKey: ["contact-requests", variables] });
     },
     onError: (error: any) => {
-      const errorMessage = error instanceof ApiError && (error as any).data?.message 
-        ? (error as any).data.message 
-        : "Failed to mark as read.";
+      const errorMessage = error instanceof ApiError
+        ? error.message
+        : extractApiErrorMessage(error?.data || error?.response?.data, error?.status) || error?.message || "Failed to mark as read.";
       
       toast({
         title: "Error",

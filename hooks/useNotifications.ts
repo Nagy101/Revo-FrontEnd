@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import * as signalR from '@microsoft/signalr';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { notificationService } from '@/lib/notification.service';
 import { NotificationPayload } from '@/types/notification';
 
@@ -55,8 +55,6 @@ export function useNotifications() {
     if (connection) {
       connection.start()
         .then(() => {
-          console.log('SignalR Connected');
-          
           connection.on('ReciveNotification', (notification: NotificationPayload) => {
             setUnreadCount((prev) => prev + 1);
             setNotifications((prev) => [notification, ...prev]);

@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Search, Plus, Edit2, Trash2, Image as ImageIcon, CheckCircle2, AlertCircle, X, Loader2, ChevronLeft, ChevronRight } from "lucide-react"
+import { Search, Plus, Edit2, Trash2, Image as ImageIcon, CheckCircle2, AlertCircle, X, Loader2, ChevronLeft, ChevronRight, UploadCloud } from "lucide-react"
 import { useCategories, useCreateCategory, useUpdateCategory, useDeleteCategory } from "@/features/categories/hooks/useCategories"
 import type { Category } from "@/features/categories/types"
+import { extractApiErrorMessage } from "@/lib/api/http-client"
 
 // --- Custom Toast Component ---
 function CustomToast({ message, type, onClose }: { message: string, type: 'success' | 'error', onClose: () => void }) {
@@ -51,10 +52,45 @@ export function CategoriesManager() {
   const [modalState, setModalState] = useState<{ isOpen: boolean, type: 'create' | 'edit', category: Category | null }>({
     isOpen: false, type: 'create', category: null
   })
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
+  const [selectedFileName, setSelectedFileName] = useState<string | null>(null)
   
   const [toast, setToast] = useState<{ message: string, type: 'success' | 'error' } | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
+
+  // Sync image preview when modal opens or category changes
+  useEffect(() => {
+    if (modalState.isOpen) {
+      if (modalState.type === 'edit' && modalState.category?.imageUrl) {
+        setImagePreview(modalState.category.imageUrl)
+        setSelectedFileName(null)
+      } else {
+        setImagePreview(null)
+        setSelectedFileName(null)
+      }
+    } else {
+      setImagePreview(null)
+      setSelectedFileName(null)
+    }
+  }, [modalState.isOpen, modalState.type, modalState.category])
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      setSelectedFileName(file.name)
+      const objectUrl = URL.createObjectURL(file)
+      setImagePreview(objectUrl)
+    }
+  }
+
+  const handleRemoveImage = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    setImagePreview(null)
+    setSelectedFileName(null)
+    const fileInput = document.getElementById('imageUrl') as HTMLInputElement
+    if (fileInput) fileInput.value = ''
+  }
 
   const filteredCategories = categories.filter((c) => 
     c.nameEn.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -64,24 +100,7 @@ export function CategoriesManager() {
   const showToast = (message: string, type: 'success' | 'error' = 'success') => setToast({ message, type })
 
   const handleApiError = (error: any) => {
-    const errorData = error?.data
-    let msg = errorData?.title || errorData?.message || error.message || "Something went wrong"
-    
-    if (errorData?.errors) {
-      if (typeof errorData.errors === 'string') {
-        // If errors is directly a string message
-        msg = errorData.errors
-      } else if (Array.isArray(errorData.errors)) {
-        // FluentValidation custom array
-        if (errorData.errors.length > 0) {
-          msg = errorData.errors[0].message || errorData.errors[0].errorMessage || msg
-        }
-      } else if (typeof errorData.errors === 'object') {
-        // ASP.NET Core ValidationProblemDetails dictionary
-        msg = Object.values(errorData.errors).flat()[0] as string || msg
-      }
-    }
-
+    const msg = extractApiErrorMessage(error?.data || error?.response?.data, error?.status) || error?.message || "Something went wrong"
     showToast(msg, 'error')
   }
 
@@ -91,7 +110,7 @@ export function CategoriesManager() {
     const file = formData.get("imageUrl") as File
     const hasImage = file && file.size > 0
 
-    if (modalState.type === 'create' && !hasImage) {
+    if (!hasImage && !imagePreview) {
       showToast("Please select a cover image for the category", 'error');
       return;
     }
@@ -107,6 +126,8 @@ export function CategoriesManager() {
       createMutation.mutate(payload, {
         onSuccess: () => {
           setModalState({ isOpen: false, type: 'create', category: null })
+          setImagePreview(null)
+          setSelectedFileName(null)
           showToast("Category created successfully!")
         },
         onError: handleApiError
@@ -115,6 +136,8 @@ export function CategoriesManager() {
       updateMutation.mutate({ id: modalState.category!.id, payload }, {
         onSuccess: () => {
           setModalState({ isOpen: false, type: 'create', category: null })
+          setImagePreview(null)
+          setSelectedFileName(null)
           showToast("Category updated successfully!")
         },
         onError: handleApiError
@@ -481,7 +504,7 @@ export function CategoriesManager() {
                       />
                     </div>
 
-                    {/* Image Cover (Full Width Dropzone) */}
+                    {/* Image Cover (Full Width Dropzone with Real Preview) */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexDirection: 'column', gap: 4 }} className="md:flex-row md:items-end md:gap-0">
                         <label style={{ fontSize: '0.85rem', fontWeight: 500, color: 'rgba(255,255,255,0.8)' }}>Category Cover Image</label>
@@ -490,48 +513,120 @@ export function CategoriesManager() {
                       
                       <div style={{ position: 'relative', marginTop: 4 }}>
                         <input 
-                          name="imageUrl" id="imageUrl" type="file" accept="image/*"
+                          name="imageUrl" 
+                          id="imageUrl" 
+                          type="file" 
+                          accept="image/*"
+                          onChange={handleFileChange}
                           style={{
-                            position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', zIndex: 10, width: '100%'
-                          }}
-                          onChange={(e) => {
-                            const label = document.getElementById('file-label-text');
-                            const wrapper = document.getElementById('file-dropzone-wrapper');
-                            const preview = document.getElementById('file-preview-img');
-                            if (label && wrapper && e.target.files && e.target.files[0]) {
-                              label.innerText = e.target.files[0].name;
-                              label.style.color = '#fff';
-                              wrapper.style.borderColor = '#C3143D';
-                              wrapper.style.background = 'rgba(195,20,61,0.05)';
-                              // Show generic preview if they upload a new file, or hide the old one.
-                              if (preview) preview.style.display = 'none';
-                            }
+                            position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', zIndex: 10, width: '100%', height: '100%'
                           }}
                         />
-                        <div 
-                          id="file-dropzone-wrapper"
-                          style={{
-                            background: 'rgba(255,255,255,0.02)', border: '2px dashed rgba(255,255,255,0.1)', borderRadius: 16,
-                            padding: '32px 20px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12,
-                            transition: 'all 0.3s ease', cursor: 'pointer', textAlign: 'center', position: 'relative', overflow: 'hidden'
-                          }}
-                        >
-                          <div style={{ background: 'rgba(255,255,255,0.05)', padding: 12, borderRadius: 50, zIndex: 2 }}>
-                            {modalState.type === 'edit' && modalState.category?.imageUrl ? (
-                              <img id="file-preview-img" src={modalState.category.imageUrl} alt="Current" style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover', boxShadow: '0 4px 10px rgba(0,0,0,0.5)' }} />
-                            ) : (
-                              <ImageIcon size={28} color="rgba(255,255,255,0.7)" />
-                            )}
+
+                        {imagePreview ? (
+                          /* High-quality Real Image Preview */
+                          <div 
+                            style={{
+                              position: 'relative',
+                              borderRadius: 16,
+                              overflow: 'hidden',
+                              border: '1px solid rgba(195,20,61,0.4)',
+                              background: '#0d0d0d',
+                              boxShadow: '0 8px 30px rgba(0,0,0,0.6)',
+                            }}
+                            className="group"
+                          >
+                            <div style={{ position: 'relative', width: '100%', height: 200 }}>
+                              <img 
+                                src={imagePreview} 
+                                alt="Category Preview" 
+                                style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                              />
+                              <div 
+                                style={{
+                                  position: 'absolute', inset: 0,
+                                  background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.2) 60%, transparent 100%)',
+                                  display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: 16
+                                }}
+                              >
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                  <span style={{
+                                    background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)',
+                                    border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8,
+                                    padding: '4px 10px', fontSize: '0.75rem', color: '#fff', fontWeight: 600,
+                                    display: 'flex', alignItems: 'center', gap: 6
+                                  }}>
+                                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                                    {selectedFileName ? 'New Image Selected' : 'Current Cover Image'}
+                                  </span>
+
+                                  <button
+                                    type="button"
+                                    onClick={handleRemoveImage}
+                                    style={{
+                                      zIndex: 20,
+                                      width: 32, height: 32, borderRadius: 8,
+                                      background: 'rgba(239,68,68,0.2)', border: '1px solid rgba(239,68,68,0.4)',
+                                      color: '#ef4444', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                      cursor: 'pointer', transition: 'all 0.2s'
+                                    }}
+                                    className="hover:bg-red-600 hover:text-white"
+                                    title="Remove image"
+                                  >
+                                    <X size={16} />
+                                  </button>
+                                </div>
+
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+                                  <div style={{ minWidth: 0, paddingRight: 12 }}>
+                                    <p style={{ margin: 0, fontSize: '0.9rem', color: '#fff', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                      {selectedFileName || 'Cover Image'}
+                                    </p>
+                                    <p style={{ margin: '2px 0 0', fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)' }}>
+                                      Click anywhere to replace image
+                                    </p>
+                                  </div>
+                                  <span style={{
+                                    background: 'rgba(195,20,61,0.2)', border: '1px solid rgba(195,20,61,0.4)',
+                                    borderRadius: 8, padding: '4px 12px', fontSize: '0.75rem', color: '#ff4d6d', fontWeight: 600
+                                  }}>
+                                    Change
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
                           </div>
-                          <div style={{ zIndex: 2 }}>
-                            <p id="file-label-text" style={{ margin: 0, fontSize: '0.95rem', fontWeight: 500, color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%' }}>
-                              {modalState.type === 'edit' && modalState.category?.imageUrl ? 'Click or drag to change image' : 'Click to upload or drag and drop'}
-                            </p>
-                            <p style={{ margin: '4px 0 0 0', fontSize: '0.8rem', color: 'rgba(255,255,255,0.4)' }}>
-                              High-quality images look best on the portfolio grid.
-                            </p>
+                        ) : (
+                          /* Empty Dropzone State */
+                          <div 
+                            style={{
+                              background: 'rgba(255,255,255,0.02)', border: '2px dashed rgba(255,255,255,0.12)', borderRadius: 16,
+                              padding: '36px 20px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12,
+                              transition: 'all 0.3s ease', cursor: 'pointer', textAlign: 'center', position: 'relative', overflow: 'hidden'
+                            }}
+                            className="hover:border-[#C3143D] hover:bg-[#C3143D]/[0.03] group"
+                          >
+                            <div 
+                              style={{
+                                width: 56, height: 56, borderRadius: '50%',
+                                background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
+                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                transition: 'all 0.3s ease'
+                              }}
+                              className="group-hover:scale-110 group-hover:bg-[#C3143D]/10 group-hover:border-[#C3143D]/40"
+                            >
+                              <UploadCloud size={26} className="text-white/60 group-hover:text-[#ff4d6d] transition-colors" />
+                            </div>
+                            <div>
+                              <p style={{ margin: 0, fontSize: '0.95rem', fontWeight: 600, color: '#fff' }}>
+                                Click to upload or drag and drop
+                              </p>
+                              <p style={{ margin: '4px 0 0 0', fontSize: '0.8rem', color: 'rgba(255,255,255,0.4)' }}>
+                                High-resolution cover image for the category
+                              </p>
+                            </div>
                           </div>
-                        </div>
+                        )}
                       </div>
                     </div>
                   </div>

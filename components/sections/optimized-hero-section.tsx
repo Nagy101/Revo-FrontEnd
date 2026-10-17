@@ -2,6 +2,7 @@
 
 import { useRef, useEffect, useState } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { motion, useScroll, useTransform, useMotionValue, useSpring, useMotionTemplate } from "framer-motion"
 import { ArrowDown, Play, Sparkles } from "lucide-react"
 import { useLanguage } from "@/lib/i18n/language-context"
@@ -70,10 +71,13 @@ export function OptimizedHeroSection() {
         style={{ y, scale }}
         className="absolute inset-0 z-0 origin-top will-change-transform"
       >
-        <img 
+        <Image 
           src="/images/revo-hero-bg.jpg" 
           alt="Revo Production Atmosphere" 
-          className="w-full h-full object-cover object-[center_60%] sm:object-bottom opacity-85"
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover object-[center_60%] sm:object-bottom opacity-85"
         />
         {/* Subtle overlays: dark at top for navbar, transparent in center, soft transition at bottom */}
         <div className="absolute inset-0 bg-black/35" />
@@ -183,7 +187,7 @@ export function OptimizedHeroSection() {
             href="/portfolio"
             className="group relative px-5 py-2.5 sm:px-7 sm:py-3 bg-[#C3143D] text-white overflow-hidden rounded-full font-semibold tracking-widest uppercase text-xs sm:text-sm shadow-[0_0_25px_rgba(195,20,61,0.4)] hover:shadow-[0_0_45px_rgba(195,20,61,0.6)] hover:scale-105 transition-all duration-300 inline-flex items-center justify-center cursor-pointer"
           >
-            <div className="absolute inset-0 w-full h-full bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-[0.16,1,0.3,1]" />
+            <div className="absolute inset-0 w-full h-full bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-cinematic" />
             <span className="relative flex items-center gap-2">
               {isArabic ? "استكشف أعمالنا" : "Explore Our Work"}{" "}
               <Play size={12} className="fill-current rtl:rotate-180" />
@@ -212,10 +216,12 @@ export function OptimizedHeroSection() {
               className="group relative w-full aspect-[2/3] rounded-2xl p-1 bg-black/60 backdrop-blur-xl border border-white/15 shadow-[0_12px_30px_rgba(0,0,0,0.7),0_0_20px_rgba(195,20,61,0.25)] hover:border-[#C3143D]/70 hover:shadow-[0_20px_50px_rgba(195,20,61,0.5)] transition-all duration-300 cursor-pointer -rotate-1 hover:rotate-0"
             >
               <div className="relative w-full h-full rounded-xl overflow-hidden">
-                <img 
+                <Image 
                   src="/images/revo-singer.jpg" 
                   alt="Live Stage - Cairokee" 
-                  className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-500" 
+                  fill
+                  sizes="(max-width: 640px) 195px, 255px"
+                  className="object-cover group-hover:scale-108 transition-transform duration-500" 
                 />
                 {/* Subtle soft bottom shadow only - leaves performers 100% clear */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent pointer-events-none" />
@@ -240,10 +246,12 @@ export function OptimizedHeroSection() {
               className="group relative w-full aspect-[3/2] rounded-2xl p-1 bg-black/60 backdrop-blur-xl border border-white/15 shadow-[0_12px_30px_rgba(0,0,0,0.7),0_0_20px_rgba(195,20,61,0.25)] hover:border-[#C3143D]/70 hover:shadow-[0_20px_50px_rgba(195,20,61,0.5)] transition-all duration-300 cursor-pointer rotate-1 hover:rotate-0"
             >
               <div className="relative w-full h-full rounded-xl overflow-hidden">
-                <img 
+                <Image 
                   src="/images/revo-band.jpg" 
                   alt="Acoustic Sessions" 
-                  className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-500" 
+                  fill
+                  sizes="(max-width: 640px) 195px, 255px"
+                  className="object-cover group-hover:scale-108 transition-transform duration-500" 
                 />
                 {/* Subtle soft bottom shadow only - leaves musicians 100% clear */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent pointer-events-none" />

@@ -132,7 +132,7 @@ export function ServicesSection() {
                   src={featuredServices[hoveredIndex]?.imageUrl || fallbackImages[hoveredIndex] || fallbackImages[0]} 
                   alt={isArabic ? (featuredServices[hoveredIndex]?.nameAr || "خدمة") : (featuredServices[hoveredIndex]?.nameEn || "Service")}
                   fill
-                  className="object-cover grayscale-[30%] group-hover:scale-105 transition-transform duration-[2s]"
+                  className="object-cover grayscale-[30%] group-hover:scale-105 transition-transform duration-2000"
                 />
               </motion.div>
             </AnimatePresence>
@@ -188,7 +188,7 @@ export function ServicesSection() {
           >
             <Link href="/services#all-services">
               <button className="group relative px-10 py-5 bg-transparent border border-white/10 rounded-full overflow-hidden hover:border-white/30 transition-colors duration-500 cursor-none" data-cursor="View All">
-                <div className="absolute inset-0 w-full h-full bg-white/5 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-[0.16,1,0.3,1]" />
+                <div className="absolute inset-0 w-full h-full bg-white/5 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-cinematic" />
                 <span className="relative text-white/80 group-hover:text-white font-medium uppercase tracking-[0.3em] text-xs transition-colors duration-500 flex items-center gap-4">
                   {isArabic ? "عرض جميع الخدمات" : "View All Services"}{" "}
                   <ArrowUpRight size={14} className="rtl:rotate-180" />

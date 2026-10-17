@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { Eye, EyeOff, AlertCircle, ArrowRight, ArrowLeft, Lock, Mail } from "lucide-react"
 
 import { authService } from "@/lib/auth.service"
+import { extractApiErrorMessage } from "@/lib/api/http-client"
 
 export function AuthShell() {
   const [email, setEmail]           = useState("admin1@revo.com")
@@ -33,10 +34,11 @@ export function AuthShell() {
         authService.setAuthData(response.data);
         router.push("/admin")
       } else {
-        setError("Email or password is wrong.")
+        setError(response.message || "Email or password is wrong.")
       }
     } catch (err: any) {
-      setError("Email or password is wrong.")
+      const errorMsg = extractApiErrorMessage(err?.response?.data || err?.data, err?.response?.status || err?.status) || err?.message || "Email or password is wrong."
+      setError(errorMsg)
     } finally {
       setIsLoading(false)
     }

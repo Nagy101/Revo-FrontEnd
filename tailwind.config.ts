@@ -11,10 +11,18 @@ const config: Config = {
     extend: {
       transitionDuration: {
         '1500': '1.5s',
+        '2000': '2s',
+      },
+      transitionTimingFunction: {
+        cinematic: 'cubic-bezier(0.16, 1, 0.3, 1)',
       },
       colors: {
         primary: "#C3143D", // Revo Crimson (from logo play icon)
         secondary: "#F04F6A", // Light Crimson accent for gradients
+        background: "#050505",
+        foreground: "#f0f0f0",
+        border: "rgba(255, 255, 255, 0.1)",
+        muted: "#111111",
       },
       fontFamily: {
         sora: ["var(--font-sora)", "sans-serif"],

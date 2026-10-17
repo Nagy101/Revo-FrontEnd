@@ -47,7 +47,7 @@ export function CTASection() {
           ) : (
             <>
               Have an idea? <br/>
-              <span className="font-serif italic text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-500">Let's build it.</span>
+              <span className="font-serif italic text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-500">{"Let's build it."}</span>
             </>
           )}
         </h2>
@@ -61,7 +61,7 @@ export function CTASection() {
         <div className="flex flex-col sm:flex-row gap-6 items-center justify-center w-full">
           <Link href="/contact">
             <button className="group relative px-10 py-5 bg-transparent border border-white/20 rounded-full overflow-hidden hover:border-[#C3143D] transition-colors duration-500 cursor-none" data-cursor="Start">
-              <div className="absolute inset-0 w-full h-full bg-[#C3143D] translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-[0.16,1,0.3,1]" />
+              <div className="absolute inset-0 w-full h-full bg-[#C3143D] translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-cinematic" />
               <span className="relative text-white group-hover:text-white font-medium uppercase tracking-[0.2em] text-xs transition-colors duration-500 flex items-center gap-4">
                 {isArabic ? "تواصل معنا" : "Let's Talk"}{" "}
                 <ArrowUpRight size={16} className="group-hover:rotate-45 rtl:group-hover:-rotate-45 transition-transform duration-500" />
@@ -69,11 +69,11 @@ export function CTASection() {
             </button>
           </Link>
           
-          <a href="mailto:hello@revo.com" className="group flex items-center gap-4 text-white/50 hover:text-white transition-colors duration-500">
+          <a href="mailto:revo.media.eg@gmail.com" className="group flex items-center gap-4 text-white/50 hover:text-white transition-colors duration-500">
             <div className="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center group-hover:bg-white/5 transition-colors duration-500">
               <Mail size={16} />
             </div>
-            <span className="font-medium tracking-widest text-xs uppercase">hello@revo.com</span>
+            <span className="font-medium tracking-widest text-xs uppercase">revo.media.eg@gmail.com</span>
           </a>
         </div>
       </motion.div>
