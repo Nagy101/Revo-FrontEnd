@@ -78,9 +78,9 @@ export function ServiceDetailsPage({ id }: ServiceDetailsPageProps) {
     submitBooking(
       {
         serviceId: service.id,
-        name: formData.name,
-        phoneNumber: formData.phoneNumber,
-        message: formData.message || `Inquiry for ${service.nameEn}`
+        name: formData.name.trim(),
+        phoneNumber: formData.phoneNumber.trim().replace(/[\s-]/g, ""),
+        message: formData.message.trim() || `Inquiry for ${service.nameEn}`
       },
       {
         onSuccess: () => {
@@ -319,7 +319,7 @@ export function ServiceDetailsPage({ id }: ServiceDetailsPageProps) {
                       required
                       value={formData.phoneNumber}
                       onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
-                      placeholder="+20 100 000 0000"
+                      placeholder="010xxxxxxxx"
                       className="w-full h-11 rounded-xl bg-black/50 border border-white/10 hover:border-white/20 px-4 text-xs sm:text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-[#C3143D] focus:ring-1 focus:ring-[#C3143D] transition-all text-left dir-ltr"
                     />
                   </div>

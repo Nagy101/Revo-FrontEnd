@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, useCallback } from 'react'
 import { useIntersectionObserver } from '@/hooks/use-intersection-observer'
 import { gsap } from '@/lib/gsap'
 
@@ -34,36 +34,7 @@ export function OptimizedGSAPSection({
     triggerOnce: true,
   })
 
-  useEffect(() => {
-    if (hasIntersected && !hasAnimated.current && sectionRef.current) {
-      hasAnimated.current = true
-
-      const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
-      const elements = sectionRef.current.querySelectorAll('[data-animate]')
-      
-      if (reduceMotion) {
-        if (elements.length > 0) {
-          gsap.set(elements, { opacity: 1, x: 0, y: 0, scale: 1 })
-        } else {
-          gsap.set(sectionRef.current, { opacity: 1, x: 0, y: 0, scale: 1 })
-        }
-        return
-      }
-
-      if (elements.length === 0) {
-        // Animate the entire section if no specific elements are marked
-        animateElement(sectionRef.current, animationType, delay, duration)
-      } else {
-        // Animate marked elements with stagger
-        elements.forEach((element, index) => {
-          const elementDelay = delay + (index * staggerDelay)
-          animateElement(element as HTMLElement, animationType, elementDelay, duration)
-        })
-      }
-    }
-  }, [hasIntersected, animationType, delay, duration, staggerDelay])
-
-  const animateElement = (element: HTMLElement, type: string, elementDelay: number, elementDuration: number) => {
+  const animateElement = useCallback((element: HTMLElement, type: string, elementDelay: number, elementDuration: number) => {
     switch (type) {
       case 'fadeUp':
         gsap.fromTo(element,
@@ -110,7 +81,36 @@ export function OptimizedGSAPSection({
         )
         break
     }
-  }
+  }, [staggerDelay])
+
+  useEffect(() => {
+    if (hasIntersected && !hasAnimated.current && sectionRef.current) {
+      hasAnimated.current = true
+
+      const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      const elements = sectionRef.current.querySelectorAll('[data-animate]')
+      
+      if (reduceMotion) {
+        if (elements.length > 0) {
+          gsap.set(elements, { opacity: 1, x: 0, y: 0, scale: 1 })
+        } else {
+          gsap.set(sectionRef.current, { opacity: 1, x: 0, y: 0, scale: 1 })
+        }
+        return
+      }
+
+      if (elements.length === 0) {
+        // Animate the entire section if no specific elements are marked
+        animateElement(sectionRef.current, animationType, delay, duration)
+      } else {
+        // Animate marked elements with stagger
+        elements.forEach((element, index) => {
+          const elementDelay = delay + (index * staggerDelay)
+          animateElement(element as HTMLElement, animationType, elementDelay, duration)
+        })
+      }
+    }
+  }, [hasIntersected, animationType, delay, duration, staggerDelay, animateElement])
 
   return (
     <section

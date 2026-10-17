@@ -1,9 +1,13 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { usePathname } from "next/navigation"
 import { motion, useMotionValue, useSpring } from "framer-motion"
 
 export function CustomCursor() {
+  const pathname = usePathname()
+  const isAdmin = pathname?.startsWith("/admin")
+
   const [isHovered, setIsHovered] = useState(false)
   const [isClicking, setIsClicking] = useState(false)
   const [isVisible, setIsVisible] = useState(false)
@@ -18,8 +22,8 @@ export function CustomCursor() {
   const smoothY = useSpring(mouseY, springConfig)
 
   useEffect(() => {
-    // Only enable on desktop with fine pointer
-    if (!window.matchMedia("(pointer: fine)").matches) return
+    // Only enable on desktop with fine pointer, and never on admin routes
+    if (isAdmin || !window.matchMedia("(pointer: fine)").matches) return
 
     // Hide native cursor site-wide, preserve text cursor in inputs
     const style = document.createElement("style")
@@ -82,10 +86,10 @@ export function CustomCursor() {
         document.head.removeChild(style)
       }
     }
-  }, [mouseX, mouseY, isVisible])
+  }, [mouseX, mouseY, isVisible, isAdmin])
 
-  // Don't render on text fields or off-screen
-  if (!isVisible || isText) return null
+  // Don't render on text fields, off-screen, or admin routes
+  if (isAdmin || !isVisible || isText) return null
 
   return (
     <motion.div

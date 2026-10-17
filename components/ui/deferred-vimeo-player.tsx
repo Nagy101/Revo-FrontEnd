@@ -77,6 +77,7 @@ export function DeferredVimeoPlayer({ videoId, title, thumbnailUrl, onClick }: D
           aria-label={`Play ${title}`}
         >
           {thumbnail ? (
+            // eslint-disable-next-line @next/next/no-img-element
             <img
               src={thumbnail}
               alt={title}

@@ -1,10 +1,27 @@
 import type React from "react"
 import type { Metadata } from "next"
+import { Inter, Sora } from "next/font/google"
 import "./globals.css"
 import ClientLayout from "./ClientLayout"
 
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+})
+
+const sora = Sora({
+  subsets: ["latin"],
+  variable: "--font-sora",
+  display: "swap",
+})
+
 export const metadata: Metadata = {
-  title: "REVO - Creative Media Production",
+  metadataBase: new URL("https://revoagency.com"),
+  title: {
+    default: "REVO - Creative Media Production",
+    template: "%s | REVO",
+  },
   description:
     "We create bold visual experiences, stadium concert productions, and cinematic commercial films that captivate audiences.",
   keywords: "media production, filmmaking, concert coverage, commercial films, visual storytelling, REVO",
@@ -25,12 +42,21 @@ export const metadata: Metadata = {
     title: "REVO - Creative Media Production",
     description: "Bold visual experiences, concert productions, and cinematic commercial films.",
     siteName: "REVO Media Production",
+    images: [
+      {
+        url: "/images/revo-hero-bg.jpg",
+        width: 1200,
+        height: 630,
+        alt: "REVO Media Production",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "REVO - Creative Media Production",
     description: "Bold visual experiences, concert productions, and cinematic commercial films.",
-    creator: "@revoagency",
+    creator: "@revomedia.eg",
+    images: ["/images/revo-hero-bg.jpg"],
   },
   robots: {
     index: true,
@@ -51,11 +77,19 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" suppressHydrationWarning className="overflow-x-hidden selection:bg-[#C3143D] selection:text-white">
+    <html lang="en" suppressHydrationWarning className={`${inter.variable} ${sora.variable} overflow-x-hidden selection:bg-[#C3143D] selection:text-white`}>
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Sora:wght@100..800&display=swap" rel="stylesheet" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              try {
+                if (!sessionStorage.getItem('revo_splash_shown') && !window.location.pathname.startsWith('/admin')) {
+                  document.documentElement.classList.add('splash-pending');
+                }
+              } catch(e) {}
+            `,
+          }}
+        />
       </head>
       <body className="font-inter antialiased overflow-x-hidden selection:bg-[#C3143D] selection:text-white">
         <ClientLayout>{children}</ClientLayout>

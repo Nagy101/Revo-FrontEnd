@@ -282,7 +282,7 @@ export function PortfolioListingPage() {
       {/* ─── HERO SECTION ─── */}
       {/* ─── HERO SECTION (Exact 100vh Screen-Fit Like Home & About) ─── */}
       <section
-        className="relative w-full min-h-screen py-20 md:py-0 flex items-center justify-center overflow-hidden bg-[#050505]"
+        className="relative w-full min-h-screen pt-16 sm:pt-20 md:pt-20 pb-6 md:pb-0 flex items-center justify-center overflow-hidden bg-[#050505]"
       >
         {/* BASE BACKGROUND (Exact Stadium Fireworks Background Like Home & About) */}
         <motion.div
@@ -320,7 +320,7 @@ export function PortfolioListingPage() {
         {/* MAIN HERO CONTENT (Calibrated to fit 100vh screen exactly like Home & About) */}
         <motion.div
           style={{ opacity: heroOpacity }}
-          className="relative z-10 w-full max-w-4xl mx-auto px-6 flex flex-col items-center justify-center pt-24 pb-6 md:py-0 text-center"
+          className="relative z-10 w-full max-w-4xl mx-auto px-5 sm:px-6 flex flex-col items-center justify-center text-center"
         >
           {/* Intro Tag */}
           <motion.div
@@ -424,7 +424,7 @@ export function PortfolioListingPage() {
               onClick={handleScrollToProjects}
               className="group relative px-6 py-2.5 md:px-7 md:py-3 bg-[#C3143D] text-white overflow-hidden rounded-full font-semibold tracking-widest uppercase text-xs md:text-sm shadow-[0_0_25px_rgba(195,20,61,0.4)] hover:shadow-[0_0_45px_rgba(195,20,61,0.6)] hover:scale-105 transition-all duration-300 inline-flex items-center justify-center cursor-pointer"
             >
-              <div className="absolute inset-0 w-full h-full bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-[0.16,1,0.3,1]" />
+              <div className="absolute inset-0 w-full h-full bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-cinematic" />
               <span className="relative flex items-center gap-2">
                 {isArabic ? "استكشف المشاريع" : "Explore Projects"}{" "}
                 <ArrowDown size={14} className="group-hover:translate-y-0.5 transition-transform" />

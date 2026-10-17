@@ -12,6 +12,7 @@ import { usePortfolios, usePortfolioDetails, useCreatePortfolio, useUpdatePortfo
 import { useCategories } from "@/features/categories/hooks/useCategories"
 import { PortfolioMedia, MediaType, PortfolioPayload } from "@/features/portfolio/types"
 import { CustomSelect } from "@/features/ui/components/custom-select"
+import { extractApiErrorMessage } from "@/lib/api/http-client"
 
 // ─── Animation Variants ────────────────────────────────────────────────────────
 const fadeUp = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }
@@ -161,18 +162,7 @@ function PortfolioModal({ isOpen, mode, id, onClose, showToast }: {
   }, [portfolio, mode, isOpen, categories])
 
   const handleApiError = (error: any) => {
-    const errorData = error?.data
-    let msg = errorData?.title || errorData?.message || error.message || "Something went wrong"
-    
-    if (errorData?.errors) {
-      if (Array.isArray(errorData.errors)) {
-        if (errorData.errors.length > 0) {
-          msg = errorData.errors[0].message || errorData.errors[0].errorMessage || msg
-        }
-      } else if (typeof errorData.errors === 'object') {
-        msg = Object.values(errorData.errors).flat()[0] as string || msg
-      }
-    }
+    const msg = extractApiErrorMessage(error?.data || error?.response?.data, error?.status) || error?.message || "Something went wrong"
     showToast(msg, 'error')
   }
 
@@ -429,15 +419,7 @@ export function PortfolioManager() {
 
   const showToast = (message: string, type: "success" | "error" = "success") => setToast({ message, type })
   const handleApiError = (error: any) => {
-    const errorData = error?.data
-    let msg = errorData?.title || errorData?.message || error.message || "Something went wrong"
-    if (errorData?.errors) {
-      if (Array.isArray(errorData.errors)) {
-        if (errorData.errors.length > 0) msg = errorData.errors[0].message || errorData.errors[0].errorMessage || msg
-      } else if (typeof errorData.errors === 'object') {
-        msg = Object.values(errorData.errors).flat()[0] as string || msg
-      }
-    }
+    const msg = extractApiErrorMessage(error?.data || error?.response?.data, error?.status) || error?.message || "Something went wrong"
     showToast(msg, 'error')
   }
 

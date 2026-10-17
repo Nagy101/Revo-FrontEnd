@@ -20,7 +20,6 @@ node_modules
 /out/
 /build
 .DS_Store
-package-lock.json
 
 # Typescript
 *.tsbuildinfo

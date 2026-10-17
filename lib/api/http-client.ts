@@ -6,12 +6,88 @@
 
 export class ApiError extends Error {
   status: number
+  data?: any
   
-  constructor(message: string, status: number) {
+  constructor(message: string, status: number, data?: any) {
     super(message)
     this.status = status
     this.name = "ApiError"
+    this.data = data
   }
+}
+
+export function extractApiErrorMessage(errorData: any, status?: number): string {
+  if (!errorData) {
+    return status ? `Request failed with status ${status}` : "An unexpected error occurred.";
+  }
+
+  if (typeof errorData === "string" && errorData.trim()) {
+    try {
+      const parsed = JSON.parse(errorData);
+      return extractApiErrorMessage(parsed, status);
+    } catch {
+      return errorData;
+    }
+  }
+
+  // 1. Check errors array or object first (specifically for detailed field / validation errors)
+  if (errorData.errors) {
+    // Array of errors: [{ code, message }] or [{ code, errorMessage }] or strings ["..."]
+    if (Array.isArray(errorData.errors) && errorData.errors.length > 0) {
+      const messages = errorData.errors
+        .map((err: any) => {
+          if (typeof err === "string") return err;
+          return err.message || err.errorMessage || err.description || (err.code ? `${err.code}` : "");
+        })
+        .filter(Boolean);
+      if (messages.length > 0) {
+        return messages.join(" • ");
+      }
+    }
+
+    // Object of field errors (ASP.NET ModelState ValidationProblemDetails): { "PhoneNumber": ["Phone number must be 11 digits."] }
+    if (typeof errorData.errors === "object" && !Array.isArray(errorData.errors)) {
+      const messages = Object.entries(errorData.errors)
+        .flatMap(([_, msgs]: [string, any]) => {
+          if (Array.isArray(msgs)) {
+            return msgs.map((m: any) => (typeof m === "string" ? m : m.message || m.errorMessage || ""));
+          }
+          if (typeof msgs === "string") return [msgs];
+          return [];
+        })
+        .filter(Boolean);
+      if (messages.length > 0) {
+        return messages.join(" • ");
+      }
+    }
+
+    // Direct string
+    if (typeof errorData.errors === "string" && errorData.errors.trim()) {
+      return errorData.errors;
+    }
+  }
+
+  // 2. Singular error object or string
+  if (errorData.error) {
+    if (typeof errorData.error === "string" && errorData.error.trim()) return errorData.error;
+    if (typeof errorData.error.message === "string" && errorData.error.message.trim()) return errorData.error.message;
+  }
+
+  // 3. Check errorData.message
+  if (typeof errorData.message === "string" && errorData.message.trim()) {
+    return errorData.message;
+  }
+
+  // 4. ProblemDetails fields
+  if (typeof errorData.detail === "string" && errorData.detail.trim()) {
+    return errorData.detail;
+  }
+
+  if (typeof errorData.title === "string" && errorData.title.trim()) {
+    return errorData.title;
+  }
+
+  return status ? `HTTP Error: ${status}` : "An unexpected error occurred.";
 }
 
 const getBaseUrl = () => {
@@ -69,9 +145,11 @@ export const httpClient = {
       } catch (e) {
         errorData = null;
       }
-      const error = new ApiError(errorData?.message || `HTTP Error: ${response.status}`, response.status);
+
+      const detailedMessage = extractApiErrorMessage(errorData, response.status);
+      const error = new ApiError(detailedMessage, response.status, errorData);
       (error as any).data = errorData;
-      (error as any).response = { status: response.status, data: errorData }; // Align with Axios error format just in case
+      (error as any).response = { status: response.status, data: errorData }; // Align with Axios error format
       throw error;
     }
     

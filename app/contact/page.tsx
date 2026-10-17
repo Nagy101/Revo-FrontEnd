@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
+import Image from "next/image"
 import { motion, useMotionValue, useSpring, AnimatePresence } from "framer-motion"
 import { 
   Mail, 
@@ -15,7 +16,12 @@ import {
   Clock, 
   User, 
   MessageSquare,
-  ArrowRight
+  ArrowRight,
+  Instagram,
+  Layers,
+  ChevronDown,
+  Check,
+  X
 } from "lucide-react"
 import { useCreateContactRequest } from "@/features/contact/hooks/useContactRequests"
 import { useServices } from "@/features/services/hooks/useServices"
@@ -53,6 +59,18 @@ export default function ContactPage() {
   })
   const [isMounted, setIsMounted] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
+  const [isServiceDropdownOpen, setIsServiceDropdownOpen] = useState(false)
+  const serviceDropdownRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (serviceDropdownRef.current && !serviceDropdownRef.current.contains(e.target as Node)) {
+        setIsServiceDropdownOpen(false)
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [])
 
   // API Hooks
   const { mutate: submitContact, isPending } = useCreateContactRequest()
@@ -94,7 +112,7 @@ export default function ContactPage() {
     submitContact(
       {
         name: formData.name.trim(),
-        phoneNumber: formData.phoneNumber.trim(),
+        phoneNumber: formData.phoneNumber.trim().replace(/[\s-]/g, ""),
         message: formData.message.trim() || "Inquiry submitted via REVO Contact Portal",
         serviceId: formData.serviceId || undefined,
       },
@@ -111,10 +129,13 @@ export default function ContactPage() {
     <div className="relative min-h-screen bg-[#050505] text-white selection:bg-[#C3143D] selection:text-white pb-32 overflow-hidden">
       {/* ── CINEMATIC STADIUM FIREWORKS HERO BACKDROP ── */}
       <div className="absolute top-0 left-0 right-0 h-[800px] overflow-hidden pointer-events-none z-0">
-        <img
+        <Image
           src="/images/revo-hero-bg.jpg"
           alt="REVO Production Atmosphere"
-          className="w-full h-full object-cover object-bottom opacity-75"
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover object-bottom opacity-75"
         />
         <div className="absolute inset-0 bg-black/40" />
         <div className="absolute inset-0 bg-gradient-to-b from-[#050505]/70 via-[#050505]/60 to-[#050505]" />
@@ -216,26 +237,123 @@ export default function ContactPage() {
                 /* Production Brief Form */
                 <form onSubmit={handleSubmit} className="space-y-6">
                   {/* Form Title & Instruction */}
-                  <div className="pb-4 border-b border-white/5 flex items-center justify-between">
-                    <div>
+                  <div className="pb-4 border-b border-white/5 flex items-center justify-between gap-3">
+                    <div className="min-w-0">
                       <span className="text-[10px] font-sora font-bold uppercase tracking-[0.25em] text-[#C3143D] block mb-1">
                         {isArabic ? "طلب واستفسار مباشر" : "Direct Inquiry"}
                       </span>
-                      <h3 className="text-lg font-sora font-extrabold text-white tracking-tight">
+                      <h3 className="text-base sm:text-lg font-sora font-extrabold text-white tracking-tight truncate sm:whitespace-normal">
                         {isArabic ? "كلمنا عن رؤيتك وفكرتك" : "Tell Us About Your Vision"}
                       </h3>
                     </div>
-                    <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-white/40 px-2.5 py-1 rounded-full bg-white/5 border border-white/5">
-                      {isArabic ? "رد خلال 24 ساعة" : "24h Response"}
-                    </span>
+                    <div className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/[0.04] border border-white/10 backdrop-blur-md whitespace-nowrap shadow-sm">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#C3143D] animate-ping shrink-0" />
+                      <Clock size={11} className="text-[#C3143D] shrink-0" />
+                      <span className="text-[10px] font-mono font-semibold uppercase tracking-wider text-white/75 whitespace-nowrap">
+                        {isArabic ? "رد خلال 24 ساعة" : "24h Response"}
+                      </span>
+                    </div>
                   </div>
 
-                  {/* Interactive Service Pills */}
+                  {/* Discipline / Service Selector */}
                   <div>
-                    <label className="text-xs font-sora font-semibold text-white/60 uppercase tracking-wider block mb-3">
-                      {isArabic ? "اختر نوع الخدمة / التخصص" : "Select Discipline / Service"}
-                    </label>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex items-center justify-between mb-2.5">
+                      <label className="text-xs font-sora font-semibold text-white/70 uppercase tracking-wider block">
+                        {isArabic ? "نوع الخدمة / التخصص المطلوبة" : "Discipline / Service"}
+                      </label>
+                      <span className="text-[10px] text-white/35 font-mono">
+                        {isArabic ? "اختياري" : "Optional"}
+                      </span>
+                    </div>
+
+                    {/* MOBILE VIEW: Ultra-Luxury Custom Dropdown (Replaces OS ugly select) */}
+                    <div ref={serviceDropdownRef} className="relative sm:hidden">
+                      <button
+                        type="button"
+                        onClick={() => setIsServiceDropdownOpen(!isServiceDropdownOpen)}
+                        className={`w-full h-12 px-4 rounded-xl flex items-center justify-between text-xs transition-all duration-300 ${
+                          isServiceDropdownOpen
+                            ? "bg-[#111111] border-[#C3143D] ring-1 ring-[#C3143D] text-white shadow-[0_0_25px_rgba(195,20,61,0.3)]"
+                            : formData.serviceId
+                            ? "bg-[#111111] border-[#C3143D]/50 text-white"
+                            : "bg-[#050505]/90 border-white/10 hover:border-white/20 text-white/50"
+                        } border cursor-pointer`}
+                      >
+                        <div className="flex items-center gap-2.5 truncate">
+                          <Layers size={16} className={formData.serviceId ? "text-[#C3143D]" : "text-white/40"} />
+                          <span className={formData.serviceId ? "text-white font-medium truncate" : "text-white/40 truncate"}>
+                            {formData.serviceId
+                              ? services.find((s) => s.id === formData.serviceId)?.name
+                              : isArabic
+                              ? "اختر نوع الخدمة / التخصص"
+                              : "Select Discipline / Service"}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          {formData.serviceId && (
+                            <span
+                              role="button"
+                              tabIndex={0}
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                setFormData({ ...formData, serviceId: "" })
+                              }}
+                              className="p-1 rounded-full hover:bg-white/10 text-white/40 hover:text-white transition-colors"
+                            >
+                              <X size={13} />
+                            </span>
+                          )}
+                          <ChevronDown
+                            size={16}
+                            className={`text-white/40 transition-transform duration-300 ${
+                              isServiceDropdownOpen ? "rotate-180 text-[#C3143D]" : ""
+                            }`}
+                          />
+                        </div>
+                      </button>
+
+                      {/* Luxury Glassmorphic Popup Menu */}
+                      <AnimatePresence>
+                        {isServiceDropdownOpen && (
+                          <motion.div
+                            initial={{ opacity: 0, y: -8, scale: 0.98 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            exit={{ opacity: 0, y: -8, scale: 0.98 }}
+                            transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                            className="absolute top-full left-0 right-0 mt-2 z-50 rounded-2xl bg-[#0e0e0e]/98 backdrop-blur-2xl border border-white/15 shadow-[0_20px_50px_rgba(0,0,0,0.9),0_0_30px_rgba(195,20,61,0.25)] overflow-hidden max-h-64 overflow-y-auto p-1.5 space-y-1"
+                          >
+                            {services.map((s) => {
+                              const isSelected = formData.serviceId === s.id
+                              return (
+                                <button
+                                  key={s.id}
+                                  type="button"
+                                  onClick={() => {
+                                    setFormData({ ...formData, serviceId: isSelected ? "" : s.id })
+                                    setIsServiceDropdownOpen(false)
+                                  }}
+                                  className={`w-full px-3.5 py-2.5 rounded-xl text-left rtl:text-right text-xs transition-all flex items-center justify-between group cursor-pointer ${
+                                    isSelected
+                                      ? "bg-[#C3143D] text-white font-bold shadow-[0_0_15px_rgba(195,20,61,0.5)]"
+                                      : "text-white/70 hover:text-white hover:bg-white/[0.08]"
+                                  }`}
+                                >
+                                  <span className="truncate">{s.name}</span>
+                                  {isSelected ? (
+                                    <Check size={14} className="text-white shrink-0 ml-2 rtl:mr-2" />
+                                  ) : (
+                                    <span className="w-1.5 h-1.5 rounded-full bg-white/20 group-hover:bg-[#C3143D] transition-colors shrink-0 ml-2 rtl:mr-2" />
+                                  )}
+                                </button>
+                              )
+                            })}
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+
+                    {/* TABLET / DESKTOP VIEW: Sleek Interactive Pill Badges */}
+                    <div className="hidden sm:flex flex-wrap gap-2">
                       {services.map((s) => {
                         const isSelected = formData.serviceId === s.id
                         return (
@@ -295,7 +413,7 @@ export default function ContactPage() {
                           required
                           value={formData.phoneNumber}
                           onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
-                          placeholder="+20 100 000 0000"
+                          placeholder="010xxxxxxxx"
                           className="w-full bg-[#050505]/80 border border-white/10 focus:border-[#C3143D] focus:ring-1 focus:ring-[#C3143D] rounded-xl h-12 pl-11 pr-4 rtl:pl-4 rtl:pr-11 text-xs sm:text-sm text-white placeholder:text-white/25 outline-none transition-all font-mono text-left dir-ltr"
                         />
                       </div>
@@ -369,10 +487,10 @@ export default function ContactPage() {
                     {isArabic ? "الخط المباشر وواتساب" : "Direct Line & WhatsApp"}
                   </span>
                   <a
-                    href="tel:+201000000000"
+                    href="tel:+201064102972"
                     className="text-base sm:text-lg font-sora font-bold text-white hover:text-[#C3143D] transition-colors block font-mono dir-ltr text-left"
                   >
-                    +20 100 000 0000
+                    +20 106 410 2972
                   </a>
                   <p className="text-white/40 text-xs mt-1">
                     {isArabic
@@ -391,13 +509,13 @@ export default function ContactPage() {
                 </div>
                 <div className="flex-1">
                   <span className="text-[10px] font-sora font-bold uppercase tracking-[0.2em] text-[#C3143D] block mb-1">
-                    {isArabic ? "المراسلات الرسمية" : "Executive Briefings"}
+                    {isArabic ? "البريد الإلكتروني الرسمي" : "Official Inquiries"}
                   </span>
                   <a
-                    href="mailto:hello@revo.com"
+                    href="mailto:revo.media.eg@gmail.com"
                     className="text-base sm:text-lg font-sora font-bold text-white hover:text-[#C3143D] transition-colors block"
                   >
-                    hello@revo.com
+                    revo.media.eg@gmail.com
                   </a>
                   <p className="text-white/40 text-xs mt-1">
                     {isArabic
@@ -419,12 +537,39 @@ export default function ContactPage() {
                     {isArabic ? "المقر الرئيسي للاستوديو" : "Studio Headquarters"}
                   </span>
                   <span className="text-base sm:text-lg font-sora font-bold text-white block">
-                    {isArabic ? "القاهرة، مصر" : "Cairo, Egypt"}
+                    {isArabic ? "نيو كايرو ١، القاهرة، مصر" : "New Cairo 1, Cairo, Egypt"}
                   </span>
                   <p className="text-white/40 text-xs mt-1">
                     {isArabic
                       ? "إمكانيات إنتاج عالمية — نعمل في جميع أنحاء الشرق الأوسط والعالم."
                       : "Global production capabilities — operating across the Middle East & Worldwide."}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Card 4: Official Instagram */}
+            <div className="p-6 rounded-2xl bg-[#0c0c0c]/80 backdrop-blur-xl border border-white/10 hover:border-[#C3143D]/40 transition-all duration-300 group">
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-xl bg-[#C3143D]/10 border border-[#C3143D]/30 flex items-center justify-center text-[#C3143D] shrink-0 group-hover:scale-105 transition-transform">
+                  <Instagram size={20} />
+                </div>
+                <div className="flex-1">
+                  <span className="text-[10px] font-sora font-bold uppercase tracking-[0.2em] text-[#C3143D] block mb-1">
+                    {isArabic ? "انستجرام الرسمي" : "Official Instagram"}
+                  </span>
+                  <a
+                    href="https://www.instagram.com/revomedia.eg?obrf=N3cwbGZhdzJ6cWM0"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-base sm:text-lg font-sora font-bold text-white hover:text-[#C3143D] transition-colors block"
+                  >
+                    @revomedia.eg
+                  </a>
+                  <p className="text-white/40 text-xs mt-1">
+                    {isArabic
+                      ? "تابع أحدث كواليس تصوير الحفلات والإنتاجات السينمائية الحية."
+                      : "Follow behind-the-scenes footage and recent stadium concert shoots."}
                   </p>
                 </div>
               </div>

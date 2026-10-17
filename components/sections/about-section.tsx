@@ -162,8 +162,7 @@ export function AboutSection() {
             onPause={() => setIsPlaying(false)}
             className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-700"
           >
-            <source src="/videos/revo-disco-misr.mov" type="video/mp4" />
-            <source src="/videos/revo-disco-misr.mov" type="video/quicktime" />
+            <source src="/videos/revo-disco-misr.mp4" type="video/mp4" />
           </video>
 
           {/* Vignette / Dark Ambient Overlay */}

@@ -16,6 +16,6 @@ const cloudinaryLoader = ({ src, width, quality }: { src: string, width: number,
   return `${parts[0]}/upload/f_auto,q_${quality || "auto"},w_${width}/${parts[1]}`
 }
 
-export function CloudinaryImage(props: ImageProps) {
-  return <Image loader={cloudinaryLoader} {...props} />
+export function CloudinaryImage({ alt = "", ...props }: ImageProps) {
+  return <Image loader={cloudinaryLoader} alt={alt} {...props} />
 }

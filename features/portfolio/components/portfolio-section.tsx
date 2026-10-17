@@ -80,7 +80,7 @@ function ProjectCard({ project, index }: { project: any, index: number }) {
               alt={projectTitle}
               fill
               sizes="(max-width: 768px) 100vw, 60vw"
-              className="object-cover transition-transform duration-[1.5s] ease-[0.16,1,0.3,1] group-hover:scale-105"
+              className="object-cover transition-transform duration-1500 ease-cinematic group-hover:scale-105"
             />
           </motion.div>
           
@@ -258,7 +258,7 @@ export function PortfolioSection() {
         >
           <Link href="/portfolio">
             <button className="group relative px-10 py-5 bg-transparent border border-white/10 rounded-full overflow-hidden hover:border-white/30 transition-colors duration-500 cursor-pointer">
-              <div className="absolute inset-0 w-full h-full bg-white/5 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-[0.16,1,0.3,1]" />
+              <div className="absolute inset-0 w-full h-full bg-white/5 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-cinematic" />
               <span className="relative text-white/80 group-hover:text-white font-medium uppercase tracking-[0.3em] text-xs transition-colors duration-500 flex items-center gap-4">
                 {isArabic ? "عرض جميع المشاريع" : "View All Projects"}{" "}
                 <ArrowUpRight size={14} className="rtl:rotate-180" />

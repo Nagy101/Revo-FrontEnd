@@ -28,6 +28,13 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Prevent flash of homepage before splash screen on first visit */
+html.splash-pending .main-site-content {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);

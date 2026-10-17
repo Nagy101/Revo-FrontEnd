@@ -1,4 +1,5 @@
 import axios, { AxiosInstance } from 'axios';
+import { extractApiErrorMessage } from './api/http-client';
 
 // Create an Axios instance
 const apiClient: AxiosInstance = axios.create({
@@ -37,6 +38,11 @@ apiClient.interceptors.response.use(
           document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
           window.location.href = '/admin/auth';
         }
+      }
+
+      const detailedMessage = extractApiErrorMessage(error.response.data, error.response.status);
+      if (detailedMessage) {
+        error.message = detailedMessage;
       }
     }
     return Promise.reject(error);
