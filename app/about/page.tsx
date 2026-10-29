@@ -78,9 +78,11 @@ export default function AboutPage() {
   const containerRef = useRef<HTMLDivElement>(null)
   const heroRef = useRef<HTMLDivElement>(null)
   const [isMounted, setIsMounted] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
 
   useEffect(() => {
     setIsMounted(true)
+    setIsMobile(window.innerWidth < 768)
   }, [])
 
   const { scrollYProgress: heroScroll } = useScroll({
@@ -88,10 +90,12 @@ export default function AboutPage() {
     offset: ["start start", "end start"]
   })
 
-  // Hero Scroll Parallax
-  const heroY = useTransform(heroScroll, [0, 1], ["0%", "40%"])
+  // Hero Scroll Parallax (Smooth & Jitter-Free on Mobile)
+  const rawHeroY = useTransform(heroScroll, [0, 1], ["0%", "40%"])
   const heroOpacity = useTransform(heroScroll, [0, 1], [1, 0])
-  const heroScale = useTransform(heroScroll, [0, 1], [1, 1.1])
+  const rawHeroScale = useTransform(heroScroll, [0, 1], [1, 1.1])
+  const heroY = isMobile ? "0%" : rawHeroY
+  const heroScale = isMobile ? 1 : rawHeroScale
 
   // Mouse Tracking for Global Ambient Spotlight
   const mouseX = useMotionValue(0)
@@ -385,30 +389,42 @@ export default function AboutPage() {
       </section>
 
       {/* =========================================
-          KINETIC MARQUEE (SMOOTH INFINITE MOTION)
+          KINETIC MARQUEE (PURE GPU CSS KEYFRAMES - ZERO RESET JITTER)
           ========================================= */}
-      <div className="relative py-3.5 bg-[#080808] border-y border-white/10 overflow-hidden select-none z-10">
+      <style>{`
+        @keyframes revoAboutMarqueeTrack {
+          0% { transform: translate3d(0, 0, 0); }
+          100% { transform: translate3d(-50%, 0, 0); }
+        }
+        .revo-about-marquee {
+          display: flex;
+          width: max-content;
+          animation: revoAboutMarqueeTrack 34s linear infinite;
+          will-change: transform;
+        }
+      `}</style>
+      <div className="relative py-3.5 bg-[#080808] border-y border-white/10 overflow-hidden select-none z-10" dir="ltr">
         <div className="absolute inset-0 bg-gradient-to-r from-[#050505] via-transparent to-[#050505] z-10 pointer-events-none" />
-        <motion.div 
-          animate={{ x: [0, -1200] }}
-          transition={{ repeat: Infinity, duration: 24, ease: "linear" }}
-          className="flex items-center gap-8 whitespace-nowrap text-xs md:text-sm font-sora font-extrabold uppercase tracking-[0.3em] text-white/40"
-        >
-          {[...Array(6)].map((_, i) => (
-            <div key={i} className="flex items-center gap-8 shrink-0">
-              <span className="text-white">{isArabic ? "تجارب وفعاليات حية" : "Live Experiences"}</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-[#C3143D]" />
-              <span className="text-white/80">{isArabic ? "سرد سينمائي مبهر" : "Cinematic Storytelling"}</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-[#C3143D]" />
-              <span className="text-white">{isArabic ? "حملات إعلانية وتجارية" : "Commercial Campaigns"}</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-[#C3143D]" />
-              <span className="text-white/80">{isArabic ? "إنتاج سينمائي عالي الجودة" : "High-Production Films"}</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-[#C3143D]" />
-              <span className="text-[#C3143D] font-bold">{isArabic ? "بيت ريفو الإبداعي REVO" : "REVO Creative House"}</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-[#C3143D]" />
+        <div className="revo-about-marquee items-center gap-8 text-xs md:text-sm font-sora font-extrabold uppercase tracking-[0.3em] text-white/40">
+          {[0, 1].map((setIndex) => (
+            <div key={`about-set-${setIndex}`} className="flex items-center gap-8 shrink-0">
+              {[...Array(3)].map((_, i) => (
+                <div key={`about-item-${setIndex}-${i}`} className="flex items-center gap-8 shrink-0">
+                  <span className="text-white">{isArabic ? "تجارب وفعاليات حية" : "Live Experiences"}</span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#C3143D]" />
+                  <span className="text-white/80">{isArabic ? "سرد سينمائي مبهر" : "Cinematic Storytelling"}</span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#C3143D]" />
+                  <span className="text-white">{isArabic ? "حملات إعلانية وتجارية" : "Commercial Campaigns"}</span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#C3143D]" />
+                  <span className="text-white/80">{isArabic ? "إنتاج سينمائي عالي الجودة" : "High-Production Films"}</span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#C3143D]" />
+                  <span className="text-[#C3143D] font-bold">{isArabic ? "بيت ريفو الإبداعي REVO" : "REVO Creative House"}</span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#C3143D]" />
+                </div>
+              ))}
             </div>
           ))}
-        </motion.div>
+        </div>
       </div>
 
       {/* =========================================

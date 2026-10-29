@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { createPortal } from "react-dom"
 import Link from "next/link"
 import Image from "next/image"
@@ -17,6 +17,7 @@ export function Navigation() {
   const pathname = usePathname()
   const [scrolled, setScrolled] = useState(false)
   const { t, locale, isArabic } = useLanguage()
+  const lastToggleRef = useRef(0)
 
   const navItems = [
     { num: "01", name: t("nav_home"), href: "/" },
@@ -57,18 +58,42 @@ export function Navigation() {
     setIsOpen(false)
   }, [pathname])
 
-  // Reset scroll state on route change & track scroll
+  // GPU & Frame-budgeted Scroll Tracking (Zero Touch Contention)
   useEffect(() => {
-    setScrolled(window.scrollY > 50)
+    let rafId: number | null = null
     const handleScroll = () => {
-      setScrolled(window.scrollY > 50)
+      if (rafId === null) {
+        rafId = window.requestAnimationFrame(() => {
+          const isScrolled = window.scrollY > 30
+          setScrolled(prev => (prev !== isScrolled ? isScrolled : prev))
+          rafId = null
+        })
+      }
     }
-    window.addEventListener("scroll", handleScroll)
-    return () => window.removeEventListener("scroll", handleScroll)
+    handleScroll()
+    window.addEventListener("scroll", handleScroll, { passive: true })
+    return () => {
+      if (rafId !== null) window.cancelAnimationFrame(rafId)
+      window.removeEventListener("scroll", handleScroll)
+    }
   }, [pathname])
 
-  const toggleMenu = () => setIsOpen(!isOpen)
-  const closeMenu = () => setIsOpen(false)
+  // Instant Touch Handlers (0ms response, debounced against phantom clicks)
+  const handleToggleMenu = (e: React.SyntheticEvent) => {
+    e.stopPropagation()
+    const now = Date.now()
+    if (now - lastToggleRef.current < 250) return
+    lastToggleRef.current = now
+    setIsOpen(prev => !prev)
+  }
+
+  const handleCloseMenu = (e?: React.SyntheticEvent) => {
+    if (e) e.stopPropagation()
+    const now = Date.now()
+    if (now - lastToggleRef.current < 250) return
+    lastToggleRef.current = now
+    setIsOpen(false)
+  }
 
   return (
     <>
@@ -83,7 +108,7 @@ export function Navigation() {
           <div className="relative flex items-center justify-between h-20">
             {/* Logo (Left) */}
             <div className="flex items-center z-10">
-              <Link href="/" className="flex items-center group py-2" onClick={closeMenu}>
+              <Link href="/" className="flex items-center group py-2" onClick={handleCloseMenu}>
                 <Image
                   src="/images/revo-logo.png"
                   alt="REVO Media Production"
@@ -119,16 +144,17 @@ export function Navigation() {
               </Button>
             </div>
 
-            {/* Mobile Menu Button & Language Switcher */}
+            {/* Mobile Menu Button & Language Switcher (Instant Touch Response) */}
             <div className="lg:hidden flex items-center gap-2.5 z-10">
               <LanguageSwitcher />
               <button
                 type="button"
-                onClick={toggleMenu}
-                className="w-11 h-11 rounded-xl bg-white/5 border border-white/10 hover:border-[#C3143D]/50 hover:bg-[#C3143D]/10 flex items-center justify-center text-foreground hover:text-primary transition-all cursor-pointer active:scale-95 touch-manipulation"
+                onPointerDown={handleToggleMenu}
+                onClick={handleToggleMenu}
+                className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 hover:border-[#C3143D]/50 hover:bg-[#C3143D]/10 flex items-center justify-center text-foreground hover:text-primary transition-all cursor-pointer active:scale-95 touch-manipulation select-none"
                 aria-label="Toggle menu"
               >
-                {isOpen ? <X size={22} /> : <Menu size={22} />}
+                {isOpen ? <X size={24} /> : <Menu size={24} />}
               </button>
             </div>
           </div>
@@ -143,20 +169,21 @@ export function Navigation() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.2, ease: "easeOut" }}
+              transition={{ duration: 0.18, ease: "easeOut" }}
               style={{
                 position: "fixed",
                 inset: 0,
                 width: "100%",
                 height: "100%",
                 zIndex: 999999,
+                touchAction: "pan-y"
               }}
               className="lg:hidden bg-[#050505] flex flex-col justify-between overflow-y-auto"
             >
               {/* Top Header inside overlay matching main nav layout */}
               <div className="w-full px-6 sm:px-8 border-b border-white/10 bg-[#050505] shrink-0 sticky top-0 z-30" dir="ltr">
                 <div className="flex items-center justify-between h-20">
-                  <Link href="/" className="flex items-center py-2" onClick={closeMenu}>
+                  <Link href="/" className="flex items-center py-2" onClick={handleCloseMenu}>
                     <Image
                       src="/images/revo-logo.png"
                       alt="REVO Media Production"
@@ -170,17 +197,18 @@ export function Navigation() {
                     <LanguageSwitcher />
                     <button
                       type="button"
-                      onClick={closeMenu}
-                      className="w-11 h-11 rounded-xl bg-white/5 border border-white/10 hover:border-[#C3143D] hover:bg-[#C3143D]/15 flex items-center justify-center text-white/90 hover:text-[#C3143D] transition-all cursor-pointer active:scale-95 touch-manipulation z-30"
+                      onPointerDown={handleCloseMenu}
+                      onClick={handleCloseMenu}
+                      className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 hover:border-[#C3143D] hover:bg-[#C3143D]/15 flex items-center justify-center text-white/90 hover:text-[#C3143D] transition-all cursor-pointer active:scale-95 touch-manipulation z-30 select-none"
                       aria-label="Close menu"
                     >
-                      <X size={22} />
+                      <X size={24} />
                     </button>
                   </div>
                 </div>
               </div>
 
-              {/* Background Ambient Crimson Accents (GPU Optimized with radial gradients instead of heavy filters) */}
+              {/* Background Ambient Crimson Accents */}
               <div 
                 className="absolute top-20 right-0 w-72 h-72 rounded-full pointer-events-none opacity-40"
                 style={{ background: 'radial-gradient(circle, rgba(195, 20, 61, 0.35) 0%, transparent 70%)' }}
@@ -199,16 +227,11 @@ export function Navigation() {
                   {navItems.map((item, index) => {
                     const isActive = pathname === item.href
                     return (
-                      <motion.div
-                        key={item.href}
-                        initial={{ opacity: 0, x: isArabic ? 20 : -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: index * 0.05 + 0.05, duration: 0.3 }}
-                      >
+                      <div key={item.href}>
                         <Link
                           href={item.href}
-                          onClick={closeMenu}
-                          className={`group relative flex items-center justify-between p-3.5 rounded-2xl transition-all duration-300 border ${
+                          onClick={handleCloseMenu}
+                          className={`group relative flex items-center justify-between p-3.5 rounded-2xl transition-all duration-200 border ${
                             isActive
                               ? "bg-white/[0.06] border-[#C3143D]/40 text-white shadow-[0_0_25px_rgba(195,20,61,0.2)]"
                               : "bg-transparent border-transparent text-white/70 hover:text-white hover:bg-white/[0.03] hover:border-white/5"
@@ -245,23 +268,18 @@ export function Navigation() {
                             )}
                           </div>
                         </Link>
-                      </motion.div>
+                      </div>
                     )
                   })}
                 </div>
 
                 {/* Primary CTA Button */}
-                <motion.div
-                  initial={{ opacity: 0, y: 15 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.32, duration: 0.3 }}
-                  className="pt-6 w-full"
-                >
+                <div className="pt-6 w-full">
                   <Button
                     asChild
                     size="lg"
                     className="w-full h-13 rounded-2xl bg-gradient-to-r from-[#C3143D] via-[#D81B48] to-[#C3143D] hover:from-white hover:to-white hover:text-black text-white font-sora font-bold text-sm tracking-wider uppercase shadow-[0_0_30px_rgba(195,20,61,0.4)] transition-all duration-300 group"
-                    onClick={closeMenu}
+                    onClick={handleCloseMenu}
                   >
                     <Link href="/contact" className="flex items-center justify-center gap-2.5">
                       <Sparkles className="w-4 h-4 text-white/90 group-hover:text-black transition-colors" />
@@ -269,7 +287,7 @@ export function Navigation() {
                       <ArrowUpRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                     </Link>
                   </Button>
-                </motion.div>
+                </div>
               </div>
 
               {/* Bottom Quick Contacts & Agency Info Strip */}

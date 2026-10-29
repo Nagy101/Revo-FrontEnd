@@ -2,19 +2,22 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Volume2, VolumeX, ArrowRight, Sparkles, Film } from 'lucide-react';
+import { Volume2, VolumeX, ArrowRight, Sparkles, Film, Play } from 'lucide-react';
 
 export default function SplashScreen({ onComplete }: { onComplete: () => void }) {
   const [isVisible, setIsVisible] = useState(true);
   const [isMuted, setIsMuted] = useState(true);
+  const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const hasExitedRef = useRef(false);
 
   useEffect(() => {
     document.body.style.overflow = 'hidden';
 
     const video = videoRef.current;
     if (video) {
+      // Strictly enforce muted properties for mobile autoplay policy compliance
       video.muted = true;
       video.defaultMuted = true;
       video.playsInline = true;
@@ -23,25 +26,55 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void })
       video.setAttribute('webkit-playsinline', 'true');
       video.setAttribute('autoplay', '');
 
-      const startPlayback = () => {
+      const handlePlaying = () => setIsPlaying(true);
+      const handlePause = () => setIsPlaying(false);
+
+      video.addEventListener('playing', handlePlaying);
+      video.addEventListener('play', handlePlaying);
+      video.addEventListener('pause', handlePause);
+
+      const tryPlay = () => {
+        if (!video) return;
+        video.muted = true;
         const p = video.play();
         if (p !== undefined) {
-          p.catch(() => {
-            // Autoplay restricted by browser policy or low power mode - force muted retry
-            video.muted = true;
-            video.play().catch(() => {});
+          p.then(() => setIsPlaying(true)).catch(() => {
+            // Autoplay blocked by mobile battery/power saver policy
+            setIsPlaying(false);
           });
         }
       };
 
-      startPlayback();
-      video.addEventListener('canplay', startPlayback, { once: true });
-      video.addEventListener('loadeddata', startPlayback, { once: true });
-    }
+      tryPlay();
+      video.addEventListener('loadedmetadata', tryPlay, { once: true });
+      video.addEventListener('canplay', tryPlay, { once: true });
 
-    // Progress bar animation: 0% to 100% over 4.5s
+      // First touch/tap anywhere on the window starts silent playback if blocked
+      const handleFirstTouch = () => {
+        if (video && video.paused) {
+          video.muted = true;
+          video.play().catch(() => {});
+        }
+      };
+      window.addEventListener('touchstart', handleFirstTouch, { once: true, passive: true });
+      window.addEventListener('pointerdown', handleFirstTouch, { once: true, passive: true });
+
+      return () => {
+        video.removeEventListener('playing', handlePlaying);
+        video.removeEventListener('play', handlePlaying);
+        video.removeEventListener('pause', handlePause);
+        video.removeEventListener('loadedmetadata', tryPlay);
+        video.removeEventListener('canplay', tryPlay);
+        window.removeEventListener('touchstart', handleFirstTouch);
+        window.removeEventListener('pointerdown', handleFirstTouch);
+      };
+    }
+  }, []);
+
+  useEffect(() => {
+    // Smooth progress bar: 0% to 100% over 5s
     const startTime = Date.now();
-    const duration = 4500;
+    const duration = 5000;
 
     const interval = setInterval(() => {
       const elapsed = Date.now() - startTime;
@@ -60,15 +93,20 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void })
     };
   }, []);
 
-  const handleExit = (e?: React.MouseEvent) => {
+  const handleExit = (e?: React.SyntheticEvent) => {
     if (e) e.stopPropagation();
+    if (hasExitedRef.current) return;
+    hasExitedRef.current = true;
     setIsVisible(false);
     document.body.style.overflow = 'auto';
-    setTimeout(onComplete, 700);
+    setTimeout(onComplete, 600);
   };
 
-  const toggleSound = (e?: React.MouseEvent) => {
-    if (e) e.stopPropagation();
+  const toggleSound = (e?: React.SyntheticEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     const video = videoRef.current;
     if (video) {
       if (video.paused) {
@@ -81,17 +119,12 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void })
     }
   };
 
-  const handleContainerClick = () => {
+  const handleContainerTap = (e: React.SyntheticEvent) => {
+    // If the video is paused, tap starts playback SILENTLY (does NOT force unmute)
     const video = videoRef.current;
-    if (video) {
-      if (video.paused) {
-        video.play().catch(() => {});
-      }
-      if (isMuted) {
-        video.muted = false;
-        video.volume = 1;
-        setIsMuted(false);
-      }
+    if (video && video.paused) {
+      video.muted = isMuted;
+      video.play().catch(() => {});
     }
   };
 
@@ -101,27 +134,16 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void })
         <motion.div
           key="splash"
           initial={{ opacity: 1 }}
-          exit={{ opacity: 0, scale: 1.06, filter: 'blur(16px)' }}
-          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          onClick={handleContainerClick}
-          onPointerDown={handleContainerClick}
+          exit={{ opacity: 0, scale: 1.04, filter: 'blur(12px)' }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          onClick={handleContainerTap}
           className="fixed inset-0 z-[9999] flex flex-col justify-between bg-[#050505] overflow-hidden select-none cursor-pointer touch-manipulation"
         >
           {/* ── CINEMATIC FULL-SCREEN VIDEO BACKGROUND ── */}
           <div className="absolute inset-0 z-0">
             <video
-              ref={(el) => {
-                videoRef.current = el;
-                if (el) {
-                  el.muted = true;
-                  el.defaultMuted = true;
-                  el.playsInline = true;
-                  el.setAttribute('muted', '');
-                  el.setAttribute('playsinline', '');
-                  el.setAttribute('webkit-playsinline', 'true');
-                  el.setAttribute('autoplay', '');
-                }
-              }}
+              ref={videoRef}
+              src="/videos/revo-disco-misr.mp4"
               autoPlay
               muted
               loop
@@ -162,23 +184,23 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void })
               </span>
             </motion.div>
 
-            {/* Audio Toggle */}
+            {/* Audio Toggle (Controls sound independently without locking video) */}
             <motion.button
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.3 }}
               onClick={toggleSound}
               type="button"
-              className={`group flex items-center gap-2 px-4 py-2 rounded-full border backdrop-blur-md transition-all cursor-pointer shadow-lg ${
+              className={`group flex items-center gap-2 px-4 py-2 rounded-full border backdrop-blur-md transition-all cursor-pointer shadow-lg active:scale-95 ${
                 isMuted 
-                  ? "bg-[#C3143D]/25 hover:bg-[#C3143D]/40 border-[#C3143D]/60 text-white animate-pulse" 
+                  ? "bg-black/60 hover:bg-[#C3143D]/20 border-white/20 text-white/80 hover:text-white" 
                   : "bg-emerald-500/20 hover:bg-emerald-500/30 border-emerald-500/50 text-emerald-200"
               }`}
             >
               {isMuted ? (
                 <>
-                  <VolumeX className="w-4 h-4 text-[#C3143D]" />
-                  <span className="text-[11px] font-semibold tracking-wide">تشغيل الصوت • Unmute</span>
+                  <VolumeX className="w-4 h-4 text-white/60 group-hover:text-[#C3143D]" />
+                  <span className="text-[11px] font-semibold tracking-wide">صوت العرض • Sound Off</span>
                 </>
               ) : (
                 <>
@@ -194,12 +216,12 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void })
             
             {/* Glowing Logo Container */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.8, y: 20 }}
+              initial={{ opacity: 0, scale: 0.85, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               transition={{ 
-                duration: 1.2, 
+                duration: 1.1, 
                 ease: [0.16, 1, 0.3, 1],
-                delay: 0.3 
+                delay: 0.25 
               }}
               className="relative inline-block mb-6 group"
             >
@@ -217,7 +239,7 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void })
             <motion.div
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.9, delay: 0.8, ease: "easeOut" }}
+              transition={{ duration: 0.9, delay: 0.6, ease: "easeOut" }}
               className="flex items-center gap-3 sm:gap-4 mb-3"
             >
               <div className="w-8 sm:w-16 h-[1px] bg-gradient-to-r from-transparent to-[#C3143D]" />
@@ -231,22 +253,22 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void })
             <motion.p
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ duration: 0.8, delay: 1.2 }}
+              transition={{ duration: 0.8, delay: 0.9 }}
               className="text-[11px] sm:text-xs text-white/50 tracking-[0.25em] uppercase font-light"
             >
               Concerts • Mega Stadium Scale • Commercial Cinema
             </motion.p>
 
-            {/* Sound Prompt Hint */}
-            {isMuted && (
+            {/* Play prompt shown ONLY if mobile browser policy paused the video */}
+            {!isPlaying && (
               <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.8 }}
-                className="mt-4 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[11px] text-white/70 tracking-wider backdrop-blur-md"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5, delay: 0.5 }}
+                className="mt-5 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#C3143D]/30 border border-[#C3143D]/60 text-xs text-white tracking-wider backdrop-blur-md animate-pulse shadow-lg"
               >
-                <span className="w-1.5 h-1.5 rounded-full bg-[#C3143D] animate-ping" />
-                <span>انقر في أي مكان لتشغيل الصوت • Tap anywhere for sound</span>
+                <Play className="w-3.5 h-3.5 fill-current text-white" />
+                <span>انقر في أي مكان لتشغيل الفيديو • Tap to play</span>
               </motion.div>
             )}
           </div>
@@ -265,7 +287,7 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void })
               <button
                 type="button"
                 onClick={handleExit}
-                className="group inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white/[0.08] hover:bg-[#C3143D] border border-white/15 hover:border-[#C3143D] text-xs font-semibold text-white tracking-wider uppercase transition-all duration-300 backdrop-blur-md cursor-pointer shadow-lg hover:shadow-[0_0_25px_rgba(195,20,61,0.5)] active:scale-95"
+                className="group inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/[0.08] hover:bg-[#C3143D] border border-white/15 hover:border-[#C3143D] text-xs font-semibold text-white tracking-wider uppercase transition-all duration-300 backdrop-blur-md cursor-pointer shadow-lg hover:shadow-[0_0_25px_rgba(195,20,61,0.5)] active:scale-95"
               >
                 <span>Enter Website</span>
                 <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
