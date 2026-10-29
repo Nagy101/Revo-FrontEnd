@@ -17,6 +17,14 @@ export default function AmbientLight() {
 
     if (!container || spots.length < 1) return
 
+    if (typeof window !== "undefined" && window.innerWidth < 768) {
+      // On mobile devices, keep spots static and lightweight to preserve full performance
+      gsap.set(spots[0], { xPercent: -20, yPercent: -10, opacity: 0.15 })
+      if (spots[1]) gsap.set(spots[1], { xPercent: 20, yPercent: 10, opacity: 0.15 })
+      if (spots[2]) gsap.set(spots[2], { xPercent: 0, yPercent: 20, opacity: 0.12 })
+      return
+    }
+
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
 
     const rand = (min: number, max: number) => Math.random() * (max - min) + min
