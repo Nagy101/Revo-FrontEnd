@@ -116,7 +116,7 @@ export function ClientsSection() {
         </div>
 
         {/* ── TRACK 2: DARK LUXURY FROSTED RIBBON (Right Scrolling) ── */}
-        <div className="relative w-full py-4 md:py-5 bg-white/[0.03] backdrop-blur-xl border-y border-white/10 flex items-center overflow-hidden transform rotate-1 md:rotate-1 will-change-transform" dir="ltr">
+        <div className="relative w-full py-4 md:py-5 bg-black/60 md:bg-white/[0.03] md:backdrop-blur-xl border-y border-white/10 flex items-center overflow-hidden transform rotate-1 md:rotate-1 will-change-transform" dir="ltr">
           <div className="revo-marquee-right items-center gap-8 md:gap-14 select-none">
             {trackTwoItems.map((name, index) => (
               <div key={`t2-${name}-${index}`} className="flex items-center gap-8 md:gap-14 shrink-0">

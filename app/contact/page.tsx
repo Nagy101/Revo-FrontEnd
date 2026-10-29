@@ -97,6 +97,7 @@ export default function ContactPage() {
   const smoothY = useSpring(mouseY, { damping: 40, stiffness: 200, mass: 0.5 })
 
   useEffect(() => {
+    if (typeof window !== "undefined" && window.innerWidth < 768) return
     const handleMouseMove = (e: MouseEvent) => {
       mouseX.set(e.clientX)
       mouseY.set(e.clientY)
@@ -141,11 +142,11 @@ export default function ContactPage() {
         <div className="absolute inset-0 bg-gradient-to-b from-[#050505]/70 via-[#050505]/60 to-[#050505]" />
       </div>
 
-      {/* ── MOUSE SPOTLIGHT (GPU ACCELERATED) ── */}
+      {/* ── MOUSE SPOTLIGHT (DESKTOP ONLY - GPU ACCELERATED) ── */}
       {isMounted && (
         <motion.div
           style={{ left: smoothX, top: smoothY, x: "-50%", y: "-50%" }}
-          className="fixed w-[900px] h-[900px] bg-[#C3143D]/12 rounded-full blur-[240px] pointer-events-none z-0"
+          className="hidden md:block fixed w-[900px] h-[900px] bg-[#C3143D]/12 rounded-full blur-[240px] pointer-events-none z-0"
         />
       )}
 

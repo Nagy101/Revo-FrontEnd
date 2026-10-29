@@ -123,8 +123,9 @@ export function Navigation() {
             <div className="lg:hidden flex items-center gap-2.5 z-10">
               <LanguageSwitcher />
               <button
+                type="button"
                 onClick={toggleMenu}
-                className="w-11 h-11 rounded-xl bg-white/5 border border-white/10 hover:border-[#C3143D]/50 hover:bg-[#C3143D]/10 flex items-center justify-center text-foreground hover:text-primary transition-all cursor-pointer active:scale-95"
+                className="w-11 h-11 rounded-xl bg-white/5 border border-white/10 hover:border-[#C3143D]/50 hover:bg-[#C3143D]/10 flex items-center justify-center text-foreground hover:text-primary transition-all cursor-pointer active:scale-95 touch-manipulation"
                 aria-label="Toggle menu"
               >
                 {isOpen ? <X size={22} /> : <Menu size={22} />}
@@ -142,21 +143,18 @@ export function Navigation() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.25, ease: "easeInOut" }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
               style={{
                 position: "fixed",
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                width: "100vw",
-                height: "100dvh",
+                inset: 0,
+                width: "100%",
+                height: "100%",
                 zIndex: 999999,
               }}
-              className="lg:hidden bg-[#050505] flex flex-col justify-between overflow-y-auto overscroll-contain select-none"
+              className="lg:hidden bg-[#050505] flex flex-col justify-between overflow-y-auto"
             >
               {/* Top Header inside overlay matching main nav layout */}
-              <div className="w-full px-6 sm:px-8 border-b border-white/10 bg-[#050505]/95 backdrop-blur-md shrink-0 sticky top-0 z-20" dir="ltr">
+              <div className="w-full px-6 sm:px-8 border-b border-white/10 bg-[#050505] shrink-0 sticky top-0 z-30" dir="ltr">
                 <div className="flex items-center justify-between h-20">
                   <Link href="/" className="flex items-center py-2" onClick={closeMenu}>
                     <Image
@@ -171,8 +169,9 @@ export function Navigation() {
                   <div className="flex items-center gap-2.5">
                     <LanguageSwitcher />
                     <button
+                      type="button"
                       onClick={closeMenu}
-                      className="w-11 h-11 rounded-xl bg-white/5 border border-white/10 hover:border-[#C3143D] hover:bg-[#C3143D]/15 flex items-center justify-center text-white/90 hover:text-[#C3143D] transition-all cursor-pointer active:scale-95"
+                      className="w-11 h-11 rounded-xl bg-white/5 border border-white/10 hover:border-[#C3143D] hover:bg-[#C3143D]/15 flex items-center justify-center text-white/90 hover:text-[#C3143D] transition-all cursor-pointer active:scale-95 touch-manipulation z-30"
                       aria-label="Close menu"
                     >
                       <X size={22} />
@@ -181,9 +180,15 @@ export function Navigation() {
                 </div>
               </div>
 
-              {/* Background Ambient Crimson Accents */}
-              <div className="absolute top-20 right-0 w-80 h-80 bg-[#C3143D]/15 rounded-full blur-[140px] pointer-events-none" />
-              <div className="absolute bottom-20 left-0 w-80 h-80 bg-[#C3143D]/10 rounded-full blur-[140px] pointer-events-none" />
+              {/* Background Ambient Crimson Accents (GPU Optimized with radial gradients instead of heavy filters) */}
+              <div 
+                className="absolute top-20 right-0 w-72 h-72 rounded-full pointer-events-none opacity-40"
+                style={{ background: 'radial-gradient(circle, rgba(195, 20, 61, 0.35) 0%, transparent 70%)' }}
+              />
+              <div 
+                className="absolute bottom-20 left-0 w-72 h-72 rounded-full pointer-events-none opacity-30"
+                style={{ background: 'radial-gradient(circle, rgba(195, 20, 61, 0.3) 0%, transparent 70%)' }}
+              />
 
               {/* Main Menu Links Section */}
               <div

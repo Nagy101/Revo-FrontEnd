@@ -104,12 +104,24 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void })
           exit={{ opacity: 0, scale: 1.06, filter: 'blur(16px)' }}
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
           onClick={handleContainerClick}
-          className="fixed inset-0 z-[9999] flex flex-col justify-between bg-[#050505] overflow-hidden select-none cursor-pointer"
+          onPointerDown={handleContainerClick}
+          className="fixed inset-0 z-[9999] flex flex-col justify-between bg-[#050505] overflow-hidden select-none cursor-pointer touch-manipulation"
         >
           {/* ── CINEMATIC FULL-SCREEN VIDEO BACKGROUND ── */}
           <div className="absolute inset-0 z-0">
             <video
-              ref={videoRef}
+              ref={(el) => {
+                videoRef.current = el;
+                if (el) {
+                  el.muted = true;
+                  el.defaultMuted = true;
+                  el.playsInline = true;
+                  el.setAttribute('muted', '');
+                  el.setAttribute('playsinline', '');
+                  el.setAttribute('webkit-playsinline', 'true');
+                  el.setAttribute('autoplay', '');
+                }
+              }}
               autoPlay
               muted
               loop

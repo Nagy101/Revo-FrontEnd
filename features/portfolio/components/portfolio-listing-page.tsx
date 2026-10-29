@@ -219,6 +219,7 @@ export function PortfolioListingPage() {
   const smoothPixelY = useSpring(mousePixelY, { damping: 40, stiffness: 150, mass: 0.5 });
 
   useEffect(() => {
+    if (typeof window !== "undefined" && window.innerWidth < 768) return;
     const handleMouseMove = (e: MouseEvent) => {
       mouseX.set((e.clientX / window.innerWidth) * 2 - 1);
       mouseY.set((e.clientY / window.innerHeight) * 2 - 1);
@@ -298,10 +299,10 @@ export function PortfolioListingPage() {
           <div className="absolute inset-0 bg-gradient-to-b from-[#050505]/80 via-transparent to-[#050505]/60" />
         </motion.div>
 
-        {/* MOUSE SPOTLIGHT (GPU ACCELERATED) */}
+        {/* MOUSE SPOTLIGHT (DESKTOP ONLY - GPU ACCELERATED) */}
         {isMounted && (
           <motion.div
-            className="fixed top-0 left-0 w-[1600px] h-[1600px] rounded-full pointer-events-none z-0 will-change-transform"
+            className="hidden md:block fixed top-0 left-0 w-[1600px] h-[1600px] rounded-full pointer-events-none z-0 will-change-transform"
             style={{
               background:
                 "radial-gradient(circle, rgba(195, 20, 61, 0.15) 0%, transparent 60%)",
