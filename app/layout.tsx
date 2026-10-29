@@ -1,5 +1,6 @@
 import type React from "react"
 import type { Metadata } from "next"
+import Image from "next/image"
 import { Inter, Sora } from "next/font/google"
 import "./globals.css"
 import ClientLayout from "./ClientLayout"
@@ -91,7 +92,24 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="font-inter antialiased overflow-x-hidden selection:bg-[#C3143D] selection:text-white">
+      <body className="font-inter antialiased overflow-x-hidden selection:bg-[#C3143D] selection:text-white bg-[#050505]">
+        {/* Instant SSR Splash Shell: displayed immediately by browser engine before React hydrates */}
+        <div id="revo-initial-splash" aria-hidden="true">
+          <div className="revo-splash-aura" />
+          <Image
+            src="/images/revo-logo.png"
+            alt="REVO"
+            className="revo-splash-logo"
+            width={160}
+            height={80}
+            priority
+          />
+          <div className="revo-splash-tagline">
+            <span className="revo-splash-line" />
+            <span className="revo-splash-text">Creative Media Production</span>
+            <span className="revo-splash-line" />
+          </div>
+        </div>
         <ClientLayout>{children}</ClientLayout>
       </body>
     </html>

@@ -13,19 +13,35 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void })
   useEffect(() => {
     document.body.style.overflow = 'hidden';
 
-    if (videoRef.current) {
-      videoRef.current.play().catch(() => {
-        if (videoRef.current) {
-          videoRef.current.muted = true;
-          setIsMuted(true);
-          videoRef.current.play().catch(() => {});
+    const video = videoRef.current;
+    if (video) {
+      video.muted = true;
+      video.defaultMuted = true;
+      video.playsInline = true;
+      video.setAttribute('muted', '');
+      video.setAttribute('playsinline', '');
+      video.setAttribute('webkit-playsinline', 'true');
+      video.setAttribute('autoplay', '');
+
+      const startPlayback = () => {
+        const p = video.play();
+        if (p !== undefined) {
+          p.catch(() => {
+            // Autoplay restricted by browser policy or low power mode - force muted retry
+            video.muted = true;
+            video.play().catch(() => {});
+          });
         }
-      });
+      };
+
+      startPlayback();
+      video.addEventListener('canplay', startPlayback, { once: true });
+      video.addEventListener('loadeddata', startPlayback, { once: true });
     }
 
-    // Progress bar animation: 0% to 100% over 3.8s
+    // Progress bar animation: 0% to 100% over 4.5s
     const startTime = Date.now();
-    const duration = 3800;
+    const duration = 4500;
 
     const interval = setInterval(() => {
       const elapsed = Date.now() - startTime;
@@ -53,19 +69,29 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void })
 
   const toggleSound = (e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
-    if (videoRef.current) {
-      const nextMuted = !videoRef.current.muted;
-      videoRef.current.muted = nextMuted;
-      videoRef.current.volume = 1;
+    const video = videoRef.current;
+    if (video) {
+      if (video.paused) {
+        video.play().catch(() => {});
+      }
+      const nextMuted = !video.muted;
+      video.muted = nextMuted;
+      video.volume = 1;
       setIsMuted(nextMuted);
     }
   };
 
   const handleContainerClick = () => {
-    if (videoRef.current && isMuted) {
-      videoRef.current.muted = false;
-      videoRef.current.volume = 1;
-      setIsMuted(false);
+    const video = videoRef.current;
+    if (video) {
+      if (video.paused) {
+        video.play().catch(() => {});
+      }
+      if (isMuted) {
+        video.muted = false;
+        video.volume = 1;
+        setIsMuted(false);
+      }
     }
   };
 
@@ -85,7 +111,7 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void })
             <video
               ref={videoRef}
               autoPlay
-              muted={isMuted}
+              muted
               loop
               playsInline
               preload="auto"
