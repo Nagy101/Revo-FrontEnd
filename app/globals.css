@@ -35,6 +35,79 @@ html.splash-pending .main-site-content {
   pointer-events: none !important;
 }
 
+/* Instant SSR Splash Shell: displayed immediately by browser engine before React hydrates */
+#revo-initial-splash {
+  display: none;
+}
+
+html.splash-pending #revo-initial-splash {
+  display: flex;
+  position: fixed;
+  inset: 0;
+  z-index: 9990;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #050505;
+  pointer-events: none;
+}
+
+.revo-splash-aura {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(550px, 92vw);
+  height: min(550px, 92vw);
+  background: radial-gradient(circle, rgba(195, 20, 61, 0.35) 0%, transparent 70%);
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+}
+
+.revo-splash-logo {
+  position: relative;
+  height: 80px;
+  width: auto;
+  object-fit: contain;
+  margin-bottom: 24px;
+  filter: drop-shadow(0 15px 35px rgba(195, 20, 61, 0.6));
+  animation: revoPulse 2.2s ease-in-out infinite alternate;
+}
+
+.revo-splash-tagline {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.revo-splash-line {
+  width: 36px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #C3143D);
+}
+
+.revo-splash-text {
+  font-size: 11px;
+  letter-spacing: 0.38em;
+  color: rgba(255, 255, 255, 0.85);
+  text-transform: uppercase;
+  font-weight: 600;
+  font-family: var(--font-sora), sans-serif;
+}
+
+@keyframes revoPulse {
+  0% {
+    transform: scale(0.97);
+    opacity: 0.85;
+  }
+  100% {
+    transform: scale(1.03);
+    opacity: 1;
+  }
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
