@@ -91,12 +91,14 @@ export function extractApiErrorMessage(errorData: any, status?: number): string 
 }
 
 const getBaseUrl = () => {
-  return process.env.NEXT_PUBLIC_API_URL || "https://localhost:7286/api"
+  const base = process.env.NEXT_PUBLIC_API_URL || "https://localhost:7286/api"
+  return base.replace(/\/+$/, "")
 }
 
 export const httpClient = {
   async fetch<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-    const url = `${getBaseUrl()}${endpoint}`
+    const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`
+    const url = `${getBaseUrl()}${cleanEndpoint}`
     
     const headers: Record<string, string> = {
       "Content-Type": "application/json",

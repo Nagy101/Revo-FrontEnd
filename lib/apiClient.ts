@@ -1,9 +1,14 @@
 import axios, { AxiosInstance } from 'axios';
 import { extractApiErrorMessage } from './api/http-client';
 
+const getBaseUrl = () => {
+  const base = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+  return base.replace(/\/+$/, '');
+};
+
 // Create an Axios instance
 const apiClient: AxiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000',
+  baseURL: getBaseUrl(),
   headers: {
     'Content-Type': 'application/json',
   },
