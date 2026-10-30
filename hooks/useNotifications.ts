@@ -32,7 +32,7 @@ export function useNotifications() {
   }, [fetchInitialData]);
 
   useEffect(() => {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://revo-media.net/api';
     const baseUrl = apiUrl.endsWith('/api') ? apiUrl.slice(0, -4) : apiUrl.replace(/\/+$/, '');
     const hubUrl = process.env.NEXT_PUBLIC_SIGNALR_URL || `${baseUrl}/hubs/notifications`;
 

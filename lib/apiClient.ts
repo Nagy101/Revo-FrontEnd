@@ -2,7 +2,7 @@ import axios, { AxiosInstance } from 'axios';
 import { extractApiErrorMessage } from './api/http-client';
 
 const getBaseUrl = () => {
-  const base = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+  const base = process.env.NEXT_PUBLIC_API_URL || 'https://revo-media.net/api';
   return base.replace(/\/+$/, '');
 };
 

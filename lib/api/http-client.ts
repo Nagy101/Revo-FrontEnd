@@ -91,7 +91,7 @@ export function extractApiErrorMessage(errorData: any, status?: number): string 
 }
 
 const getBaseUrl = () => {
-  const base = process.env.NEXT_PUBLIC_API_URL || "https://localhost:7286/api"
+  const base = process.env.NEXT_PUBLIC_API_URL || "https://revo-media.net/api"
   return base.replace(/\/+$/, "")
 }
 
