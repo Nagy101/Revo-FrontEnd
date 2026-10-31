@@ -110,12 +110,20 @@ export default function ContactPage() {
     e.preventDefault()
     if (!formData.name.trim() || !formData.phoneNumber.trim()) return
 
+    const selectedService = services.find(s => s.id === formData.serviceId)
+    const isGuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(formData.serviceId)
+
+    let finalMessage = formData.message.trim() || (isArabic ? "طلب استفسار عبر موقع ريفو" : "Inquiry submitted via REVO Contact Portal")
+    if (!isGuid && selectedService) {
+      finalMessage = `[${isArabic ? "الخدمة المطلوبة" : "Service"}: ${selectedService.name}] ${finalMessage}`
+    }
+
     submitContact(
       {
         name: formData.name.trim(),
-        phoneNumber: formData.phoneNumber.trim().replace(/[\s-]/g, ""),
-        message: formData.message.trim() || "Inquiry submitted via REVO Contact Portal",
-        serviceId: formData.serviceId || undefined,
+        phoneNumber: formData.phoneNumber.trim(),
+        message: finalMessage,
+        serviceId: isGuid ? formData.serviceId : undefined,
       },
       {
         onSuccess: () => {

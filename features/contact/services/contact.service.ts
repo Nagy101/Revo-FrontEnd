@@ -4,8 +4,32 @@ import { ContactRequestItem, CreateContactRequestPayload } from "../types";
 
 export const contactRequestsService = {
   create: (payload: CreateContactRequestPayload) => {
-    // Expected to accept JSON implicitly since body is a plain object
-    return httpClient.post<ApiResponse<{ id: string }>>("/ContactRequests", payload);
+    const isGuid = (val?: string) =>
+      typeof val === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(val.trim());
+
+    // Normalize Egyptian phone number (strip +20, 0020, spaces, dashes)
+    let cleanPhone = payload.phoneNumber.trim().replace(/[\s-]/g, "");
+    if (cleanPhone.startsWith("+20")) cleanPhone = cleanPhone.slice(2);
+    else if (cleanPhone.startsWith("0020")) cleanPhone = cleanPhone.slice(4);
+    else if (cleanPhone.startsWith("+2")) cleanPhone = cleanPhone.slice(2);
+
+    let messageText = payload.message.trim();
+
+    const body: Record<string, any> = {
+      name: payload.name.trim(),
+      phoneNumber: cleanPhone,
+      message: messageText || "Inquiry submitted via REVO Contact Portal",
+    };
+
+    const rawServiceId = payload.serviceId?.trim();
+    if (rawServiceId && isGuid(rawServiceId)) {
+      body.serviceId = rawServiceId;
+    } else if (rawServiceId) {
+      // Append non-guid service name/slug into the message so it's not lost
+      body.message = `[Service: ${rawServiceId}] ${body.message}`;
+    }
+
+    return httpClient.post<ApiResponse<{ id: string }>>("/ContactRequests", body);
   },
 
   getAll: (pageIndex: number = 1, pageSize: number = 10, isRead?: boolean) => {
