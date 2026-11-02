@@ -90,81 +90,6 @@ function MarqueeStrip() {
   );
 }
 
-const FALLBACK_CATEGORIES = [
-  { id: "concerts", nameEn: "Live Concerts", nameAr: "حفلات لايف" },
-  { id: "production", nameEn: "Media Production", nameAr: "إنتاج سينمائي" },
-  { id: "commercial", nameEn: "Commercial Campaigns", nameAr: "إعلانات تجارية" },
-];
-
-const FALLBACK_PROJECTS: PortfolioItem[] = [
-  {
-    id: "cairokee-empire",
-    captionEn: "Cairokee Empire Festival — Live Arena",
-    captionAr: "مهرجان إمبراطورية كايروكي — لايف أرينا",
-    orderIndex: 1,
-    categoryNameEn: "Live Concerts",
-    categoryNameAr: "حفلات لايف",
-    categoryId: "concerts",
-    thumbnailUrl: "/images/revo-hero-bg.jpg",
-    thumbnailType: MediaType.Video,
-  },
-  {
-    id: "revo-live-vocals",
-    captionEn: "Raw Vocals & Stage Energy",
-    captionAr: "طاقة المسرح والأداء الحي",
-    orderIndex: 2,
-    categoryNameEn: "Live Concerts",
-    categoryNameAr: "حفلات لايف",
-    categoryId: "concerts",
-    thumbnailUrl: "/images/revo-portfolio-card1.jpg",
-    thumbnailType: MediaType.Image,
-  },
-  {
-    id: "guitar-solo-mastery",
-    captionEn: "Electric Solo — Stadium Tour",
-    captionAr: "صولو جيتار — جولة الاستاد",
-    orderIndex: 3,
-    categoryNameEn: "Media Production",
-    categoryNameAr: "إنتاج سينمائي",
-    categoryId: "production",
-    thumbnailUrl: "/images/revo-portfolio-card2.jpg",
-    thumbnailType: MediaType.Video,
-  },
-  {
-    id: "acoustic-sunset",
-    captionEn: "Acoustic Sunset Sessions",
-    captionAr: "جلسات أكوستيك وقت الغروب",
-    orderIndex: 4,
-    categoryNameEn: "Commercial Campaigns",
-    categoryNameAr: "إعلانات تجارية",
-    categoryId: "commercial",
-    thumbnailUrl: "/images/revo-band.jpg",
-    thumbnailType: MediaType.Image,
-  },
-  {
-    id: "arena-live-production",
-    captionEn: "Reda Elbahrawy — Arena Live Spectacle",
-    captionAr: "رضا البحراوي — حفل أرينا الضخم",
-    orderIndex: 5,
-    categoryNameEn: "Live Concerts",
-    categoryNameAr: "حفلات لايف",
-    categoryId: "concerts",
-    thumbnailUrl: "/images/revo-singer.jpg",
-    thumbnailType: MediaType.Video,
-  },
-  {
-    id: "stadium-visual-symphony",
-    captionEn: "Stadium Visual Symphony & Fireworks",
-    captionAr: "سمفونية الإبهار البصري والألعاب النارية",
-    orderIndex: 6,
-    categoryNameEn: "Media Production",
-    categoryNameAr: "إنتاج سينمائي",
-    categoryId: "production",
-    thumbnailUrl: "/images/revo-services-card2.jpg",
-    thumbnailType: MediaType.Video,
-  },
-];
-
 export function PortfolioListingPage() {
   const { isArabic, t } = useLanguage();
   const { data: portfolios = [], isLoading: isLoadingPortfolios } =
@@ -172,13 +97,8 @@ export function PortfolioListingPage() {
   const { data: categoriesResponse, isLoading: isLoadingCategories } =
     useCategories();
 
-  const categories =
-    categoriesResponse?.data?.data && categoriesResponse.data.data.length > 0
-      ? categoriesResponse.data.data
-      : FALLBACK_CATEGORIES;
-
-  const rawProjects: PortfolioItem[] =
-    portfolios && portfolios.length > 0 ? portfolios : FALLBACK_PROJECTS;
+  const categories = categoriesResponse?.data?.data || [];
+  const rawProjects: PortfolioItem[] = Array.isArray(portfolios) ? portfolios : [];
 
   // Active categories: trim trailing whitespace and filter out categories with 0 projects
   const activeCategories = categories

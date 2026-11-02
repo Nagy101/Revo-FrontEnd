@@ -47,12 +47,6 @@ export function PortfolioDetailContent({ slug }: PortfolioDetailContentProps) {
     window.scrollTo({ top: 0, behavior: "smooth" })
   }, [slug])
 
-  useEffect(() => {
-    if (isError) {
-      router.push("/404")
-    }
-  }, [isError, router])
-
   // Escape key for lightbox
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {

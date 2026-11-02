@@ -11,8 +11,8 @@ import { authService } from "@/lib/auth.service"
 import { extractApiErrorMessage } from "@/lib/api/http-client"
 
 export function AuthShell() {
-  const [email, setEmail]           = useState("admin1@revo.com")
-  const [password, setPassword]     = useState("Password@123")
+  const [email, setEmail]           = useState("")
+  const [password, setPassword]     = useState("")
   const [showPassword, setShowPass] = useState(false)
   const [isLoading, setIsLoading]   = useState(false)
   const [error, setError]           = useState("")
@@ -142,7 +142,8 @@ export function AuthShell() {
             <input
               type="email" value={email} onChange={(e) => setEmail(e.target.value)}
               onFocus={() => setFocused("email")} onBlur={() => setFocused(null)}
-              placeholder="admin1@revo.com" required
+              placeholder="admin@revo-media.net" required
+              autoComplete="username"
               style={{ width: "100%", height: 46, paddingLeft: 44, paddingRight: 16, background: "transparent", border: "none", outline: "none", color: "#fff", fontSize: "0.9rem" }}
             />
           </div>
@@ -166,6 +167,7 @@ export function AuthShell() {
               onChange={(e) => setPassword(e.target.value)}
               onFocus={() => setFocused("password")} onBlur={() => setFocused(null)}
               placeholder="••••••••••••" required
+              autoComplete="current-password"
               style={{ width: "100%", height: 46, paddingLeft: 44, paddingRight: 46, background: "transparent", border: "none", outline: "none", color: "#fff", fontSize: "0.9rem" }}
             />
             <button type="button" onClick={() => setShowPass(!showPassword)}

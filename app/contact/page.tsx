@@ -29,14 +29,6 @@ import { useLanguage } from "@/lib/i18n/language-context"
 
 const EASE = [0.16, 1, 0.3, 1] as const
 
-const FALLBACK_SERVICE_PILLS = [
-  { id: "concerts", nameEn: "Live Concerts", nameAr: "حفلات استادات ومهرجانات" },
-  { id: "production", nameEn: "Media Production", nameAr: "إنتاج إعلامي وسينمائي" },
-  { id: "commercial", nameEn: "Commercial Films", nameAr: "إعلانات تجارية" },
-  { id: "branding", nameEn: "Branding & Identity", nameAr: "هوية بصرية وتصميم" },
-  { id: "general", nameEn: "General Inquiry", nameAr: "استفسار عام" },
-]
-
 const TRUSTED_CLIENTS = [
   "SODIC",
   "CAIROKEE",
@@ -80,10 +72,7 @@ export default function ContactPage() {
         id: s.id,
         name: isArabic ? (s.nameAr || s.nameEn) : (s.nameEn || s.nameAr)
       }))
-    : FALLBACK_SERVICE_PILLS.map(s => ({
-        id: s.id,
-        name: isArabic ? s.nameAr : s.nameEn
-      }))
+    : []
 
   useEffect(() => {
     setIsMounted(true)
@@ -265,6 +254,7 @@ export default function ContactPage() {
                   </div>
 
                   {/* Discipline / Service Selector */}
+                  {services.length > 0 && (
                   <div>
                     <div className="flex items-center justify-between mb-2.5">
                       <label className="text-xs font-sora font-semibold text-white/70 uppercase tracking-wider block">
@@ -387,6 +377,7 @@ export default function ContactPage() {
                       })}
                     </div>
                   </div>
+                  )}
 
                   {/* Full Name & Phone Number (Side-by-Side on Desktop) */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

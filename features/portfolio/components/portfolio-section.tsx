@@ -127,42 +127,12 @@ function ProjectCard({ project, index }: { project: any, index: number }) {
   )
 }
 
-const DEFAULT_FEATURED_PROJECTS = [
-  {
-    id: "cairokee-empire",
-    captionEn: "Cairokee Empire Festival",
-    captionAr: "مهرجان إمبراطورية كايروكي",
-    categoryNameEn: "Cinematic Event Coverage",
-    categoryNameAr: "تغطية سينمائية للفعاليات",
-    thumbnailUrl: "/images/revo-hero-bg.jpg",
-    thumbnailType: 2,
-  },
-  {
-    id: "acoustic-sessions",
-    captionEn: "Acoustic Sunset Sessions",
-    captionAr: "جلسات غروب الشمس الأكوستيك",
-    categoryNameEn: "Live Music & Visual Stories",
-    categoryNameAr: "موسيقى لايف وقصص بصرية",
-    thumbnailUrl: "/images/revo-band.jpg",
-    thumbnailType: 1,
-  },
-  {
-    id: "arena-live",
-    captionEn: "Reda Elbahrawy — Arena Live",
-    captionAr: "رضا البحراوي — أرينا لايف",
-    categoryNameEn: "Mega Concert Production",
-    categoryNameAr: "إنتاج أضخم الحفلات",
-    thumbnailUrl: "/images/revo-singer.jpg",
-    thumbnailType: 2,
-  },
-]
-
 export function PortfolioSection() {
   const { data: portfolios = [], isLoading } = usePublicPortfolios()
   const { isArabic } = useLanguage()
 
-  // Use API items if available, otherwise use high-production curated fallback
-  const featuredPortfolios = (portfolios && portfolios.length > 0)
+  // Use real API items only
+  const featuredPortfolios = (Array.isArray(portfolios) && portfolios.length > 0)
     ? portfolios.slice(0, 3).map((p: any) => ({
         id: p.id,
         captionEn: p.captionEn || p.titleEn || "Cinematic Story",
@@ -172,7 +142,7 @@ export function PortfolioSection() {
         thumbnailUrl: p.thumbnailUrl || p.mediaUrl || "/images/revo-hero-bg.jpg",
         thumbnailType: p.thumbnailType ?? (p.mediaType === "video" ? 2 : 1),
       }))
-    : DEFAULT_FEATURED_PROJECTS
+    : []
 
   return (
     <section className="py-20 md:py-32 bg-[#050505] relative overflow-hidden">
@@ -243,9 +213,19 @@ export function PortfolioSection() {
 
         {/* ── GALLERY ── */}
         <div className="flex flex-col w-full relative">
-          {featuredPortfolios.map((project, index) => (
-            <ProjectCard key={project.id} project={project} index={index} />
-          ))}
+          {featuredPortfolios.length > 0 ? (
+            featuredPortfolios.map((project, index) => (
+              <ProjectCard key={project.id} project={project} index={index} />
+            ))
+          ) : (
+            <div className="text-center py-20 border border-white/5 rounded-3xl bg-white/[0.01]">
+              <p className="text-white/40 text-sm font-light">
+                {isArabic
+                  ? "جاري تجهيز وعرض أحدث أعمالنا ومشاريعنا قريباً."
+                  : "Our latest productions and featured projects are coming soon."}
+              </p>
+            </div>
+          )}
         </div>
 
         {/* ── VIEW ALL BUTTON ── */}

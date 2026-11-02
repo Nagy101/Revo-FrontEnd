@@ -8,34 +8,6 @@ import { ArrowUpRight } from "lucide-react"
 import { usePublicServices } from "../hooks/useServices"
 import { useLanguage } from "@/lib/i18n/language-context"
 
-// Real REVO Core Services fallback
-const DEFAULT_SERVICES = [
-  {
-    id: "cinematic-production",
-    nameEn: "Cinematic Production & Commercials",
-    nameAr: "الإنتاج السينمائي والإعلانات التجارية",
-    descriptionEn: "High-impact brand films, TV ads, and visual storytelling crafted with cinema-grade cameras, lighting, and directing.",
-    descriptionAr: "أفلام براند وإعلانات تلفزيونية وقصص بصرية مصممة بكاميرات وإضاءة وإخراج سينمائي احترافي.",
-    imageUrl: "/images/revo-hero-bg.jpg",
-  },
-  {
-    id: "concert-coverage",
-    nameEn: "Mega Events & Concert Coverage",
-    nameAr: "تغطية الفعاليات الضخمة والحفلات",
-    descriptionEn: "Multi-camera live directing, stadium sound sync, and pulse-pounding aftermovies that capture the pure energy of the crowd.",
-    descriptionAr: "إخراج مباشر متعدد الكاميرات وصوت مسرحي متزامن وأفلام وثائقية تنقل الطاقة الحقيقية للجمهور.",
-    imageUrl: "/images/revo-singer.jpg",
-  },
-  {
-    id: "creative-post-production",
-    nameEn: "Creative Direction & Post-Production",
-    nameAr: "الإخراج الإبداعي وما بعد الإنتاج",
-    descriptionEn: "World-class color grading, sound design, dynamic visual effects, and strategic creative vision to make every frame memorable.",
-    descriptionAr: "تلوين عالمي وهندسة صوتية ومؤثرات بصرية ورؤية إبداعية استراتيجية تجعل كل كادر استثنائياً.",
-    imageUrl: "/images/revo-band.jpg",
-  },
-]
-
 // Fallback images based on index
 const fallbackImages = [
   '/images/revo-hero-bg.jpg',
@@ -48,17 +20,17 @@ export function ServicesSection() {
   const [hoveredIndex, setHoveredIndex] = useState<number>(0)
   const { isArabic } = useLanguage()
 
-  // Use API items if available, otherwise use curated production services
-  const featuredServices = (services && services.length > 0)
+  // Use real API items only
+  const featuredServices = (Array.isArray(services) && services.length > 0)
     ? services.slice(0, 3).map((s: any, idx: number) => ({
         id: s.id,
-        nameEn: s.nameEn || s.titleEn || DEFAULT_SERVICES[idx]?.nameEn,
-        nameAr: s.nameAr || s.titleAr || DEFAULT_SERVICES[idx]?.nameAr,
-        descriptionEn: s.descriptionEn || DEFAULT_SERVICES[idx]?.descriptionEn,
-        descriptionAr: s.descriptionAr || DEFAULT_SERVICES[idx]?.descriptionAr,
+        nameEn: s.nameEn || s.titleEn || "Production Service",
+        nameAr: s.nameAr || s.titleAr || "خدمة إنتاجية",
+        descriptionEn: s.descriptionEn || "",
+        descriptionAr: s.descriptionAr || "",
         imageUrl: s.imageUrl || fallbackImages[idx] || fallbackImages[0],
       }))
-    : DEFAULT_SERVICES
+    : []
 
   return (
     <section className="py-20 md:py-32 bg-[#050505] relative border-t border-white/5 overflow-hidden">
@@ -142,41 +114,51 @@ export function ServicesSection() {
 
         {/* ── RIGHT COLUMN (SCROLLING LIST) ── */}
         <div className="w-full lg:w-7/12 flex flex-col pt-10 lg:pt-0">
-          {featuredServices.map((service, index) => {
-            const title = (isArabic ? (service.nameAr || service.nameEn) : (service.nameEn || service.nameAr)) || ""
-            const desc = (isArabic ? (service.descriptionAr || service.descriptionEn) : (service.descriptionEn || service.descriptionAr)) || ""
+          {featuredServices.length > 0 ? (
+            featuredServices.map((service, index) => {
+              const title = (isArabic ? (service.nameAr || service.nameEn) : (service.nameEn || service.nameAr)) || ""
+              const desc = (isArabic ? (service.descriptionAr || service.descriptionEn) : (service.descriptionEn || service.descriptionAr)) || ""
 
-            return (
-              <Link key={service.id} href={`/services/${service.id}`} className="contents block">
-                <motion.div
-                  onMouseEnter={() => setHoveredIndex(index)}
-                  initial={{ opacity: 0, x: 50 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true, margin: "-100px" }}
-                  transition={{ duration: 0.8, delay: index * 0.1, ease: [0.16, 1, 0.3, 1] }}
-                  className="group py-12 md:py-20 border-b border-white/10 flex flex-col md:flex-row gap-6 md:gap-12 md:items-center cursor-none"
-                  data-cursor="Discover"
-                >
-                  <span className="text-[#C3143D] text-lg md:text-xl font-sora font-medium opacity-50 group-hover:opacity-100 transition-opacity duration-500">
-                    {String(index + 1).padStart(2, '0')}
-                  </span>
-                  
-                  <div className="flex-1">
-                    <h3 className="text-3xl md:text-5xl font-sora font-light uppercase text-white/80 group-hover:text-white group-hover:translate-x-4 rtl:group-hover:-translate-x-4 transition-all duration-500 mb-4 tracking-wider">
-                      {title}
-                    </h3>
-                    <p className="text-white/40 text-sm md:text-base font-light leading-relaxed max-w-lg group-hover:text-white/60 transition-colors duration-500 group-hover:translate-x-4 rtl:group-hover:-translate-x-4">
-                      {desc}
-                    </p>
-                  </div>
+              return (
+                <Link key={service.id} href={`/services/${service.id}`} className="contents block">
+                  <motion.div
+                    onMouseEnter={() => setHoveredIndex(index)}
+                    initial={{ opacity: 0, x: 50 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true, margin: "-100px" }}
+                    transition={{ duration: 0.8, delay: index * 0.1, ease: [0.16, 1, 0.3, 1] }}
+                    className="group py-12 md:py-20 border-b border-white/10 flex flex-col md:flex-row gap-6 md:gap-12 md:items-center cursor-none"
+                    data-cursor="Discover"
+                  >
+                    <span className="text-[#C3143D] text-lg md:text-xl font-sora font-medium opacity-50 group-hover:opacity-100 transition-opacity duration-500">
+                      {String(index + 1).padStart(2, '0')}
+                    </span>
+                    
+                    <div className="flex-1">
+                      <h3 className="text-3xl md:text-5xl font-sora font-light uppercase text-white/80 group-hover:text-white group-hover:translate-x-4 rtl:group-hover:-translate-x-4 transition-all duration-500 mb-4 tracking-wider">
+                        {title}
+                      </h3>
+                      <p className="text-white/40 text-sm md:text-base font-light leading-relaxed max-w-lg group-hover:text-white/60 transition-colors duration-500 group-hover:translate-x-4 rtl:group-hover:-translate-x-4">
+                        {desc}
+                      </p>
+                    </div>
 
-                  <div className="hidden md:flex w-16 h-16 rounded-full border border-white/10 items-center justify-center group-hover:bg-[#C3143D] group-hover:border-[#C3143D] transition-all duration-500 shrink-0">
-                    <ArrowUpRight className="text-white/30 group-hover:text-white group-hover:rotate-45 rtl:group-hover:-rotate-45 transition-all duration-500 w-6 h-6" />
-                  </div>
-                </motion.div>
-              </Link>
-            )
-          })}
+                    <div className="hidden md:flex w-16 h-16 rounded-full border border-white/10 items-center justify-center group-hover:bg-[#C3143D] group-hover:border-[#C3143D] transition-all duration-500 shrink-0">
+                      <ArrowUpRight className="text-white/30 group-hover:text-white group-hover:rotate-45 rtl:group-hover:-rotate-45 transition-all duration-500 w-6 h-6" />
+                    </div>
+                  </motion.div>
+                </Link>
+              )
+            })
+          ) : (
+            <div className="text-center py-20 border border-white/5 rounded-3xl bg-white/[0.01]">
+              <p className="text-white/40 text-sm font-light">
+                {isArabic
+                  ? "جاري تجهيز وعرض باقة خدماتنا الإنتاجية قريباً."
+                  : "Our production services catalog is coming soon."}
+              </p>
+            </div>
+          )}
 
           {/* VIEW ALL SERVICES BUTTON */}
           <motion.div 

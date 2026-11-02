@@ -114,6 +114,7 @@ export const httpClient = {
 
     const config: RequestInit = {
       ...options,
+      signal: options.signal || (typeof AbortSignal !== 'undefined' && 'timeout' in AbortSignal ? AbortSignal.timeout(10000) : undefined),
       credentials: "include", // kept for backwards compatibility if needed
       headers,
     }

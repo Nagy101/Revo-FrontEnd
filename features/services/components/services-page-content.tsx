@@ -38,64 +38,6 @@ function getServiceImage(url: string | undefined, index: number): string {
   return url
 }
 
-// Fallback services in case backend is unreachable during SSR or network issue
-const FALLBACK_SERVICES: ServiceItem[] = [
-  {
-    id: "fb-1",
-    nameEn: "Live Stage & Concert Production",
-    nameAr: "إنتاج الحفلات والمسارح اللايف",
-    descriptionEn: "Multi-camera live directing, stadium-scale stage lighting, crowd coverage, and high-energy live visuals.",
-    descriptionAr: "إخراج حفلات لايف بعدسات وكاميرات سينمائية وتغطية جماهيرية ضخمة.",
-    imageUrl: "/images/revo-services-card1.jpg",
-    orderIndex: 1
-  },
-  {
-    id: "fb-2",
-    nameEn: "Mega Events & Stadium Coverage",
-    nameAr: "تغطية الاستادات والفعاليات الكبرى",
-    descriptionEn: "Colossal festival and stadium productions, synchronized sound capture, high-altitude drone tracking, and recap films.",
-    descriptionAr: "إنتاج وتغطية مهرجانات واستادات ضخمة مع طائرات درون وصوت مسرحي متزامن.",
-    imageUrl: "/images/revo-services-card2.jpg",
-    orderIndex: 2
-  },
-  {
-    id: "fb-3",
-    nameEn: "Commercial Campaigns & Brand Films",
-    nameAr: "حملات إعلانية وأفلام العلامات التجارية",
-    descriptionEn: "High-impact TV commercials, brand anthems, and cinematic storytelling crafted for forward-thinking brands.",
-    descriptionAr: "إعلانات تلفزيونية وقصص سينمائية مصممة لرفع قيمة البراند.",
-    imageUrl: "/images/revo-singer.jpg",
-    orderIndex: 3
-  },
-  {
-    id: "fb-4",
-    nameEn: "Cinematic Filmmaking & Music Videos",
-    nameAr: "فيديو كليب وأفلام سينمائية",
-    descriptionEn: "Narrative music videos, artist profiles, and signature visual pieces that command attention and define culture.",
-    descriptionAr: "فيديو كليب وأفلام موسيقية ذات طابع بصري استثنائي.",
-    imageUrl: "/images/revo-band.jpg",
-    orderIndex: 4
-  },
-  {
-    id: "fb-5",
-    nameEn: "Creative Direction & Visual Identity",
-    nameAr: "الإخراج الإبداعي والهوية البصرية",
-    descriptionEn: "Concept development, aesthetic direction, storyboard sculpting, and bespoke visual branding.",
-    descriptionAr: "تطوير المفاهيم الإبداعية وتحديد الاتجاه الفني للبراند.",
-    imageUrl: "/images/revo-portfolio-card1.jpg",
-    orderIndex: 5
-  },
-  {
-    id: "fb-6",
-    nameEn: "Post-Production, Color & Sound Finishing",
-    nameAr: "المونتاج وتلوين السينما وهندسة الصوت",
-    descriptionEn: "Master-level DaVinci color grading, dynamic sound design, rhythmic editing, and high-fidelity finishing.",
-    descriptionAr: "تلوين داڤينشي احترافي وهندسة صوتية متكاملة لجميع المنصات.",
-    imageUrl: "/images/revo-hero-bg.jpg",
-    orderIndex: 6
-  }
-]
-
 /* ─────────────────────────────────────────────────────────
    HERO SECTION: 100vh Screen-Fit, User Copy, Exact Background
    ───────────────────────────────────────────────────────── */
@@ -402,15 +344,11 @@ export function ServicesPageContent() {
 
   // Extract database items
   const dbServices: ServiceItem[] = response?.data?.data || []
-  const totalCount = response?.data?.totalCount ?? (dbServices.length > 0 ? dbServices.length : FALLBACK_SERVICES.length)
+  const totalCount = response?.data?.totalCount ?? dbServices.length
   const totalPages = response?.data?.totalPages || Math.max(1, Math.ceil(totalCount / itemsPerPage))
 
-  // Use database data when available, otherwise gentle fallback
-  const displayServices: ServiceItem[] = (dbServices && dbServices.length > 0)
-    ? dbServices
-    : (isError || (!isLoading && dbServices.length === 0))
-      ? FALLBACK_SERVICES
-      : []
+  // Use real database data only
+  const displayServices: ServiceItem[] = dbServices
 
   const handlePageChange = (newPage: number) => {
     if (newPage < 1 || newPage > totalPages) return
@@ -505,6 +443,20 @@ export function ServicesPageContent() {
                 </div>
               </div>
             ))}
+          </div>
+        ) : displayServices.length === 0 ? (
+          <div className="text-center py-24 rounded-3xl border border-white/5 bg-white/[0.01]">
+            <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-4 border border-white/10 text-[#C3143D]">
+              <Sparkles className="w-6 h-6 text-[#C3143D]" />
+            </div>
+            <h3 className="text-xl font-sora font-bold text-white mb-2">
+              {isArabic ? "لا توجد خدمات مضافة حالياً" : "No Services Published Yet"}
+            </h3>
+            <p className="text-white/40 text-sm max-w-sm mx-auto">
+              {isArabic
+                ? "سيتم إضافة خدماتنا الإنتاجية وباقات العمل قريباً عبر لوحة التحكم."
+                : "Our production services catalog will be published here soon."}
+            </p>
           </div>
         ) : (
           <OptimizedGSAPSection
