@@ -148,7 +148,7 @@ export function PortfolioSection() {
     <section className="py-20 md:py-32 bg-[#050505] relative overflow-hidden">
       
       {/* ── BACKGROUND GLOW ── */}
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+      <div className="hidden md:block absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
         <div className="absolute top-[10%] left-[-5%] w-[400px] h-[400px] bg-[#C3143D]/5 rounded-full blur-[120px]" />
         <div className="absolute bottom-[20%] right-[-5%] w-[400px] h-[400px] bg-white/5 rounded-full blur-[120px]" />
       </div>

@@ -9,7 +9,7 @@ const getBaseUrl = () => {
 // Create an Axios instance
 const apiClient: AxiosInstance = axios.create({
   baseURL: getBaseUrl(),
-  timeout: 10000,
+  timeout: 45000,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -35,6 +35,10 @@ apiClient.interceptors.request.use(
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
+    if (error.code === 'ECONNABORTED' || error.message?.includes('timeout') || error.message?.includes('timed out')) {
+      error.message = "انتهت مهلة الاتصال بالخادم (Request Timed Out). يرجى التأكد من استجابة السيرفر وسرعة الإنترنت والمحاولة مرة أخرى.";
+    }
+
     if (error.response) {
       if (error.response.status === 401 || error.response.status === 403) {
         if (typeof window !== 'undefined') {
@@ -50,6 +54,8 @@ apiClient.interceptors.response.use(
       if (detailedMessage) {
         error.message = detailedMessage;
       }
+    } else if (error.message) {
+      error.message = extractApiErrorMessage(error);
     }
     return Promise.reject(error);
   }

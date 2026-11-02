@@ -44,6 +44,8 @@ export function AdminHeader({ onMobileMenuToggle }: { onMobileMenuToggle?: () =>
     }
   }
 
+  const adminName = (!user?.name || user.name.includes("مدير") || user.name.includes("المدير")) ? "Admin" : user.name
+
   return (
     <motion.header
       initial={{ y: -10, opacity: 0 }}
@@ -168,7 +170,7 @@ export function AdminHeader({ onMobileMenuToggle }: { onMobileMenuToggle?: () =>
               <User style={{ width: 15, height: 15, color: "#fff" }} />
             </div>
             <div style={{ textAlign: "left" }} className="hidden md:block">
-              <div style={{ fontSize: "0.8rem", fontWeight: 600, color: "#fff", lineHeight: 1.2 }}>{user?.name || "Admin"}</div>
+              <div style={{ fontSize: "0.8rem", fontWeight: 600, color: "#fff", lineHeight: 1.2 }}>{adminName}</div>
               <div style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.35)" }}>{user?.email || "admin@revo.com"}</div>
             </div>
           </motion.button>

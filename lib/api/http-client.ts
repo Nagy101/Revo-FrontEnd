@@ -21,11 +21,23 @@ export function extractApiErrorMessage(errorData: any, status?: number): string 
     return status ? `Request failed with status ${status}` : "An unexpected error occurred.";
   }
 
+  // Handle TimeoutError or AbortError
+  if (
+    errorData?.name === "TimeoutError" ||
+    errorData?.name === "AbortError" ||
+    (typeof errorData?.message === "string" && (errorData.message.includes("timed out") || errorData.message.includes("signal timed out") || errorData.message.includes("aborted")))
+  ) {
+    return "انتهت مهلة الاتصال بالخادم (Request Timed Out). يرجى التأكد من سرعة الإنترنت أو حجم الملف والمحاولة مرة أخرى.";
+  }
+
   // Handle direct Error or AxiosError object
   if (errorData instanceof Error) {
     const nestedData = (errorData as any).data || (errorData as any).response?.data;
     if (nestedData) {
       return extractApiErrorMessage(nestedData, (errorData as any).status || (errorData as any).response?.status || status);
+    }
+    if (errorData.message && (errorData.message.includes("timed out") || errorData.message.includes("signal timed out") || errorData.message.includes("aborted"))) {
+      return "انتهت مهلة الاتصال بالخادم (Request Timed Out). يرجى التأكد من سرعة الإنترنت أو حجم الملف والمحاولة مرة أخرى.";
     }
     return errorData.message;
   }
@@ -138,9 +150,14 @@ export const httpClient = {
       }
     }
 
+    const timeoutMs = isFormData ? 120000 : 45000;
+    const defaultSignal = typeof AbortSignal !== 'undefined' && 'timeout' in AbortSignal
+      ? AbortSignal.timeout(timeoutMs)
+      : undefined;
+
     const config: RequestInit = {
       ...options,
-      signal: options.signal || (typeof AbortSignal !== 'undefined' && 'timeout' in AbortSignal ? AbortSignal.timeout(10000) : undefined),
+      signal: options.signal || defaultSignal,
       credentials: "include", // kept for backwards compatibility if needed
       headers,
     }

@@ -89,7 +89,7 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void })
 
     return () => {
       clearInterval(interval);
-      document.body.style.overflow = 'auto';
+      document.body.style.overflow = '';
     };
   }, []);
 
@@ -97,9 +97,14 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void })
     if (e) e.stopPropagation();
     if (hasExitedRef.current) return;
     hasExitedRef.current = true;
+    if (videoRef.current) {
+      try {
+        videoRef.current.pause();
+      } catch {}
+    }
     setIsVisible(false);
-    document.body.style.overflow = 'auto';
-    setTimeout(onComplete, 600);
+    document.body.style.overflow = '';
+    setTimeout(onComplete, 500);
   };
 
   const toggleSound = (e?: React.SyntheticEvent) => {
@@ -134,10 +139,10 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void })
         <motion.div
           key="splash"
           initial={{ opacity: 1 }}
-          exit={{ opacity: 0, scale: 1.04, filter: 'blur(12px)' }}
-          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
           onClick={handleContainerTap}
-          className="fixed inset-0 z-[9999] flex flex-col justify-between bg-[#050505] overflow-hidden select-none cursor-pointer touch-manipulation"
+          className="fixed inset-0 z-[9999] flex flex-col justify-between bg-[#050505] overflow-hidden select-none cursor-pointer"
         >
           {/* ── CINEMATIC FULL-SCREEN VIDEO BACKGROUND ── */}
           <div className="absolute inset-0 z-0">
@@ -148,9 +153,9 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void })
               muted
               loop
               playsInline
-              preload="auto"
+              preload="metadata"
               poster="/images/revo-hero-bg.jpg"
-              className="w-full h-full object-cover scale-105"
+              className="w-full h-full object-cover"
             >
               <source src="/videos/revo-disco-misr.mp4" type="video/mp4" />
             </video>
@@ -159,8 +164,8 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void })
             <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/40 to-[#050505]/70" />
             <div className="absolute inset-0 bg-gradient-to-r from-[#050505]/80 via-transparent to-[#050505]/80" />
             
-            {/* Ambient Crimson Center Aura */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#C3143D]/20 rounded-full blur-[150px] pointer-events-none" />
+            {/* Ambient Crimson Center Aura (Desktop only for full mobile 60fps) */}
+            <div className="hidden md:block absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#C3143D]/20 rounded-full blur-[150px] pointer-events-none" />
 
             {/* Film Grain Texture */}
             <div 

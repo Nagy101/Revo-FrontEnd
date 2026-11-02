@@ -26,11 +26,10 @@
 }
 
 html {
-  scroll-behavior: smooth;
-  touch-action: manipulation;
+  -webkit-overflow-scrolling: touch;
 }
 
-button, a {
+button, a, input, select, textarea {
   touch-action: manipulation;
 }
 

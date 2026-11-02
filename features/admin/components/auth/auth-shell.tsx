@@ -142,6 +142,7 @@ export function AuthShell() {
             <input
               type="email" value={email} onChange={(e) => setEmail(e.target.value)}
               onFocus={() => setFocused("email")} onBlur={() => setFocused(null)}
+              placeholder="Enter your Email"
               required
               autoComplete="username"
               style={{ width: "100%", height: 46, paddingLeft: 44, paddingRight: 16, background: "transparent", border: "none", outline: "none", color: "#fff", fontSize: "0.9rem" }}
@@ -166,6 +167,7 @@ export function AuthShell() {
               type={showPassword ? "text" : "password"} value={password}
               onChange={(e) => setPassword(e.target.value)}
               onFocus={() => setFocused("password")} onBlur={() => setFocused(null)}
+              placeholder="Enter your password"
               required
               autoComplete="current-password"
               style={{ width: "100%", height: 46, paddingLeft: 44, paddingRight: 46, background: "transparent", border: "none", outline: "none", color: "#fff", fontSize: "0.9rem" }}

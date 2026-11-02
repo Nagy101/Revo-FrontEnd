@@ -24,7 +24,7 @@ export function CTASection() {
       className="py-32 md:py-48 bg-[#050505] relative overflow-hidden flex items-center justify-center min-h-[70vh] border-t border-white/5"
     >
       {/* ── SUBTLE ELEGANT GLOW ── */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#C3143D]/5 rounded-full blur-[150px] pointer-events-none" />
+      <div className="hidden md:block absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#C3143D]/5 rounded-full blur-[150px] pointer-events-none" />
       
       <motion.div 
         style={{ y, opacity }} 

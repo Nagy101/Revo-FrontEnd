@@ -94,7 +94,7 @@ export default function AmbientLight() {
   }
 
   return (
-    <div ref={containerRef} className="pointer-events-none absolute inset-0 -z-10 overflow-hidden" aria-hidden="true">
+    <div ref={containerRef} className="hidden md:block pointer-events-none absolute inset-0 -z-10 overflow-hidden" aria-hidden="true">
       <div ref={spot1Ref} className="light-spot mix-blend-screen" style={{ ...baseStyle, color: "var(--primary)" }} />
       <div ref={spot2Ref} className="light-spot mix-blend-screen" style={{ ...baseStyle, color: "var(--secondary)" }} />
       <div ref={spot3Ref} className="light-spot mix-blend-screen" style={{ ...baseStyle, color: "rgba(255,255,255,0.25)" }} />
