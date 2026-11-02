@@ -12,9 +12,10 @@ export function useServices(pageIndex: number = 1, pageSize: number = 10) {
 // Hook for public facing pages that just need the flat array of services
 export function usePublicServices() {
   const query = useServices(1, 100);
+  const rawData = query.data?.data?.data || query.data?.data || query.data;
   return {
     ...query,
-    data: query.data?.data?.data || [],
+    data: Array.isArray(rawData) ? rawData : [],
   };
 }
 

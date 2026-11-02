@@ -97,19 +97,23 @@ export function PortfolioListingPage() {
   const { data: categoriesResponse, isLoading: isLoadingCategories } =
     useCategories();
 
-  const categories = categoriesResponse?.data?.data || [];
+  const categories = Array.isArray(categoriesResponse?.data?.data)
+    ? categoriesResponse.data.data
+    : Array.isArray(categoriesResponse?.data)
+      ? categoriesResponse.data
+      : [];
   const rawProjects: PortfolioItem[] = Array.isArray(portfolios) ? portfolios : [];
 
   // Active categories: trim trailing whitespace and filter out categories with 0 projects
   const activeCategories = categories
-    .map((cat) => ({
+    .map((cat: any) => ({
       ...cat,
       nameEn: (cat.nameEn || "").trim(),
       nameAr: (cat.nameAr || "").trim(),
       displayName: isArabic ? (cat.nameAr || cat.nameEn || "").trim() : (cat.nameEn || cat.nameAr || "").trim(),
-      count: rawProjects.filter((p) => p.categoryId === cat.id).length,
+      count: rawProjects.filter((p) => p.categoryId && cat.id && p.categoryId.toLowerCase() === cat.id.toLowerCase()).length,
     }))
-    .filter((cat) => cat.count > 0);
+    .filter((cat: any) => cat.count > 0);
 
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState("");
@@ -166,7 +170,7 @@ export function PortfolioListingPage() {
   let filteredProjects: PortfolioItem[] = rawProjects;
   if (selectedCategory !== "All") {
     filteredProjects = filteredProjects.filter(
-      (p) => p.categoryId === selectedCategory,
+      (p) => p.categoryId && selectedCategory && p.categoryId.toLowerCase() === selectedCategory.toLowerCase(),
     );
   }
   if (searchQuery.trim()) {

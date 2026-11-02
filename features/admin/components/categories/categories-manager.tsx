@@ -10,9 +10,9 @@ import { extractApiErrorMessage } from "@/lib/api/http-client"
 // --- Custom Toast Component ---
 function CustomToast({ message, type, onClose }: { message: string, type: 'success' | 'error', onClose: () => void }) {
   useEffect(() => {
-    const timer = setTimeout(onClose, 3000)
+    const timer = setTimeout(onClose, type === 'error' ? 8000 : 3000)
     return () => clearTimeout(timer)
-  }, [onClose])
+  }, [onClose, type])
 
   return (
     <motion.div
@@ -100,7 +100,7 @@ export function CategoriesManager() {
   const showToast = (message: string, type: 'success' | 'error' = 'success') => setToast({ message, type })
 
   const handleApiError = (error: any) => {
-    const msg = extractApiErrorMessage(error?.data || error?.response?.data, error?.status) || error?.message || "Something went wrong"
+    const msg = extractApiErrorMessage(error) || "Something went wrong"
     showToast(msg, 'error')
   }
 

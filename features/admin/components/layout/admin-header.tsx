@@ -1,10 +1,11 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
-import { Search, User, LogOut, Settings, X } from "lucide-react"
+import { Search, User, LogOut, X } from "lucide-react"
 import { NotificationBell } from "./notification-bell"
+import { authService } from "@/lib/auth.service"
 
 const breadcrumbMap: Record<string, string> = {
   "/admin":            "Dashboard",
@@ -20,8 +21,16 @@ export function AdminHeader({ onMobileMenuToggle }: { onMobileMenuToggle?: () =>
   const [searchOpen, setSearchOpen] = useState(false)
   const [profileOpen, setProfileOpen] = useState(false)
   const [searchVal, setSearchVal] = useState("")
+  const [user, setUser] = useState<{ name?: string; email?: string } | null>(null)
   const router   = useRouter()
   const pathname = usePathname()
+
+  useEffect(() => {
+    const data = authService.getAuthData()
+    if (data) {
+      setUser({ name: data.name, email: data.email })
+    }
+  }, [])
 
   const pageName = breadcrumbMap[pathname ?? ""] ?? "Dashboard"
 
@@ -159,8 +168,8 @@ export function AdminHeader({ onMobileMenuToggle }: { onMobileMenuToggle?: () =>
               <User style={{ width: 15, height: 15, color: "#fff" }} />
             </div>
             <div style={{ textAlign: "left" }} className="hidden md:block">
-              <div style={{ fontSize: "0.8rem", fontWeight: 600, color: "#fff", lineHeight: 1.2 }}>Admin</div>
-              <div style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.35)" }}>admin@revo.com</div>
+              <div style={{ fontSize: "0.8rem", fontWeight: 600, color: "#fff", lineHeight: 1.2 }}>{user?.name || "Admin"}</div>
+              <div style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.35)" }}>{user?.email || "admin@revo.com"}</div>
             </div>
           </motion.button>
 
@@ -189,46 +198,17 @@ export function AdminHeader({ onMobileMenuToggle }: { onMobileMenuToggle?: () =>
                     padding: "6px",
                   }}
                 >
-                  {[
-                    { icon: User,     label: "Profile",  action: () => setProfileOpen(false) },
-                    { icon: Settings, label: "Settings", action: () => setProfileOpen(false) },
-                  ].map(({ icon: Icon, label, action }) => (
-                    <button
-                      key={label}
-                      onClick={action}
-                      style={{
-                        width: "100%", display: "flex", alignItems: "center", gap: 10,
-                        padding: "9px 12px", borderRadius: 9,
-                        background: "none", border: "none",
-                        color: "rgba(255,255,255,0.6)", cursor: "pointer",
-                        fontSize: "0.85rem", transition: "all 0.15s", textAlign: "left",
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.background = "rgba(255,255,255,0.05)"
-                        e.currentTarget.style.color = "#fff"
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.background = "none"
-                        e.currentTarget.style.color = "rgba(255,255,255,0.6)"
-                      }}
-                    >
-                      <Icon style={{ width: 15, height: 15 }} />
-                      {label}
-                    </button>
-                  ))}
-
-                  <div style={{ height: 1, background: "rgba(255,255,255,0.06)", margin: "6px 0" }} />
-
                   <button
                     onClick={handleLogout}
                     style={{
                       width: "100%", display: "flex", alignItems: "center", gap: 10,
-                      padding: "9px 12px", borderRadius: 9,
+                      padding: "10px 12px", borderRadius: 9,
                       background: "none", border: "none",
                       color: "#F04F6A", cursor: "pointer",
                       fontSize: "0.85rem", transition: "all 0.15s", textAlign: "left",
+                      fontWeight: 500,
                     }}
-                    onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(195,20,61,0.1)" }}
+                    onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(195,20,61,0.12)" }}
                     onMouseLeave={(e) => { e.currentTarget.style.background = "none" }}
                   >
                     <LogOut style={{ width: 15, height: 15 }} />

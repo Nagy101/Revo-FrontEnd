@@ -104,7 +104,7 @@ export function PortfolioDetailContent({ slug }: PortfolioDetailContentProps) {
   const additionalMedia = mediaItems.slice(1)
 
   // Next / Previous projects
-  const currentIndex = allPortfolios.findIndex((p) => p.id === slug)
+  const currentIndex = allPortfolios.findIndex((p: any) => p.id === slug)
   const nextProject =
     currentIndex !== -1 && currentIndex < allPortfolios.length - 1
       ? allPortfolios[currentIndex + 1]

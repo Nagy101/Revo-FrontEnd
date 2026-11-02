@@ -10,14 +10,14 @@ export const CATEGORY_QUERY_KEYS = {
   detail: (id: string, filters?: { pageIndex: number; pageSize: number }) => [...CATEGORY_QUERY_KEYS.details(), id, filters] as const,
 };
 
-export const useCategories = (pageIndex: number = 1, pageSize: number = 10) => {
+export const useCategories = (pageIndex: number = 1, pageSize: number = 50) => {
   return useQuery({
     queryKey: CATEGORY_QUERY_KEYS.list({ pageIndex, pageSize }),
     queryFn: () => categoriesService.getAll(pageIndex, pageSize),
   });
 };
 
-export const useCategory = (id: string, pageIndex: number = 1, pageSize: number = 10) => {
+export const useCategory = (id: string, pageIndex: number = 1, pageSize: number = 50) => {
   return useQuery({
     queryKey: CATEGORY_QUERY_KEYS.detail(id, { pageIndex, pageSize }),
     queryFn: () => categoriesService.getById(id, pageIndex, pageSize),
@@ -31,7 +31,7 @@ export const useCreateCategory = () => {
   return useMutation({
     mutationFn: (payload: CategoryRequestPayload) => categoriesService.create(payload),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: CATEGORY_QUERY_KEYS.lists() });
+      queryClient.invalidateQueries({ queryKey: CATEGORY_QUERY_KEYS.all });
     },
   });
 };
@@ -43,8 +43,7 @@ export const useUpdateCategory = () => {
     mutationFn: ({ id, payload }: { id: string; payload: CategoryRequestPayload }) => 
       categoriesService.update(id, payload),
     onSuccess: (data, variables) => {
-      queryClient.invalidateQueries({ queryKey: CATEGORY_QUERY_KEYS.lists() });
-      queryClient.invalidateQueries({ queryKey: CATEGORY_QUERY_KEYS.detail(variables.id) });
+      queryClient.invalidateQueries({ queryKey: CATEGORY_QUERY_KEYS.all });
     },
   });
 };
@@ -55,7 +54,7 @@ export const useDeleteCategory = () => {
   return useMutation({
     mutationFn: (id: string) => categoriesService.delete(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: CATEGORY_QUERY_KEYS.lists() });
+      queryClient.invalidateQueries({ queryKey: CATEGORY_QUERY_KEYS.all });
     },
   });
 };

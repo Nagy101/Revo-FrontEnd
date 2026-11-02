@@ -21,6 +21,25 @@ export function extractApiErrorMessage(errorData: any, status?: number): string 
     return status ? `Request failed with status ${status}` : "An unexpected error occurred.";
   }
 
+  // Handle direct Error or AxiosError object
+  if (errorData instanceof Error) {
+    const nestedData = (errorData as any).data || (errorData as any).response?.data;
+    if (nestedData) {
+      return extractApiErrorMessage(nestedData, (errorData as any).status || (errorData as any).response?.status || status);
+    }
+    return errorData.message;
+  }
+
+  // Handle { response: { data } } wrapper
+  if (errorData.response?.data) {
+    return extractApiErrorMessage(errorData.response.data, errorData.response.status || status);
+  }
+
+  // Handle { data: { ... } } wrapper
+  if (errorData.data && typeof errorData.data === "object" && (errorData.data.errors || errorData.data.message)) {
+    return extractApiErrorMessage(errorData.data, errorData.status || status);
+  }
+
   if (typeof errorData === "string" && errorData.trim()) {
     try {
       const parsed = JSON.parse(errorData);
@@ -100,10 +119,17 @@ export const httpClient = {
     const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`
     const url = `${getBaseUrl()}${cleanEndpoint}`
     
+    const isFormData = typeof FormData !== 'undefined' && options.body instanceof FormData
+
     const headers: Record<string, string> = {
-      "Content-Type": "application/json",
+      ...(isFormData ? {} : { "Content-Type": "application/json" }),
       ...(options.headers as Record<string, string> || {})
     };
+
+    if (isFormData) {
+      delete headers["Content-Type"];
+      delete headers["content-type"];
+    }
 
     if (typeof window !== 'undefined') {
       const token = localStorage.getItem('token');
@@ -117,17 +143,6 @@ export const httpClient = {
       signal: options.signal || (typeof AbortSignal !== 'undefined' && 'timeout' in AbortSignal ? AbortSignal.timeout(10000) : undefined),
       credentials: "include", // kept for backwards compatibility if needed
       headers,
-    }
-
-    // Clean up Content-Type if we explicitly set it to empty string or if it's not meant to be JSON
-    // A cleaner approach: if body is FormData, don't set Content-Type
-    if (config.body instanceof FormData) {
-      if (config.headers && typeof config.headers === 'object') {
-        const headersRecord = config.headers as Record<string, string>;
-        if (headersRecord['Content-Type'] === 'application/json') {
-          delete headersRecord['Content-Type'];
-        }
-      }
     }
 
     const response = await fetch(url, config)

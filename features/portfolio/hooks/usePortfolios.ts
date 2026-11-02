@@ -21,7 +21,12 @@ export const usePublicPortfolios = () => {
   return useQuery({
     queryKey: PORTFOLIO_QUERY_KEYS.list({ pageIndex: 1, pageSize: 50 }),
     queryFn: () => portfolioService.getAll(1, 50),
-    select: (res) => res.data?.data || []
+    select: (res: any) => {
+      if (Array.isArray(res?.data?.data)) return res.data.data;
+      if (Array.isArray(res?.data)) return res.data;
+      if (Array.isArray(res)) return res;
+      return [];
+    }
   });
 };
 
@@ -39,7 +44,7 @@ export const useCreatePortfolio = () => {
   return useMutation({
     mutationFn: (payload: PortfolioPayload) => portfolioService.create(payload),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: PORTFOLIO_QUERY_KEYS.lists() });
+      queryClient.invalidateQueries({ queryKey: PORTFOLIO_QUERY_KEYS.all });
     },
   });
 };
@@ -51,8 +56,7 @@ export const useUpdatePortfolio = () => {
     mutationFn: ({ id, payload }: { id: string; payload: PortfolioPayload }) => 
       portfolioService.update(id, payload),
     onSuccess: (data, variables) => {
-      queryClient.invalidateQueries({ queryKey: PORTFOLIO_QUERY_KEYS.lists() });
-      queryClient.invalidateQueries({ queryKey: PORTFOLIO_QUERY_KEYS.detail(variables.id) });
+      queryClient.invalidateQueries({ queryKey: PORTFOLIO_QUERY_KEYS.all });
     },
   });
 };
@@ -63,7 +67,7 @@ export const useDeletePortfolio = () => {
   return useMutation({
     mutationFn: (id: string) => portfolioService.delete(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: PORTFOLIO_QUERY_KEYS.lists() });
+      queryClient.invalidateQueries({ queryKey: PORTFOLIO_QUERY_KEYS.all });
     },
   });
 };

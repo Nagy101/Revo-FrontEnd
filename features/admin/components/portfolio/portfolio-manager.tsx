@@ -21,8 +21,8 @@ const scaleIn = { hidden: { opacity: 0, scale: 0.94 }, show: { opacity: 1, scale
 
 // ─── Toast ────────────────────────────────────────────────────────────────────
 function CustomToast({ message, type, onClose }: { message: string; type: "success" | "error"; onClose: () => void }) {
-  useEffect(() => { const t = setTimeout(onClose, 3000); return () => clearTimeout(t) }, [onClose])
   const isSuccess = type === "success"
+  useEffect(() => { const t = setTimeout(onClose, isSuccess ? 3000 : 8000); return () => clearTimeout(t) }, [onClose, isSuccess])
   return (
     <motion.div
       initial={{ opacity: 0, y: 60, scale: 0.85, x: 20 }}
@@ -257,16 +257,22 @@ function PortfolioModal({ isOpen, mode, id, onClose, showToast }: {
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 16 }}>
               <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 }} style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                 <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "rgba(255,255,255,0.6)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Category</label>
-                <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, boxShadow: "inset 0 2px 4px rgba(0,0,0,0.1)", overflow: "hidden" }} className="hover:bg-white/[0.04] transition-all duration-200 focus-within:border-[#C3143D] focus-within:ring-[3px] focus-within:ring-[#C3143D]/15">
-                  <CustomSelect
-                    name="categoryId"
-                    value={selectedCategory}
-                    onChange={setSelectedCategory}
-                    options={categories.map(c => ({ value: c.id, label: c.nameEn }))}
-                    placeholder="Select Category"
-                    required
-                  />
-                </div>
+                {categories.length === 0 ? (
+                  <div style={{ padding: "10px 14px", borderRadius: 10, background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)", color: "#F04F6A", fontSize: "0.78rem", lineHeight: 1.4 }}>
+                    ⚠️ No categories available. Please create a Category first from the Categories tab before creating a portfolio item.
+                  </div>
+                ) : (
+                  <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, boxShadow: "inset 0 2px 4px rgba(0,0,0,0.1)", overflow: "hidden" }} className="hover:bg-white/[0.04] transition-all duration-200 focus-within:border-[#C3143D] focus-within:ring-[3px] focus-within:ring-[#C3143D]/15">
+                    <CustomSelect
+                      name="categoryId"
+                      value={selectedCategory}
+                      onChange={setSelectedCategory}
+                      options={categories.map(c => ({ value: c.id, label: c.nameEn }))}
+                      placeholder="Select Category"
+                      required
+                    />
+                  </div>
+                )}
               </motion.div>
               <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.16 }} style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                 <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "rgba(255,255,255,0.6)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Sort Order</label>
