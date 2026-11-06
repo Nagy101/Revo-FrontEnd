@@ -13,7 +13,8 @@ import {
   Clock,
   Video,
   Sliders,
-  ShieldCheck
+  ShieldCheck,
+  MessageSquare
 } from "lucide-react"
 import Link from "next/link"
 import { useServiceDetails } from "../hooks/useServices"
@@ -39,6 +40,7 @@ export function ServiceDetailsPage({ id }: ServiceDetailsPageProps) {
   const { isArabic } = useLanguage()
   const [isMounted, setIsMounted] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
+  const [lastWhatsAppUrl, setLastWhatsAppUrl] = useState("")
 
   // Booking Form State
   const [formData, setFormData] = useState({
@@ -74,6 +76,19 @@ export function ServiceDetailsPage({ id }: ServiceDetailsPageProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!service) return
+
+    const waText = isArabic
+      ? `مرحباً REVO Media Production 👋\nأرغب في الاستفسار وحجز خدمة: *${title}*\n\n👤 *الاسم:* ${formData.name.trim()}\n📱 *رقم الهاتف:* ${formData.phoneNumber.trim()}${formData.message.trim() ? `\n📝 *تفاصيل واستفسار:* \n${formData.message.trim()}` : ""}`
+      : `Hello REVO Media Production 👋\nI would like to inquire about booking: *${title}*\n\n👤 *Name:* ${formData.name.trim()}\n📱 *Phone:* ${formData.phoneNumber.trim()}${formData.message.trim() ? `\n📝 *Message:* \n${formData.message.trim()}` : ""}`
+
+    const whatsappUrl = `https://wa.me/201064102972?text=${encodeURIComponent(waText)}`
+    setLastWhatsAppUrl(whatsappUrl)
+
+    try {
+      window.open(whatsappUrl, "_blank", "noopener,noreferrer")
+    } catch (err) {
+      console.error(err)
+    }
 
     submitBooking(
       {
@@ -284,12 +299,23 @@ export function ServiceDetailsPage({ id }: ServiceDetailsPageProps) {
                       ? "شكراً لك. سيقوم فريقنا الإبداعي بمراجعة تفاصيل مشروعك والتواصل معك خلال 24 ساعة."
                       : "Thank you. Our creative team will review your project details and contact you within 24 hours."}
                   </p>
-                  <button
-                    onClick={() => setIsSubmitted(false)}
-                    className="px-5 py-2.5 rounded-full bg-white/5 hover:bg-white/10 text-white/80 hover:text-white text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer border border-white/10"
-                  >
-                    {isArabic ? "إرسال طلب استفسار آخر" : "Submit Another Inquiry"}
-                  </button>
+                  <div className="flex flex-col sm:flex-row items-center gap-2.5">
+                    <a
+                      href={lastWhatsAppUrl || "https://wa.me/201064102972"}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-5 py-2.5 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer shadow-[0_0_20px_rgba(16,185,129,0.35)] flex items-center gap-2"
+                    >
+                      <MessageSquare size={14} />
+                      <span>{isArabic ? "متابعة عبر واتساب" : "Chat on WhatsApp"}</span>
+                    </a>
+                    <button
+                      onClick={() => setIsSubmitted(false)}
+                      className="px-5 py-2.5 rounded-full bg-white/5 hover:bg-white/10 text-white/80 hover:text-white text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer border border-white/10"
+                    >
+                      {isArabic ? "إرسال طلب استفسار آخر" : "Submit Another Inquiry"}
+                    </button>
+                  </div>
                 </div>
               ) : (
                 // Luxury Form

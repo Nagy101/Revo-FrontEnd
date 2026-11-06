@@ -51,6 +51,7 @@ export default function ContactPage() {
   })
   const [isMounted, setIsMounted] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
+  const [lastWhatsAppUrl, setLastWhatsAppUrl] = useState("")
   const [isServiceDropdownOpen, setIsServiceDropdownOpen] = useState(false)
   const serviceDropdownRef = useRef<HTMLDivElement>(null)
 
@@ -107,6 +108,22 @@ export default function ContactPage() {
       finalMessage = `[${isArabic ? "الخدمة المطلوبة" : "Service"}: ${selectedService.name}] ${finalMessage}`
     }
 
+    // Prepare WhatsApp Message
+    const waText = isArabic
+      ? `مرحباً REVO Media Production 👋\nأرغب في الاستفسار عن مشروع جديد:\n\n👤 *الاسم:* ${formData.name.trim()}\n📱 *رقم الهاتف:* ${formData.phoneNumber.trim()}${selectedService ? `\n🎬 *نوع الخدمة:* ${selectedService.name}` : ""}${formData.message.trim() ? `\n📝 *تفاصيل الرسالة:* \n${formData.message.trim()}` : ""}`
+      : `Hello REVO Media Production 👋\nI would like to inquire about a new project:\n\n👤 *Name:* ${formData.name.trim()}\n📱 *Phone:* ${formData.phoneNumber.trim()}${selectedService ? `\n🎬 *Service:* ${selectedService.name}` : ""}${formData.message.trim() ? `\n📝 *Message:* \n${formData.message.trim()}` : ""}`
+
+    const whatsappUrl = `https://wa.me/201064102972?text=${encodeURIComponent(waText)}`
+    setLastWhatsAppUrl(whatsappUrl)
+
+    // Open WhatsApp directly during the user click event
+    try {
+      window.open(whatsappUrl, "_blank", "noopener,noreferrer")
+    } catch (err) {
+      console.error("WhatsApp open error:", err)
+    }
+
+    // Dispatch to Backend API in parallel
     submitContact(
       {
         name: formData.name.trim(),
@@ -224,12 +241,23 @@ export default function ContactPage() {
                       ? "شكراً لك! سيقوم المنتج الإبداعي بمراجعة متطلباتك والتواصل معك خلال 24 ساعة."
                       : "Thank you! Our executive producer will review your requirements and reach out within 24 hours."}
                   </p>
-                  <button
-                    onClick={() => setIsSubmitted(false)}
-                    className="px-6 py-3 rounded-full bg-white/10 hover:bg-[#C3143D] text-white text-xs font-sora font-bold uppercase tracking-wider transition-all duration-300 cursor-pointer"
-                  >
-                    {isArabic ? "إرسال طلب مشروع آخر" : "Submit Another Brief"}
-                  </button>
+                  <div className="flex flex-col sm:flex-row items-center gap-3">
+                    <a
+                      href={lastWhatsAppUrl || "https://wa.me/201064102972"}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-6 py-3 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-sora font-bold uppercase tracking-wider transition-all duration-300 shadow-[0_0_25px_rgba(16,185,129,0.35)] flex items-center gap-2 cursor-pointer"
+                    >
+                      <MessageSquare size={16} />
+                      <span>{isArabic ? "متابعة المحادثة عبر واتساب" : "Chat on WhatsApp"}</span>
+                    </a>
+                    <button
+                      onClick={() => setIsSubmitted(false)}
+                      className="px-6 py-3 rounded-full bg-white/10 hover:bg-[#C3143D] text-white text-xs font-sora font-bold uppercase tracking-wider transition-all duration-300 cursor-pointer"
+                    >
+                      {isArabic ? "إرسال طلب مشروع آخر" : "Submit Another Brief"}
+                    </button>
+                  </div>
                 </div>
               ) : (
                 /* Production Brief Form */
