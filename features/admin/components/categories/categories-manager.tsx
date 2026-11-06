@@ -508,7 +508,7 @@ export function CategoriesManager() {
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexDirection: 'column', gap: 4 }} className="md:flex-row md:items-end md:gap-0">
                         <label style={{ fontSize: '0.85rem', fontWeight: 500, color: 'rgba(255,255,255,0.8)' }}>Category Cover Image</label>
-                        <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)' }}>Max size 5MB • JPG, PNG, WEBP</span>
+                        <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)' }}>Max size 10MB • JPG, PNG, WEBP</span>
                       </div>
                       
                       <div style={{ position: 'relative', marginTop: 4 }}>

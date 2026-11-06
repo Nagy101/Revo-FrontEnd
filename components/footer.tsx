@@ -5,10 +5,27 @@ import Image from "next/image"
 import { ArrowUpRight } from "lucide-react"
 import { useLanguage } from "@/lib/i18n/language-context"
 
-// ── SWEET ANIMATION: Staggered Letter Reveal on Hover ──
+// ── SWEET ANIMATION: Smooth Reveal on Hover (Preserves connected Arabic & prevents LTR/RTL reversal) ──
 const AnimatedLink = ({ text, href, external = false }: { text: string, href: string, external?: boolean }) => {
-  const content = (
-    <span className="relative flex overflow-hidden">
+  const isArabicText = /[\u0600-\u06FF]/.test(text)
+
+  const content = isArabicText ? (
+    <span className="relative inline-flex items-center overflow-hidden">
+      <span className="inline-block transition-transform duration-500 ease-cinematic group-hover:-translate-y-full">
+        {text}
+      </span>
+      <span className="absolute inset-0 inline-block translate-y-full transition-transform duration-500 ease-cinematic group-hover:translate-y-0 text-white font-medium">
+        {text}
+      </span>
+      {external && (
+        <ArrowUpRight
+          size={12}
+          className="mr-1.5 opacity-0 group-hover:opacity-100 transition-all duration-300 text-[#C3143D] self-center shrink-0"
+        />
+      )}
+    </span>
+  ) : (
+    <span className="relative flex items-center overflow-hidden" dir="ltr">
       {text.split('').map((char, i) => (
         <span key={i} className="relative inline-block whitespace-pre">
           <span 
@@ -55,7 +72,7 @@ export function Footer() {
   ]
 
   const socials = [
-    { name: "Instagram", href: "https://www.instagram.com/revomedia.eg?obrf=N3cwbGZhdzJ6cWM0" },
+    { name: isArabic ? "انستجرام" : "Instagram", href: "https://www.instagram.com/revomedia.eg?obrf=N3cwbGZhdzJ6cWM0" },
   ]
 
   return (
@@ -108,7 +125,7 @@ export function Footer() {
           {/* ── RIGHT: NAVIGATION ── */}
           <div className="flex gap-16 md:gap-32">
             <div className="flex flex-col gap-6">
-              <span className="text-white/30 text-xs font-medium uppercase tracking-widest">
+              <span className={`text-white/30 text-xs font-medium uppercase ${isArabic ? "tracking-normal font-sans" : "tracking-widest"}`}>
                 {isArabic ? "روابط سريعة" : "Navigation"}
               </span>
               <ul className="flex flex-col gap-4">
@@ -121,7 +138,7 @@ export function Footer() {
             </div>
 
             <div className="flex flex-col gap-6">
-              <span className="text-white/30 text-xs font-medium uppercase tracking-widest">
+              <span className={`text-white/30 text-xs font-medium uppercase ${isArabic ? "tracking-normal font-sans" : "tracking-widest"}`}>
                 {isArabic ? "وسائل التواصل" : "Socials"}
               </span>
               <ul className="flex flex-col gap-4">
