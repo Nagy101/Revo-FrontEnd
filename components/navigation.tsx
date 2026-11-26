@@ -7,7 +7,6 @@ import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { Menu, X, ArrowUpRight, Phone, Instagram, MapPin, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { LanguageSwitcher } from "@/components/ui/language-switcher"
 import { useLanguage } from "@/lib/i18n/language-context"
 import { motion, AnimatePresence } from "framer-motion"
 
@@ -16,7 +15,7 @@ export function Navigation() {
   const [mounted, setMounted] = useState(false)
   const pathname = usePathname()
   const [scrolled, setScrolled] = useState(false)
-  const { t, locale, isArabic } = useLanguage()
+  const { t } = useLanguage()
   const lastToggleRef = useRef(0)
 
   const navItems = [
@@ -135,18 +134,15 @@ export function Navigation() {
               ))}
             </div>
 
-            {/* Desktop Actions (Quote & Language on Right) */}
+            {/* Desktop Actions (CTA on Right) */}
             <div className="hidden lg:flex items-center gap-3.5 z-10">
-              <LanguageSwitcher />
-              <div className="w-px h-5 bg-white/10" />
               <Button asChild className="btn-primary">
                 <Link href="/contact">{t("nav_quote")}</Link>
               </Button>
             </div>
 
-            {/* Mobile Menu Button & Language Switcher (Instant Touch Response) */}
+            {/* Mobile Menu Button (Instant Touch Response) */}
             <div className="lg:hidden flex items-center gap-2.5 z-10">
-              <LanguageSwitcher />
               <button
                 type="button"
                 onPointerDown={handleToggleMenu}
@@ -194,7 +190,6 @@ export function Navigation() {
                     />
                   </Link>
                   <div className="flex items-center gap-2.5">
-                    <LanguageSwitcher />
                     <button
                       type="button"
                       onPointerDown={handleCloseMenu}
@@ -221,10 +216,10 @@ export function Navigation() {
               {/* Main Menu Links Section */}
               <div
                 className="relative z-10 flex-1 flex flex-col justify-center px-6 sm:px-10 py-6 max-w-md mx-auto w-full"
-                dir={isArabic ? "rtl" : "ltr"}
+                dir="ltr"
               >
                 <div className="space-y-2.5">
-                  {navItems.map((item, index) => {
+                  {navItems.map((item) => {
                     const isActive = pathname === item.href
                     return (
                       <div key={item.href}>
@@ -261,9 +256,7 @@ export function Navigation() {
                               <span className="w-2.5 h-2.5 rounded-full bg-[#C3143D] shadow-[0_0_10px_#C3143D] animate-pulse" />
                             ) : (
                               <ArrowUpRight
-                                className={`w-4 h-4 text-white/20 group-hover:text-[#C3143D] transition-all transform ${
-                                  isArabic ? "rotate-[-90deg]" : ""
-                                } group-hover:translate-x-0.5 group-hover:-translate-y-0.5`}
+                                className="w-4 h-4 text-white/20 group-hover:text-[#C3143D] transition-all transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
                               />
                             )}
                           </div>
@@ -314,7 +307,7 @@ export function Navigation() {
 
                   <div className="flex items-center justify-center gap-1.5 text-[11px] text-white/40 font-mono text-center">
                     <MapPin className="w-3 h-3 text-[#C3143D] shrink-0" />
-                    <span>New Cairo 1, Cairo, Egypt</span>
+                    <span>New Cairo</span>
                   </div>
                 </div>
               </div>

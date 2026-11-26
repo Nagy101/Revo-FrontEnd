@@ -8,15 +8,11 @@ import {
   Play, 
   ArrowDown, 
   Flame, 
-  ArrowRight,
-  ChevronLeft,
-  ChevronRight
 } from "lucide-react"
 import Link from "next/link"
-import { useServices } from "../hooks/useServices"
+import { usePublicServices } from "../hooks/useServices"
 import type { ServiceItem } from "../types"
 import { OptimizedGSAPSection } from "@/components/optimized-gsap-section"
-import { useLanguage } from "@/lib/i18n/language-context"
 
 const EASE = [0.16, 1, 0.3, 1] as const
 
@@ -31,7 +27,7 @@ const FALLBACK_IMAGES = [
   "/images/revo-hero-bg.jpg",
 ]
 
-function getServiceImage(url: string | undefined, index: number): string {
+function getServiceImage(url: string | null | undefined, index: number): string {
   if (!url || url.includes("placehold.co") || url.trim() === "") {
     return FALLBACK_IMAGES[index % FALLBACK_IMAGES.length]
   }
@@ -44,7 +40,6 @@ function getServiceImage(url: string | undefined, index: number): string {
 function ServicesHero() {
   const containerRef = useRef<HTMLDivElement>(null)
   const [isMounted, setIsMounted] = useState(false)
-  const { isArabic } = useLanguage()
 
   useEffect(() => {
     setIsMounted(true)
@@ -145,12 +140,12 @@ function ServicesHero() {
         >
           <div className="w-8 md:w-14 h-[1px] bg-gradient-to-r from-transparent to-[#C3143D]" />
           <span className="flex items-center gap-2 text-white/90 text-xs md:text-sm font-semibold tracking-[0.3em] uppercase drop-shadow">
-            <Sparkles className="w-3.5 h-3.5 text-[#C3143D]" /> {isArabic ? "إنتاج إعلامي متكامل" : "Full-Spectrum Media Production"}
+            <Sparkles className="w-3.5 h-3.5 text-[#C3143D]" /> Full-Spectrum Media Production
           </span>
           <div className="w-8 md:w-14 h-[1px] bg-gradient-to-l from-transparent to-[#C3143D]" />
         </motion.div>
 
-        {/* Main Title Group (User's Exact Headline: BIG IDEAS DESERVE GREAT PRODUCTION.) */}
+        {/* Main Title Group */}
         <div className="flex flex-col items-center text-center">
           <div className="overflow-hidden pb-1">
             <motion.h1
@@ -159,7 +154,7 @@ function ServicesHero() {
               transition={{ duration: 1.2, ease: EASE, delay: 0.3 }}
               className="text-3xl sm:text-4xl md:text-5xl lg:text-[3.5rem] font-sora font-black uppercase tracking-tight text-white leading-[1.05] drop-shadow-2xl whitespace-nowrap"
             >
-              {isArabic ? "أفكارك العظيمة تستحق" : "Big Ideas Deserve"}
+              Big Ideas Deserve
             </motion.h1>
           </div>
 
@@ -177,10 +172,10 @@ function ServicesHero() {
               className="relative whitespace-nowrap"
             >
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[3.5rem] font-serif italic leading-[1.05] text-transparent bg-clip-text bg-gradient-to-r from-white via-red-200 to-[#C3143D] pr-2 drop-shadow-2xl">
-                {isArabic ? "إنتاجاً استثنائياً." : "Great Production."}
+                Great Production.
               </h1>
               <h1 className="absolute inset-0 text-3xl sm:text-4xl md:text-5xl lg:text-[3.5rem] font-serif italic leading-[1.05] text-[#C3143D] opacity-25 blur-2xl pointer-events-none">
-                {isArabic ? "إنتاجاً استثنائياً." : "Great Production."}
+                Great Production.
               </h1>
             </motion.div>
             <motion.div
@@ -192,41 +187,31 @@ function ServicesHero() {
           </div>
         </div>
 
-        {/* Lead Copy (User's Exact Text: From live events to brand campaigns...) */}
+        {/* Lead Copy */}
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, ease: EASE, delay: 0.7 }}
           className="max-w-xl text-center text-white/90 text-xs sm:text-sm font-light mt-2.5 md:mt-3.5 leading-relaxed [text-shadow:_0_1px_12px_rgba(0,0,0,0.8)]"
         >
-          {isArabic
-            ? "من الفعاليات الحية إلى الحملات الإعلانية، نصنع محتوى بصري وسينمائي يخطف الأنظار، ويروي القصص، ويضع أفكارك في الصدارة التي تستحقها."
-            : "From live events to brand campaigns, we create photo and video content that captures attention, tells stories, and gives your ideas the spotlight they deserve."}
+          From live events to brand campaigns, we create photo and video content that captures attention, tells stories, and gives your ideas the spotlight they deserve.
         </motion.p>
 
-        {/* Action Buttons */}
+        {/* Action Button: Let's Talk ONLY */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, ease: EASE, delay: 0.9 }}
-          className="flex flex-row items-center gap-3.5 md:gap-4 mt-4 md:mt-5"
+          className="flex flex-row items-center justify-center mt-4 md:mt-5"
         >
-          <button
-            onClick={handleScrollDown}
-            className="group relative px-6 py-2.5 md:px-7 md:py-3 bg-[#C3143D] text-white overflow-hidden rounded-full font-semibold tracking-widest uppercase text-xs md:text-sm shadow-[0_0_25px_rgba(195,20,61,0.4)] hover:shadow-[0_0_45px_rgba(195,20,61,0.6)] hover:scale-105 transition-all duration-300 inline-flex items-center justify-center cursor-pointer"
+          <Link
+            href="/contact"
+            className="group relative px-7 py-2.5 md:px-8 md:py-3 bg-[#C3143D] text-white overflow-hidden rounded-full font-semibold tracking-widest uppercase text-xs md:text-sm shadow-[0_0_25px_rgba(195,20,61,0.4)] hover:shadow-[0_0_45px_rgba(195,20,61,0.6)] hover:scale-105 transition-all duration-300 inline-flex items-center justify-center cursor-pointer"
           >
             <div className="absolute inset-0 w-full h-full bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-cinematic" />
             <span className="relative flex items-center gap-2">
-              {isArabic ? "استكشف الخدمات" : "Explore Services"}{" "}
-              <ArrowDown size={14} className="group-hover:translate-y-0.5 transition-transform" />
+              Let&apos;s Talk <ArrowUpRight size={14} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
             </span>
-          </button>
-
-          <Link
-            href="/contact"
-            className="group px-6 py-2.5 md:px-7 md:py-3 bg-black/40 backdrop-blur-md text-white border border-white/20 rounded-full font-semibold tracking-widest uppercase text-xs md:text-sm hover:border-white hover:bg-white/10 hover:scale-105 transition-all duration-300 inline-flex items-center justify-center cursor-pointer"
-          >
-            {isArabic ? "تواصل معنا" : "Let’s Talk"} <ArrowUpRight size={14} className="ml-1 rtl:rotate-180" />
           </Link>
         </motion.div>
 
@@ -249,13 +234,11 @@ function ServicesHero() {
                   alt="Live Concert Production"
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                 />
-                {/* Soft bottom shadow only - leaves performers 100% clear */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent pointer-events-none" />
                 
-                {/* Clean Bottom Label */}
                 <div className="absolute bottom-1.5 left-2.5 right-2.5 flex items-center justify-between text-white">
                   <p className="text-[11px] sm:text-xs font-bold truncate drop-shadow-[0_1px_4px_rgba(0,0,0,0.9)]">
-                    {isArabic ? "المسارح والإضاءة" : "Stage & Beams"}
+                    Stage & Beams
                   </p>
                   <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center group-hover:bg-[#C3143D] transition-colors shrink-0">
                     <Play size={7} className="fill-current text-white translate-x-0.5" />
@@ -277,13 +260,11 @@ function ServicesHero() {
                   alt="Stadium Production"
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                 />
-                {/* Soft bottom shadow only - leaves performers 100% clear */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent pointer-events-none" />
                 
-                {/* Clean Bottom Label */}
                 <div className="absolute bottom-1.5 left-2.5 right-2.5 flex items-center justify-between text-white">
                   <p className="text-[11px] sm:text-xs font-bold truncate drop-shadow-[0_1px_4px_rgba(0,0,0,0.9)]">
-                    {isArabic ? "عروض الاستادات" : "Stadium Visuals"}
+                    Stadium Visuals
                   </p>
                   <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center group-hover:bg-[#C3143D] transition-colors shrink-0">
                     <Play size={7} className="fill-current text-white translate-x-0.5" />
@@ -335,29 +316,12 @@ function ServicesHero() {
    MAIN SERVICES CONTENT COMPONENT (DIRECT DATABASE INTEGRATION)
    ───────────────────────────────────────────────────────── */
 export function ServicesPageContent() {
-  const [currentPage, setCurrentPage] = useState<number>(1)
-  const itemsPerPage = 6
-  const { isArabic } = useLanguage()
+  // Fetch all paginated services across backend pages (no pagination)
+  const { data: allServices = [], isLoading } = usePublicServices()
 
-  // Fetch directly from database with pageIndex and pageSize=6
-  const { data: response, isLoading, isError } = useServices(currentPage, itemsPerPage)
-
-  // Extract database items
-  const dbServices: ServiceItem[] = response?.data?.data || []
-  const totalCount = response?.data?.totalCount ?? dbServices.length
-  const totalPages = response?.data?.totalPages || Math.max(1, Math.ceil(totalCount / itemsPerPage))
-
-  // Use real database data only
-  const displayServices: ServiceItem[] = dbServices
-
-  const handlePageChange = (newPage: number) => {
-    if (newPage < 1 || newPage > totalPages) return
-    setCurrentPage(newPage)
-    const target = document.getElementById("all-services")
-    if (target) {
-      target.scrollIntoView({ behavior: "smooth" })
-    }
-  }
+  const displayServices: ServiceItem[] = [...(allServices as ServiceItem[])].sort(
+    (a, b) => (a.orderIndex ?? 0) - (b.orderIndex ?? 0)
+  )
 
   return (
     <div className="relative z-10 bg-[#050505] min-h-screen">
@@ -368,21 +332,21 @@ export function ServicesPageContent() {
       <div className="relative py-4 bg-[#080808] border-y border-white/10 overflow-hidden select-none z-10">
         <div className="absolute inset-0 bg-gradient-to-r from-[#050505] via-transparent to-[#050505] z-10 pointer-events-none" />
         <motion.div
-          animate={{ x: isArabic ? [0, 1200] : [0, -1200] }}
+          animate={{ x: [0, -1200] }}
           transition={{ repeat: Infinity, duration: 25, ease: "linear" }}
           className="flex items-center gap-8 whitespace-nowrap text-xs md:text-sm font-sora font-extrabold uppercase tracking-[0.3em] text-white/40"
         >
           {[...Array(6)].map((_, i) => (
             <div key={i} className="flex items-center gap-8 shrink-0">
-              <span className="text-white">{isArabic ? "إخراج الحفلات والمسارح" : "Live Stage Directing"}</span>
+              <span className="text-white">Live Stage Directing</span>
               <span className="w-1.5 h-1.5 rounded-full bg-[#C3143D]" />
-              <span className="text-white/80">{isArabic ? "إعلانات سينمائية" : "Cinematic Commercials"}</span>
+              <span className="text-white/80">Cinematic Commercials</span>
               <span className="w-1.5 h-1.5 rounded-full bg-[#C3143D]" />
-              <span className="text-white">{isArabic ? "شاشات واستادات" : "Stadium Visuals"}</span>
+              <span className="text-white">Stadium Visuals</span>
               <span className="w-1.5 h-1.5 rounded-full bg-[#C3143D]" />
-              <span className="text-white/80">{isArabic ? "تصوير متعدد الكاميرات" : "Multi-Camera Rigging"}</span>
+              <span className="text-white/80">Multi-Camera Rigging</span>
               <span className="w-1.5 h-1.5 rounded-full bg-[#C3143D]" />
-              <span className="text-[#C3143D] font-bold">{isArabic ? "منظومة إنتاج ريفو" : "REVO Production Suite"}</span>
+              <span className="text-[#C3143D] font-bold">REVO Production Suite</span>
               <span className="w-1.5 h-1.5 rounded-full bg-[#C3143D]" />
             </div>
           ))}
@@ -401,34 +365,23 @@ export function ServicesPageContent() {
             <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/[0.03] border border-white/10 mb-3">
               <Flame className="w-3.5 h-3.5 text-[#C3143D]" />
               <span className="text-[#C3143D] text-[11px] font-bold tracking-[0.3em] uppercase">
-                {isArabic ? "القدرات الرئيسية" : "Core Capabilities"}
+                Core Capabilities
               </span>
             </div>
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-sora font-extrabold text-white tracking-tight uppercase">
-              {isArabic ? (
-                <>
-                  ترسانتنا <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-red-200 to-[#C3143D]">الإبداعية.</span>
-                </>
-              ) : (
-                <>
-                  Our Creative <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-red-200 to-[#C3143D]">Arsenal.</span>
-                </>
-              )}
+              Our Creative <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-red-200 to-[#C3143D]">Arsenal.</span>
             </h2>
           </div>
 
           <p className="text-white/50 max-w-md text-sm font-light leading-relaxed">
-            {isArabic
-              ? "إنتاج إعلامي وسينمائي شامل مصمم لإبهار الجماهير، والارتقاء بالعلامات التجارية، وتقديم أعلى درجات التميز السينمائي."
-              : "Full-spectrum media production engineered to captivate audiences, elevate brands, and deliver cinematic excellence."}
+            Full-spectrum media production engineered to captivate audiences, elevate brands, and deliver cinematic excellence.
           </p>
         </motion.div>
       </div>
 
-      {/* ── SERVICES GRID (DATABASE POWERED • 6 PER PAGE) ── */}
-      <div className="max-w-[1300px] mx-auto px-6 pb-12">
+      {/* ── SERVICES GRID (ALL ITEMS — NO PAGINATION) ── */}
+      <div className="max-w-[1300px] mx-auto px-6 pb-20">
         {isLoading && displayServices.length === 0 ? (
-          // Elegant Shimmer Skeleton Grid
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-7">
             {Array.from({ length: 6 }).map((_, i) => (
               <div
@@ -450,34 +403,23 @@ export function ServicesPageContent() {
               <Sparkles className="w-6 h-6 text-[#C3143D]" />
             </div>
             <h3 className="text-xl font-sora font-bold text-white mb-2">
-              {isArabic ? "لا توجد خدمات مضافة حالياً" : "No Services Published Yet"}
+              No Services Published Yet
             </h3>
             <p className="text-white/40 text-sm max-w-sm mx-auto">
-              {isArabic
-                ? "سيتم إضافة خدماتنا الإنتاجية وباقات العمل قريباً عبر لوحة التحكم."
-                : "Our production services catalog will be published here soon."}
+              Our production services catalog will be published here soon.
             </p>
           </div>
         ) : (
           <OptimizedGSAPSection
-            key={`page-${currentPage}`}
+            key="all-services"
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-7"
             animationType="stagger"
             threshold={0.1}
           >
             {displayServices.map((service, index) => {
-              const absoluteIndex = (currentPage - 1) * itemsPerPage + index
-              const imageSrc = getServiceImage(service.imageUrl, absoluteIndex)
-              const title = (
-                isArabic
-                  ? service.nameAr || service.nameEn || "خدمة إنتاجية"
-                  : service.nameEn || service.nameAr || "Production Service"
-              ).trim()
-              const description = (
-                isArabic
-                  ? service.descriptionAr || service.descriptionEn || ""
-                  : service.descriptionEn || service.descriptionAr || ""
-              ).trim()
+              const imageSrc = getServiceImage(service.imageUrl, index)
+              const title = (service.nameEn || service.nameAr || "Production Service").trim()
+              const description = (service.descriptionEn || service.descriptionAr || "").trim()
 
               return (
                 <Link
@@ -504,10 +446,10 @@ export function ServicesPageContent() {
                     {/* Top Bar: Badge & Number */}
                     <div className="relative z-10 flex items-center justify-between">
                       <div className="px-3 py-1 rounded-full bg-black/75 backdrop-blur-md border border-white/10 text-white/90 text-[10px] font-bold tracking-widest uppercase">
-                        {isArabic ? "إنتاج ريفو" : "REVO Production"}
+                        REVO Production
                       </div>
                       <span className="text-white/30 font-sora font-extrabold text-sm tracking-wider group-hover:text-white/70 transition-colors">
-                        {String(absoluteIndex + 1).padStart(2, "0")}
+                        {String(index + 1).padStart(2, "0")}
                       </span>
                     </div>
 
@@ -526,10 +468,10 @@ export function ServicesPageContent() {
                       {/* Action Link Pill */}
                       <div className="mt-4 pt-4 border-t border-white/10 flex items-center justify-between">
                         <span className="text-[11px] font-semibold uppercase tracking-wider text-[#C3143D] group-hover:text-red-300 transition-colors">
-                          {isArabic ? "استكشف الخدمة" : "Explore Service"}
+                          Explore Service
                         </span>
                         <div className="w-8 h-8 rounded-full bg-white/10 backdrop-blur-md group-hover:bg-[#C3143D] flex items-center justify-center transition-colors">
-                          <ArrowUpRight size={14} className="text-white group-hover:rotate-45 rtl:group-hover:-rotate-45 transition-transform duration-300" />
+                          <ArrowUpRight size={14} className="text-white group-hover:rotate-45 transition-transform duration-300" />
                         </div>
                       </div>
                     </div>
@@ -543,74 +485,6 @@ export function ServicesPageContent() {
           </OptimizedGSAPSection>
         )}
       </div>
-
-      {/* ── PAGINATION BAR (ACTIVATES WHEN MORE THAN 6 CARDS EXIST) ── */}
-      {totalPages > 1 && (
-        <div className="max-w-[1300px] mx-auto px-6 pb-20 flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-white/10">
-          <div className="text-xs text-white/40 tracking-wider uppercase font-semibold">
-            {isArabic ? (
-              <>
-                صفحة <span className="text-white font-bold">{currentPage}</span> من{" "}
-                <span className="text-white font-bold">{totalPages}</span> — إجمالي{" "}
-                <span className="text-white font-bold">{totalCount}</span> خدمة
-              </>
-            ) : (
-              <>
-                Page <span className="text-white font-bold">{currentPage}</span> of{" "}
-                <span className="text-white font-bold">{totalPages}</span> — Total{" "}
-                <span className="text-white font-bold">{totalCount}</span> Services
-              </>
-            )}
-          </div>
-
-          <div className="flex items-center gap-2">
-            {/* Prev Button */}
-            <button
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-              className={`px-4 py-2 rounded-full text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5 transition-all duration-300 ${
-                currentPage === 1
-                  ? "bg-white/[0.02] text-white/20 cursor-not-allowed border border-white/5"
-                  : "bg-white/5 text-white/80 hover:bg-white/10 hover:text-white border border-white/10 cursor-pointer"
-              }`}
-            >
-              <ChevronLeft size={14} className="rtl:rotate-180" /> {isArabic ? "السابق" : "Previous"}
-            </button>
-
-            {/* Page Number Pills */}
-            {Array.from({ length: totalPages }).map((_, i) => {
-              const pageNumber = i + 1
-              const isActive = currentPage === pageNumber
-              return (
-                <button
-                  key={pageNumber}
-                  onClick={() => handlePageChange(pageNumber)}
-                  className={`w-10 h-10 rounded-full text-xs font-bold font-sora transition-all duration-300 cursor-pointer flex items-center justify-center ${
-                    isActive
-                      ? "bg-[#C3143D] text-white shadow-[0_0_20px_rgba(195,20,61,0.6)] scale-105"
-                      : "bg-white/5 text-white/50 hover:bg-white/10 hover:text-white border border-white/10"
-                  }`}
-                >
-                  {String(pageNumber).padStart(2, "0")}
-                </button>
-              )
-            })}
-
-            {/* Next Button */}
-            <button
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
-              className={`px-4 py-2 rounded-full text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5 transition-all duration-300 ${
-                currentPage === totalPages
-                  ? "bg-white/[0.02] text-white/20 cursor-not-allowed border border-white/5"
-                  : "bg-white/5 text-white/80 hover:bg-white/10 hover:text-white border border-white/10 cursor-pointer"
-              }`}
-            >
-              {isArabic ? "التالي" : "Next"} <ChevronRight size={14} className="rtl:rotate-180" />
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   )
 }

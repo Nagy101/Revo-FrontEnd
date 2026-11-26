@@ -60,8 +60,8 @@ export function useNotifications() {
             setNotifications((prev) => [notification, ...prev]);
             
             toast({
-              title: notification.titleEn || notification.titleAr,
-              description: notification.messageEn || notification.messageAr,
+              title: notification.titleEn || notification.titleAr || "New Notification",
+              description: notification.messageEn || notification.messageAr || undefined,
             });
           });
         })

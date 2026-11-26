@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { fetchAllPaginated } from "@/lib/api/fetch-all-paginated";
 import { categoriesService } from "../services/categories.service";
 import { CategoryRequestPayload } from "../types";
 
@@ -6,6 +7,7 @@ export const CATEGORY_QUERY_KEYS = {
   all: ["categories"] as const,
   lists: () => [...CATEGORY_QUERY_KEYS.all, "list"] as const,
   list: (filters: { pageIndex: number; pageSize: number }) => [...CATEGORY_QUERY_KEYS.lists(), filters] as const,
+  publicAll: () => [...CATEGORY_QUERY_KEYS.all, "public-all"] as const,
   details: () => [...CATEGORY_QUERY_KEYS.all, "detail"] as const,
   detail: (id: string, filters?: { pageIndex: number; pageSize: number }) => [...CATEGORY_QUERY_KEYS.details(), id, filters] as const,
 };
@@ -14,6 +16,14 @@ export const useCategories = (pageIndex: number = 1, pageSize: number = 50) => {
   return useQuery({
     queryKey: CATEGORY_QUERY_KEYS.list({ pageIndex, pageSize }),
     queryFn: () => categoriesService.getAll(pageIndex, pageSize),
+  });
+};
+
+export const useAllCategories = () => {
+  return useQuery({
+    queryKey: CATEGORY_QUERY_KEYS.publicAll(),
+    queryFn: () =>
+      fetchAllPaginated((page, size) => categoriesService.getAll(page, size), 100),
   });
 };
 

@@ -1,18 +1,46 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef, useMemo } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   Search, Plus, Edit2, Trash2, Image as ImageIcon, Video,
   CheckCircle2, AlertCircle, X, Loader2, ChevronLeft, ChevronRight,
-  ArrowUp, ArrowDown, Film, Eye
+  ArrowUp, ArrowDown, Film, Eye, UploadCloud
 } from "lucide-react"
 
 import { usePortfolios, usePortfolioDetails, useCreatePortfolio, useUpdatePortfolio, useDeletePortfolio } from "@/features/portfolio/hooks/usePortfolios"
-import { useCategories } from "@/features/categories/hooks/useCategories"
+import { useAllCategories } from "@/features/categories/hooks/useCategories"
 import { PortfolioMedia, MediaType, PortfolioPayload } from "@/features/portfolio/types"
 import { CustomSelect } from "@/features/ui/components/custom-select"
 import { extractApiErrorMessage } from "@/lib/api/http-client"
+
+const MAX_IMAGE_SIZE_MB = 10
+const MAX_IMAGE_SIZE_BYTES = MAX_IMAGE_SIZE_MB * 1024 * 1024 // 10 MB
+
+type LocalPortfolioMedia = PortfolioMedia & { _localId?: string }
+
+function makeLocalId(): string {
+  return `local-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
+}
+
+function formatFileSize(bytes: number): string {
+  if (bytes >= 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+  return `${Math.max(1, Math.round(bytes / 1024))} KB`
+}
+
+function isOversizedFile(file?: File | null): boolean {
+  return Boolean(file && file.size > MAX_IMAGE_SIZE_BYTES)
+}
+
+function isValidHttpUrl(value?: string): boolean {
+  if (!value?.trim()) return false
+  try {
+    const parsed = new URL(value.trim())
+    return parsed.protocol === "http:" || parsed.protocol === "https:"
+  } catch {
+    return false
+  }
+}
 
 // ─── Animation Variants ────────────────────────────────────────────────────────
 const fadeUp = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }
@@ -41,43 +69,78 @@ function CustomToast({ message, type, onClose }: { message: string; type: "succe
         {isSuccess ? <CheckCircle2 color="#22c55e" size={20} /> : <AlertCircle color="#ef4444" size={20} />}
       </motion.div>
       <span style={{ color: "#fff", fontSize: "0.875rem", fontWeight: 500, flex: 1 }}>{message}</span>
-      <button onClick={onClose} style={{ background: "rgba(255,255,255,0.06)", border: "none", cursor: "pointer", color: "rgba(255,255,255,0.5)", borderRadius: 6, width: 24, height: 24, display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s" }} className="hover:bg-white/15 hover:text-white"><X size={14} /></button>
+      <button type="button" onClick={onClose} style={{ background: "rgba(255,255,255,0.06)", border: "none", cursor: "pointer", color: "rgba(255,255,255,0.5)", borderRadius: 6, width: 24, height: 24, display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s" }} className="hover:bg-white/15 hover:text-white"><X size={14} /></button>
     </motion.div>
   )
 }
 
 // ─── Media Block ──────────────────────────────────────────────────────────────
-function MediaBlock({ media, index, isFirst, isLast, onUpdate, onRemove, onMoveUp, onMoveDown }: {
+function MediaBlock({ media, isFirst, isLast, onUpdate, onRemove, onMoveUp, onMoveDown }: {
   media: PortfolioMedia; index: number; isFirst: boolean; isLast: boolean
   onUpdate: (m: PortfolioMedia) => void; onRemove: () => void; onMoveUp: () => void; onMoveDown: () => void
 }) {
+  const oversized = isOversizedFile(media.file)
+
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files?.[0]) {
       const file = e.target.files[0]
       onUpdate({ ...media, file, mediaUrl: URL.createObjectURL(file) })
     }
+    e.target.value = ""
   }
+
   return (
     <motion.div
       layout
       initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}
-      style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 16, padding: 14, display: "flex", gap: 14, alignItems: "center", transition: "border-color 0.2s, background 0.2s" }}
-      className="hover:border-white/[0.1] hover:bg-white/[0.03]"
+      style={{
+        background: oversized ? "rgba(239,68,68,0.07)" : "rgba(255,255,255,0.02)",
+        border: oversized ? "1px solid rgba(239,68,68,0.6)" : "1px solid rgba(255,255,255,0.06)",
+        borderRadius: 16,
+        padding: 14,
+        display: "flex",
+        gap: 14,
+        alignItems: "center",
+        transition: "border-color 0.2s, background 0.2s",
+      }}
+      className={oversized ? "" : "hover:border-white/[0.1] hover:bg-white/[0.03]"}
     >
       {/* Preview Dropzone */}
-      <motion.div whileHover={{ scale: 1.04 }} style={{ position: "relative", width: 78, height: 78, borderRadius: 12, background: "#0a0a0a", overflow: "hidden", flexShrink: 0, border: "1px dashed rgba(255,255,255,0.12)", cursor: "pointer" }}>
-        {(media.mediaUrl || media.coverImageUrl) ? (
-          <img src={media.coverImageUrl || media.mediaUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+      <motion.div
+        whileHover={{ scale: 1.04 }}
+        style={{
+          position: "relative",
+          width: 78,
+          height: 78,
+          borderRadius: 12,
+          background: "#000",
+          overflow: "hidden",
+          flexShrink: 0,
+          border: oversized ? "1px dashed rgba(239,68,68,0.8)" : "1px dashed rgba(255,255,255,0.12)",
+          cursor: "pointer",
+        }}
+      >
+        {(media.coverImageUrl || (media.type === MediaType.Image && media.mediaUrl) || (media.file && media.mediaUrl)) ? (
+          <img
+            src={(media.file && media.mediaUrl) || media.coverImageUrl || media.mediaUrl}
+            alt=""
+            style={{ width: "100%", height: "100%", objectFit: "cover", opacity: oversized ? 0.45 : 1 }}
+          />
         ) : (
           <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", color: "rgba(255,255,255,0.2)", gap: 4 }}>
             {media.type === MediaType.Image ? <ImageIcon size={18} /> : <Video size={18} />}
-            <span style={{ fontSize: "0.58rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em" }}>Upload</span>
+            <span style={{ fontSize: "0.58rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em" }}>{media.type === MediaType.Video ? "Cover" : "Upload"}</span>
           </div>
         )}
-        <input type="file" accept={media.type === MediaType.Image ? "image/*" : "video/*"} onChange={handleFile} style={{ position: "absolute", inset: 0, opacity: 0, cursor: "pointer" }} />
+        {oversized && (
+          <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(239,68,68,0.25)" }}>
+            <AlertCircle size={22} color="#ef4444" />
+          </div>
+        )}
+        <input type="file" accept="image/*" onChange={handleFile} style={{ position: "absolute", inset: 0, opacity: 0, cursor: "pointer" }} title="Click to upload or replace image" />
       </motion.div>
 
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 10 }}>
+      <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 10 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
           <div style={{ flex: "1 1 120px", minWidth: 120 }}>
             <CustomSelect
@@ -94,10 +157,10 @@ function MediaBlock({ media, index, isFirst, isLast, onUpdate, onRemove, onMoveU
             <div style={{ flex: "1 1 200px" }}>
               <input
                 type="url"
-                placeholder="Video URL (e.g. YouTube)"
+                placeholder="Video URL (e.g. https://youtube.com/...)"
                 value={media.videoUrl || ""}
                 onChange={e => onUpdate({ ...media, videoUrl: e.target.value })}
-                required={!media.id}
+                required
                 style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 8, padding: "7px 11px", color: "#fff", fontSize: "0.82rem", outline: "none", width: "100%" }}
                 onFocus={e => { e.currentTarget.style.borderColor = "#C3143D" }}
                 onBlur={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)" }}
@@ -114,18 +177,36 @@ function MediaBlock({ media, index, isFirst, isLast, onUpdate, onRemove, onMoveU
                 {btn.icon}
               </motion.button>
             ))}
-            <motion.button type="button" whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={onRemove} style={{ width: 30, height: 30, borderRadius: 7, border: "1px solid rgba(239,68,68,0.18)", background: "rgba(239,68,68,0.07)", color: "#ef4444", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", marginLeft: 4 }}>
+            <motion.button type="button" whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={onRemove} style={{ width: 30, height: 30, borderRadius: 7, border: "1px solid rgba(239,68,68,0.18)", background: "rgba(239,68,68,0.07)", color: "#ef4444", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", marginLeft: 4 }} title="Remove media">
               <Trash2 size={13} />
             </motion.button>
           </div>
         </div>
+
         <AnimatePresence mode="wait">
-          {media.file ? (
-            <motion.span key="file" initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} style={{ fontSize: "0.71rem", color: "#10b981", display: "flex", alignItems: "center", gap: 5 }}><CheckCircle2 size={11} /> {media.file.name}</motion.span>
+          {oversized && media.file ? (
+            <motion.div
+              key="oversized"
+              initial={{ opacity: 0, y: 4 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -4 }}
+              style={{ fontSize: "0.73rem", color: "#f87171", display: "flex", alignItems: "center", gap: 6, fontWeight: 600 }}
+            >
+              <AlertCircle size={13} className="shrink-0 text-red-500" />
+              <span className="truncate">
+                {media.file.name} ({formatFileSize(media.file.size)}) — Exceeds {MAX_IMAGE_SIZE_MB} MB limit. Remove or choose a smaller file.
+              </span>
+            </motion.div>
+          ) : media.file ? (
+            <motion.span key="file" initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} style={{ fontSize: "0.71rem", color: "#10b981", display: "flex", alignItems: "center", gap: 5 }}>
+              <CheckCircle2 size={11} /> <span className="truncate">{media.file.name} ({formatFileSize(media.file.size)})</span>
+            </motion.span>
           ) : media.id ? (
             <motion.span key="existing" initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ fontSize: "0.71rem", color: "rgba(255,255,255,0.28)" }}>Existing media · from server</motion.span>
+          ) : media.type === MediaType.Video ? (
+            <motion.span key="video-opt" initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ fontSize: "0.71rem", color: "rgba(255,255,255,0.4)", display: "flex", alignItems: "center", gap: 5 }}>Cover image optional (Max 10 MB) · Black space is default</motion.span>
           ) : (
-            <motion.span key="empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ fontSize: "0.71rem", color: "#ef4444", display: "flex", alignItems: "center", gap: 5 }}><AlertCircle size={11} /> {media.type === MediaType.Video ? "Please upload a cover image" : "Please upload a file"}</motion.span>
+            <motion.span key="empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ fontSize: "0.71rem", color: "#ef4444", display: "flex", alignItems: "center", gap: 5 }}><AlertCircle size={11} /> Please upload an image (Max 10 MB)</motion.span>
           )}
         </AnimatePresence>
       </div>
@@ -138,53 +219,131 @@ function PortfolioModal({ isOpen, mode, id, onClose, showToast }: {
   isOpen: boolean; mode: "create" | "edit"; id: string | null
   onClose: () => void; showToast: (m: string, t?: "success" | "error") => void
 }) {
-  const { data: catRes } = useCategories(1, 100)
-  const categories = catRes?.data?.data || []
+  const { data: categoriesData } = useAllCategories()
+  const categories = useMemo(() => (Array.isArray(categoriesData) ? categoriesData : []), [categoriesData])
   const { data: detailRes, isLoading: loadingDetails } = usePortfolioDetails(mode === "edit" ? id : null)
   const portfolio = detailRes?.data
   const createMutation = useCreatePortfolio()
   const updateMutation = useUpdatePortfolio()
-  const [mediaItems, setMediaItems] = useState<PortfolioMedia[]>([])
-  const [selectedCategory, setSelectedCategory] = useState<string>("")
 
+  const [mediaItems, setMediaItems] = useState<LocalPortfolioMedia[]>([])
+  const [selectedCategory, setSelectedCategory] = useState<string>("")
+  const [isDragging, setIsDragging] = useState(false)
+  const multiFileInputRef = useRef<HTMLInputElement>(null)
+  const initializedKeyRef = useRef<string | null>(null)
+
+  // Reset form initialization only when modal closes or switches target
   useEffect(() => {
-    if (mode === "edit" && portfolio) {
-      setMediaItems(portfolio.mediaItems?.map(m => ({ 
-        ...m,
-        videoUrl: m.type === MediaType.Video ? m.mediaUrl : m.videoUrl
-      })) || [])
-      setSelectedCategory(portfolio.categoryId)
-    }
-    if (mode === "create") {
+    if (!isOpen) {
+      initializedKeyRef.current = null
       setMediaItems([])
-      setSelectedCategory(categories.length > 0 ? categories[0].id : "")
+      setSelectedCategory("")
+      return
     }
-  }, [portfolio, mode, isOpen, categories])
+
+    if (mode === "create") {
+      if (initializedKeyRef.current !== "create") {
+        initializedKeyRef.current = "create"
+        setMediaItems([])
+        setSelectedCategory(categories.length > 0 ? categories[0].id : "")
+      } else if (!selectedCategory && categories.length > 0) {
+        // Fill default category once categories arrive, without wiping mediaItems or user selection
+        setSelectedCategory(categories[0].id)
+      }
+    }
+
+    if (mode === "edit" && portfolio) {
+      const editKey = `edit-${portfolio.id}`
+      if (initializedKeyRef.current !== editKey) {
+        initializedKeyRef.current = editKey
+        setMediaItems(
+          portfolio.mediaItems?.map(m => ({
+            ...m,
+            _localId: m.id || makeLocalId(),
+            videoUrl: m.type === MediaType.Video ? m.mediaUrl : m.videoUrl,
+          })) || []
+        )
+        setSelectedCategory(portfolio.categoryId || "")
+      }
+    }
+  }, [isOpen, mode, portfolio, categories, selectedCategory])
 
   const handleApiError = (error: any) => {
     const msg = extractApiErrorMessage(error?.data || error?.response?.data, error?.status) || error?.message || "Something went wrong"
     showToast(msg, 'error')
   }
 
+  const appendMultipleImages = (fileList: FileList | null) => {
+    if (!fileList || fileList.length === 0) return
+    const files = Array.from(fileList).filter(f => f.type.startsWith("image/") || /\.(jpg|jpeg|png|webp|gif|heic)$/i.test(f.name))
+    if (files.length === 0) {
+      showToast("Please select image files (JPG, PNG, WEBP).", "error")
+      return
+    }
+    setMediaItems(prev => [
+      ...prev,
+      ...files.map((file, idx) => ({
+        _localId: makeLocalId(),
+        type: MediaType.Image,
+        orderIndex: prev.length + idx + 1,
+        file,
+        mediaUrl: URL.createObjectURL(file),
+      })),
+    ])
+  }
+
+  const handleMultiFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    appendMultipleImages(e.target.files)
+    e.target.value = ""
+  }
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragging(false)
+    appendMultipleImages(e.dataTransfer.files)
+  }
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+    const fd = new FormData(e.currentTarget)
+    const resolvedCategoryId = (selectedCategory || (fd.get("categoryId") as string) || "").trim()
+
+    if (!resolvedCategoryId) {
+      showToast("Please select a category.", "error")
+      return
+    }
 
     if (mediaItems.length === 0) {
       showToast("Please add at least one media item.", "error")
       return
     }
 
-    if (!mediaItems.every(m => m.id || m.file || (m.type === MediaType.Video && m.videoUrl))) {
-      showToast("Please upload a file or provide a video URL.", "error")
+    const oversizedCount = mediaItems.filter(m => isOversizedFile(m.file)).length
+    if (oversizedCount > 0) {
+      showToast(`${oversizedCount} image(s) exceed the ${MAX_IMAGE_SIZE_MB} MB limit. Remove or replace the highlighted items in red.`, "error")
       return
     }
 
-    const fd = new FormData(e.currentTarget)
+    for (const m of mediaItems) {
+      if (m.type === MediaType.Video) {
+        if (!isValidHttpUrl(m.videoUrl)) {
+          showToast("Please provide a valid http/https Video URL for every video item.", "error")
+          return
+        }
+      } else if (!m.id && !m.file) {
+        showToast("Please upload an image file for every image item.", "error")
+        return
+      }
+    }
+
+    const rawOrder = String(fd.get("orderIndex") ?? "").trim()
+    const parsedOrder = rawOrder === "" ? 0 : Math.max(0, Number(rawOrder) || 0)
+
     const payload: PortfolioPayload = {
-      captionAr: fd.get("captionAr") as string,
-      captionEn: fd.get("captionEn") as string,
-      orderIndex: Number(fd.get("orderIndex") || 1),
-      categoryId: fd.get("categoryId") as string,
+      captionEn: (fd.get("captionEn") as string).trim(),
+      orderIndex: parsedOrder,
+      categoryId: resolvedCategoryId,
       mediaItems: mediaItems.map((m, i) => ({ ...m, orderIndex: i + 1 })),
     }
     if (mode === "create") {
@@ -200,10 +359,12 @@ function PortfolioModal({ isOpen, mode, id, onClose, showToast }: {
     }
   }
 
-  const addMedia = () => setMediaItems(p => [...p, { type: MediaType.Image, orderIndex: p.length + 1 }])
+  const addVideo = () => setMediaItems(p => [...p, { _localId: makeLocalId(), type: MediaType.Video, orderIndex: p.length + 1, videoUrl: "" }])
   const removeMedia = (i: number) => setMediaItems(p => p.filter((_, idx) => idx !== i))
-  const updateMedia = (i: number, m: PortfolioMedia) => setMediaItems(p => { const n = [...p]; n[i] = m; return n })
+  const updateMedia = (i: number, m: PortfolioMedia) => setMediaItems(p => { const n = [...p]; n[i] = { ...m, _localId: n[i]._localId }; return n })
   const swapMedia = (a: number, b: number) => setMediaItems(p => { const n = [...p]; [n[a], n[b]] = [n[b], n[a]]; return n })
+
+  const oversizedCount = mediaItems.filter(m => isOversizedFile(m.file)).length
 
   if (!isOpen) return null
 
@@ -227,7 +388,7 @@ function PortfolioModal({ isOpen, mode, id, onClose, showToast }: {
               <p style={{ margin: "2px 0 0", fontSize: "0.8rem", color: "rgba(255,255,255,0.4)" }}>Curate your portfolio with stunning media.</p>
             </div>
           </div>
-          <motion.button whileHover={{ scale: 1.08, rotate: 90, background: "rgba(255,255,255,0.1)" }} whileTap={{ scale: 0.92 }} transition={{ duration: 0.2 }} onClick={onClose} style={{ width: 36, height: 36, borderRadius: "50%", background: "rgba(255,255,255,0.04)", border: "none", cursor: "pointer", color: "rgba(255,255,255,0.6)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <motion.button type="button" whileHover={{ scale: 1.08, rotate: 90, background: "rgba(255,255,255,0.1)" }} whileTap={{ scale: 0.92 }} transition={{ duration: 0.2 }} onClick={onClose} style={{ width: 36, height: 36, borderRadius: "50%", background: "rgba(255,255,255,0.04)", border: "none", cursor: "pointer", color: "rgba(255,255,255,0.6)", display: "flex", alignItems: "center", justifyContent: "center" }}>
             <X size={16} />
           </motion.button>
         </div>
@@ -240,73 +401,148 @@ function PortfolioModal({ isOpen, mode, id, onClose, showToast }: {
           </div>
         ) : (
           <form onSubmit={handleSubmit} style={{ overflowY: "auto", padding: "24px 28px 28px", display: "flex", flexDirection: "column", gap: 24 }} className="custom-scrollbar">
-            {/* Captions */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 16 }}>
-              {([
-                { name: "captionEn", label: "Title (English)", placeholder: "e.g. Summer Campaign", defaultVal: portfolio?.captionEn, dir: "ltr" },
-                { name: "captionAr", label: "Title (Arabic)", placeholder: "مثال: حملة الصيف", defaultVal: portfolio?.captionAr, dir: "rtl" },
-              ] as const).map((f, fi) => (
-                <motion.div key={f.name} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: fi * 0.06 }} style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                  <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "rgba(255,255,255,0.6)", textTransform: "uppercase", letterSpacing: "0.05em" }}>{f.label}</label>
-                  <input name={f.name} required defaultValue={f.defaultVal} placeholder={f.placeholder} dir={f.dir} className="hover:bg-white/[0.04] transition-all duration-200" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: "12px 16px", color: "#fff", fontSize: "0.95rem", outline: "none", width: "100%", boxShadow: "inset 0 2px 4px rgba(0,0,0,0.1)" }} onFocus={e => { e.currentTarget.style.borderColor = "#C3143D"; e.currentTarget.style.background = "rgba(195,20,61,0.03)"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(195,20,61,0.15)" }} onBlur={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; e.currentTarget.style.background = "rgba(255,255,255,0.02)"; e.currentTarget.style.boxShadow = "inset 0 2px 4px rgba(0,0,0,0.1)" }} />
-                </motion.div>
-              ))}
-            </div>
+            {/* Title */}
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "rgba(255,255,255,0.6)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Title *</label>
+              <input name="captionEn" required maxLength={200} defaultValue={portfolio?.captionEn} placeholder="e.g. Summer Campaign" dir="ltr" className="hover:bg-white/[0.04] transition-all duration-200" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: "12px 16px", color: "#fff", fontSize: "0.95rem", outline: "none", width: "100%", boxShadow: "inset 0 2px 4px rgba(0,0,0,0.1)" }} onFocus={e => { e.currentTarget.style.borderColor = "#C3143D"; e.currentTarget.style.background = "rgba(195,20,61,0.03)"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(195,20,61,0.15)" }} onBlur={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; e.currentTarget.style.background = "rgba(255,255,255,0.02)"; e.currentTarget.style.boxShadow = "inset 0 2px 4px rgba(0,0,0,0.1)" }} />
+            </motion.div>
 
             {/* Category + Order */}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 16 }}>
-              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 }} style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "rgba(255,255,255,0.6)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Category</label>
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }} style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "rgba(255,255,255,0.6)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Category *</label>
                 {categories.length === 0 ? (
                   <div style={{ padding: "10px 14px", borderRadius: 10, background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)", color: "#F04F6A", fontSize: "0.78rem", lineHeight: 1.4 }}>
                     ⚠️ No categories available. Please create a Category first from the Categories tab before creating a portfolio item.
                   </div>
                 ) : (
-                  <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, boxShadow: "inset 0 2px 4px rgba(0,0,0,0.1)", overflow: "hidden" }} className="hover:bg-white/[0.04] transition-all duration-200 focus-within:border-[#C3143D] focus-within:ring-[3px] focus-within:ring-[#C3143D]/15">
+                  <div style={{ position: "relative" }}>
                     <CustomSelect
                       name="categoryId"
                       value={selectedCategory}
                       onChange={setSelectedCategory}
-                      options={categories.map(c => ({ value: c.id, label: c.nameEn }))}
+                      options={categories.map(c => ({ value: c.id, label: c.nameEn || c.nameAr || "Category" }))}
                       placeholder="Select Category"
-                      required
                     />
                   </div>
                 )}
               </motion.div>
-              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.16 }} style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "rgba(255,255,255,0.6)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Sort Order</label>
-                <input name="orderIndex" type="number" defaultValue={portfolio?.orderIndex || 1} required className="hover:bg-white/[0.04] transition-all duration-200" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: "12px 16px", color: "#fff", fontSize: "0.95rem", outline: "none", width: "100%", boxShadow: "inset 0 2px 4px rgba(0,0,0,0.1)" }} onFocus={e => { e.currentTarget.style.borderColor = "#C3143D"; e.currentTarget.style.background = "rgba(195,20,61,0.03)"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(195,20,61,0.15)" }} onBlur={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; e.currentTarget.style.background = "rgba(255,255,255,0.02)"; e.currentTarget.style.boxShadow = "inset 0 2px 4px rgba(0,0,0,0.1)" }} />
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 }} style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                <label style={{ fontSize: "0.75rem", fontWeight: 700, color: "rgba(255,255,255,0.6)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                  Sort Order <span style={{ fontWeight: 400, color: "rgba(255,255,255,0.35)", textTransform: "none" }}>(Optional)</span>
+                </label>
+                <input name="orderIndex" type="number" min={0} defaultValue={mode === "edit" ? (portfolio?.orderIndex ?? 0) : ""} placeholder="0 (Optional)" className="hover:bg-white/[0.04] transition-all duration-200" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: "12px 16px", color: "#fff", fontSize: "0.95rem", outline: "none", width: "100%", boxShadow: "inset 0 2px 4px rgba(0,0,0,0.1)" }} onFocus={e => { e.currentTarget.style.borderColor = "#C3143D"; e.currentTarget.style.background = "rgba(195,20,61,0.03)"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(195,20,61,0.15)" }} onBlur={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; e.currentTarget.style.background = "rgba(255,255,255,0.02)"; e.currentTarget.style.boxShadow = "inset 0 2px 4px rgba(0,0,0,0.1)" }} />
               </motion.div>
             </div>
 
             {/* Media Section */}
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} style={{ borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: 24 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-                <div>
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.16 }}
+              onDragOver={e => { e.preventDefault(); setIsDragging(true) }}
+              onDragLeave={() => setIsDragging(false)}
+              onDrop={handleDrop}
+              style={{ borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: 24 }}
+            >
+              {/* Hidden Multi-Image Input */}
+              <input
+                ref={multiFileInputRef}
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={handleMultiFileChange}
+                style={{ display: "none" }}
+              />
+
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14, flexWrap: "wrap", gap: 10 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
                   <span style={{ fontSize: "0.9rem", fontWeight: 700, color: "#fff" }}>Media Gallery</span>
                   {mediaItems.length > 0 && (
-                    <span style={{ marginLeft: 10, fontSize: "0.75rem", color: "#ff4d6d", background: "rgba(195,20,61,0.1)", border: "1px solid rgba(195,20,61,0.2)", padding: "3px 10px", borderRadius: 100, fontWeight: 600 }}>{mediaItems.length} file{mediaItems.length > 1 ? "s" : ""}</span>
+                    <span style={{ fontSize: "0.75rem", color: "#ff4d6d", background: "rgba(195,20,61,0.1)", border: "1px solid rgba(195,20,61,0.2)", padding: "3px 10px", borderRadius: 100, fontWeight: 600 }}>
+                      {mediaItems.length} item{mediaItems.length > 1 ? "s" : ""}
+                    </span>
+                  )}
+                  {oversizedCount > 0 && (
+                    <span style={{ fontSize: "0.73rem", color: "#fca5a5", background: "rgba(239,68,68,0.15)", border: "1px solid rgba(239,68,68,0.45)", padding: "3px 10px", borderRadius: 100, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 5 }}>
+                      <AlertCircle size={12} color="#ef4444" />
+                      {oversizedCount} exceed{oversizedCount === 1 ? "s" : ""} {MAX_IMAGE_SIZE_MB} MB
+                    </span>
                   )}
                 </div>
-                <motion.button type="button" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={addMedia} style={{ background: "rgba(195,20,61,0.15)", color: "#ff4d6d", border: "1px solid rgba(195,20,61,0.3)", borderRadius: 10, padding: "8px 16px", fontSize: "0.8rem", fontWeight: 700, display: "flex", alignItems: "center", gap: 6, cursor: "pointer", transition: "all 0.2s" }} className="hover:bg-[#C3143D] hover:text-white hover:border-[#C3143D] hover:shadow-[0_4px_15px_rgba(195,20,61,0.4)]">
-                  <Plus size={14} /> Add Media
-                </motion.button>
+
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <motion.button
+                    type="button"
+                    whileHover={{ scale: 1.04 }}
+                    whileTap={{ scale: 0.96 }}
+                    onClick={() => multiFileInputRef.current?.click()}
+                    style={{ background: "rgba(195,20,61,0.15)", color: "#ff4d6d", border: "1px solid rgba(195,20,61,0.3)", borderRadius: 10, padding: "8px 14px", fontSize: "0.78rem", fontWeight: 700, display: "flex", alignItems: "center", gap: 6, cursor: "pointer", transition: "all 0.2s" }}
+                    className="hover:bg-[#C3143D] hover:text-white hover:border-[#C3143D]"
+                  >
+                    <UploadCloud size={14} /> Upload Images
+                  </motion.button>
+                  <motion.button
+                    type="button"
+                    whileHover={{ scale: 1.04 }}
+                    whileTap={{ scale: 0.96 }}
+                    onClick={addVideo}
+                    style={{ background: "rgba(255,255,255,0.05)", color: "rgba(255,255,255,0.85)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 10, padding: "8px 14px", fontSize: "0.78rem", fontWeight: 700, display: "flex", alignItems: "center", gap: 6, cursor: "pointer", transition: "all 0.2s" }}
+                    className="hover:bg-white/10 hover:text-white"
+                  >
+                    <Plus size={14} /> Add Video
+                  </motion.button>
+                </div>
               </div>
+
               <AnimatePresence mode="popLayout">
                 {mediaItems.length === 0 ? (
-                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="group hover:border-[#C3143D]/50 hover:bg-white/[0.03] transition-all duration-300 cursor-pointer" onClick={addMedia} style={{ padding: "40px 20px", textAlign: "center", background: "rgba(255,255,255,0.015)", borderRadius: 16, border: "2px dashed rgba(255,255,255,0.08)" }}>
-                    <div style={{ width: 60, height: 60, borderRadius: "50%", background: "rgba(255,255,255,0.03)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }} className="group-hover:bg-[#C3143D]/10 group-hover:text-[#ff4d6d] transition-colors duration-300">
-                      <Film size={28} className="text-white/20 group-hover:text-[#ff4d6d] transition-colors" />
+                  <motion.div
+                    initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                    className="group hover:border-[#C3143D]/50 hover:bg-white/[0.03] transition-all duration-300 cursor-pointer"
+                    onClick={() => multiFileInputRef.current?.click()}
+                    style={{
+                      padding: "36px 20px",
+                      textAlign: "center",
+                      background: isDragging ? "rgba(195,20,61,0.08)" : "rgba(255,255,255,0.015)",
+                      borderRadius: 16,
+                      border: isDragging ? "2px dashed #C3143D" : "2px dashed rgba(255,255,255,0.1)",
+                    }}
+                  >
+                    <div style={{ width: 58, height: 58, borderRadius: "50%", background: "rgba(255,255,255,0.03)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 14px" }} className="group-hover:bg-[#C3143D]/10 group-hover:text-[#ff4d6d] transition-colors duration-300">
+                      <UploadCloud size={26} className="text-white/30 group-hover:text-[#ff4d6d] transition-colors" />
                     </div>
-                    <h4 style={{ margin: "0 0 6px", color: "#fff", fontSize: "1rem", fontWeight: 600 }}>No media files yet</h4>
-                    <p style={{ margin: 0, color: "rgba(255,255,255,0.4)", fontSize: "0.85rem" }}>Click "Add Media" to upload images or link videos.</p>
+                    <h4 style={{ margin: "0 0 6px", color: "#fff", fontSize: "0.98rem", fontWeight: 600 }}>Select multiple images or drag &amp; drop here</h4>
+                    <p style={{ margin: 0, color: "rgba(255,255,255,0.4)", fontSize: "0.82rem" }}>Max {MAX_IMAGE_SIZE_MB} MB per image · Or click &ldquo;Add Video&rdquo; to link a video</p>
                   </motion.div>
                 ) : (
                   <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                     {mediaItems.map((m, i) => (
-                      <MediaBlock key={m.id || `new-${i}`} media={m} index={i} isFirst={i === 0} isLast={i === mediaItems.length - 1} onUpdate={nm => updateMedia(i, nm)} onRemove={() => removeMedia(i)} onMoveUp={() => swapMedia(i, i - 1)} onMoveDown={() => swapMedia(i, i + 1)} />
+                      <MediaBlock key={m.id || m._localId || `new-${i}`} media={m} index={i} isFirst={i === 0} isLast={i === mediaItems.length - 1} onUpdate={nm => updateMedia(i, nm)} onRemove={() => removeMedia(i)} onMoveUp={() => swapMedia(i, i - 1)} onMoveDown={() => swapMedia(i, i + 1)} />
                     ))}
+                    <button
+                      type="button"
+                      onClick={() => multiFileInputRef.current?.click()}
+                      style={{
+                        padding: "12px 16px",
+                        borderRadius: 12,
+                        border: isDragging ? "1.5px dashed #C3143D" : "1.5px dashed rgba(255,255,255,0.12)",
+                        background: isDragging ? "rgba(195,20,61,0.08)" : "rgba(255,255,255,0.015)",
+                        color: "rgba(255,255,255,0.65)",
+                        fontSize: "0.8rem",
+                        fontWeight: 600,
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: 8,
+                        transition: "all 0.2s",
+                      }}
+                      className="hover:border-[#C3143D]/60 hover:text-white hover:bg-white/[0.03]"
+                    >
+                      <UploadCloud size={15} className="text-[#ff4d6d]" />
+                      <span>Drop more images or click to select multiple files (Max {MAX_IMAGE_SIZE_MB} MB each)</span>
+                    </button>
                   </div>
                 )}
               </AnimatePresence>
@@ -354,9 +590,8 @@ function GalleryViewer({ portfolioId, onClose }: { portfolioId: string; onClose:
         <div style={{ padding: "20px 24px", borderBottom: "1px solid rgba(255,255,255,0.05)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div>
             <h2 style={{ margin: 0, fontSize: "1.2rem", color: "#fff", fontWeight: 600 }}>{portfolio?.captionEn || "Gallery"}</h2>
-            <p style={{ margin: "4px 0 0", fontSize: "0.8rem", color: "rgba(255,255,255,0.4)" }}>{portfolio?.captionAr}</p>
           </div>
-          <motion.button whileHover={{ scale: 1.1, rotate: 90 }} whileTap={{ scale: 0.9 }} onClick={onClose} style={{ width: 36, height: 36, borderRadius: "50%", background: "rgba(255,255,255,0.06)", border: "none", color: "rgba(255,255,255,0.6)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <motion.button type="button" whileHover={{ scale: 1.1, rotate: 90 }} whileTap={{ scale: 0.9 }} onClick={onClose} style={{ width: 36, height: 36, borderRadius: "50%", background: "rgba(255,255,255,0.06)", border: "none", color: "rgba(255,255,255,0.6)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
             <X size={16} />
           </motion.button>
         </div>
@@ -374,10 +609,10 @@ function GalleryViewer({ portfolioId, onClose }: { portfolioId: string; onClose:
           ) : (
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 20 }}>
               {portfolio.mediaItems.map((media, i) => (
-                <motion.div key={media.id} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.05 }} style={{ background: "#111", borderRadius: 16, overflow: "hidden", border: "1px solid rgba(255,255,255,0.04)", position: "relative", aspectRatio: "1" }}>
+                <motion.div key={media.id || i} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.05 }} style={{ background: "#000", borderRadius: 16, overflow: "hidden", border: "1px solid rgba(255,255,255,0.04)", position: "relative", aspectRatio: "1" }}>
                   {media.type === MediaType.Video ? (
-                    <div style={{ width: "100%", height: "100%", position: "relative" }}>
-                      <img src={media.coverImageUrl || ""} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.6 }} onError={e => e.currentTarget.style.display = 'none'} />
+                    <div style={{ width: "100%", height: "100%", position: "relative", background: "#000" }}>
+                      {media.coverImageUrl && <img src={media.coverImageUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "contain", opacity: 0.7 }} onError={e => e.currentTarget.style.display = 'none'} />}
                       <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.2)" }}>
                         <div style={{ width: 48, height: 48, borderRadius: "50%", background: "rgba(195,20,61,0.9)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 8px 24px rgba(195,20,61,0.4)" }}>
                           <Video size={20} color="#fff" />
@@ -414,8 +649,8 @@ export function PortfolioManager() {
   const [viewPortfolioId, setViewPortfolioId] = useState<string | null>(null)
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
 
-  const { data: catRes } = useCategories(1, 100)
-  const categories = catRes?.data?.data || []
+  const { data: categoriesData } = useAllCategories()
+  const categories = Array.isArray(categoriesData) ? categoriesData : []
   const { data: response, isLoading } = usePortfolios(pageIndex, 10, categoryId === "all" ? undefined : categoryId)
   const portfolios = response?.data?.data || []
   const totalPages = response?.data?.totalPages || 1
@@ -438,8 +673,8 @@ export function PortfolioManager() {
   }
 
   const filtered = portfolios.filter(p =>
-    p.captionEn.toLowerCase().includes(search.toLowerCase()) ||
-    p.captionAr.toLowerCase().includes(search.toLowerCase())
+    (p.captionEn || "").toLowerCase().includes(search.toLowerCase()) ||
+    (p.captionAr || "").toLowerCase().includes(search.toLowerCase())
   )
 
   return (
@@ -457,6 +692,7 @@ export function PortfolioManager() {
           <p style={{ color: "rgba(255,255,255,0.38)", fontSize: "0.82rem", margin: "5px 0 0 0" }}>Manage and showcase your creative work</p>
         </div>
         <motion.button
+          type="button"
           whileHover={{ scale: 1.04, boxShadow: "0 8px 24px rgba(195,20,61,0.4)" }}
           whileTap={{ scale: 0.96 }}
           onClick={() => setModalState({ isOpen: true, mode: "create", id: null })}
@@ -483,10 +719,11 @@ export function PortfolioManager() {
 
         {/* Category Pills — horizontally scrollable */}
         <div style={{ display: "flex", gap: 6, overflowX: "auto", paddingBottom: 4, flex: "2 1 200px", paddingRight: 10 }} className="no-scrollbar">
-          {[{ id: "all", nameEn: "All" }, ...categories].map((cat, ci) => {
+          {([{ id: "all", nameEn: "All", nameAr: null }, ...categories] as Array<{ id: string; nameEn: string; nameAr?: string | null }>).map((cat, ci) => {
             const active = categoryId === cat.id
             return (
               <motion.button
+                type="button"
                 key={cat.id}
                 initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 + ci * 0.04 }}
                 whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.95 }}
@@ -511,7 +748,7 @@ export function PortfolioManager() {
                     transition={{ type: "spring", stiffness: 350, damping: 25 }}
                   />
                 )}
-                {cat.nameEn}
+                {cat.nameEn || cat.nameAr}
               </motion.button>
             )
           })}
@@ -536,7 +773,7 @@ export function PortfolioManager() {
             </motion.div>
           ) : (
             <motion.div key="list" variants={staggerContainer} initial="hidden" animate="show" style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              {filtered.map((item, i) => (
+              {filtered.map((item) => (
                 <motion.div
                   key={item.id}
                   variants={fadeUp}
@@ -549,17 +786,13 @@ export function PortfolioManager() {
                   className="group transition-all duration-500 hover:bg-white/[0.03] hover:border-[#C3143D]/30 hover:shadow-[0_4px_30px_rgba(195,20,61,0.08)] hover:-translate-y-[2px]"
                   transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
                 >
-                  {/* Subtle Red glow accent on hover */}
                   <div className="absolute inset-0 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-700" style={{ background: "radial-gradient(circle at 10% 50%, rgba(195,20,61,0.05) 0%, transparent 60%)" }} />
 
-                  {/* Content */}
                   <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 sm:p-5">
-
-                    {/* Left: thumbnail + text */}
                     <div className="flex items-center gap-4 min-w-0">
                       <motion.div
                         whileHover={{ scale: 1.06 }} transition={{ duration: 0.3 }}
-                        style={{ width: 58, height: 58, borderRadius: 14, background: "#111", overflow: "hidden", border: "1px solid rgba(255,255,255,0.07)", flexShrink: 0, boxShadow: "0 6px 18px rgba(0,0,0,0.45)", position: "relative" }}
+                        style={{ width: 58, height: 58, borderRadius: 14, background: "#000", overflow: "hidden", border: "1px solid rgba(255,255,255,0.07)", flexShrink: 0, boxShadow: "0 6px 18px rgba(0,0,0,0.45)", position: "relative" }}
                       >
                         {item.thumbnailUrl && item.thumbnailUrl !== "null" && item.thumbnailUrl.trim() !== "" ? (
                           <img src={item.thumbnailUrl} alt={item.captionEn} style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.5s ease" }} className="group-hover:scale-110" onError={e => e.currentTarget.style.display = 'none'} />
@@ -577,15 +810,13 @@ export function PortfolioManager() {
 
                       <div style={{ minWidth: 0 }}>
                         <h3 style={{ margin: 0, fontSize: "0.98rem", fontWeight: 700, color: "#fff", letterSpacing: "-0.01em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{item.captionEn}</h3>
-                        <p style={{ margin: "3px 0 0", fontSize: "0.8rem", color: "rgba(255,255,255,0.4)", fontWeight: 400, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }} dir="rtl">{item.captionAr}</p>
                       </div>
                     </div>
 
-                    {/* Right: badges + actions */}
                     <div className="flex items-center justify-between sm:justify-end gap-3 sm:gap-5 w-full sm:w-auto">
                       <div className="flex items-center gap-2">
                         <span style={{ fontSize: "0.72rem", fontWeight: 600, color: "rgba(255,255,255,0.55)", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 8, padding: "4px 10px", whiteSpace: "nowrap" }}>
-                          {item.categoryNameEn}
+                          {item.categoryNameEn || item.categoryNameAr || "Uncategorized"}
                         </span>
                         <span style={{ fontSize: "0.72rem", fontWeight: 600, color: "rgba(255,255,255,0.4)", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 8, padding: "4px 10px" }}>
                           #{item.orderIndex}
@@ -594,6 +825,7 @@ export function PortfolioManager() {
 
                       <div style={{ display: "flex", gap: 6 }}>
                         <motion.button
+                          type="button"
                           whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
                           onClick={() => setViewPortfolioId(item.id)}
                           style={{ width: 34, height: 34, borderRadius: 9, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.6)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.2s" }}
@@ -603,6 +835,7 @@ export function PortfolioManager() {
                           <Eye size={15} />
                         </motion.button>
                         <motion.button
+                          type="button"
                           whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
                           onClick={() => setModalState({ isOpen: true, mode: "edit", id: item.id })}
                           style={{ width: 34, height: 34, borderRadius: 9, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.6)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.2s" }}
@@ -611,6 +844,7 @@ export function PortfolioManager() {
                           <Edit2 size={14} />
                         </motion.button>
                         <motion.button
+                          type="button"
                           whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
                           onClick={() => setConfirmDeleteId(item.id)}
                           disabled={deletingId === item.id}
@@ -638,7 +872,7 @@ export function PortfolioManager() {
                 { label: "Prev", icon: <ChevronLeft size={15} />, side: "left", active: hasPreviousPage, onClick: () => setPageIndex(p => Math.max(1, p - 1)) },
                 { label: "Next", icon: <ChevronRight size={15} />, side: "right", active: hasNextPage, onClick: () => setPageIndex(p => Math.min(totalPages, p + 1)) },
               ].map((btn, bi) => (
-                <motion.button key={bi} whileHover={btn.active ? { scale: 1.05 } : {}} whileTap={btn.active ? { scale: 0.95 } : {}} onClick={btn.onClick} disabled={!btn.active} style={{ display: "flex", alignItems: "center", gap: 5, padding: "8px 16px", borderRadius: 100, background: btn.active ? "rgba(195,20,61,0.1)" : "transparent", color: btn.active ? "#ff4d6d" : "rgba(255,255,255,0.18)", cursor: btn.active ? "pointer" : "not-allowed", border: "none", fontSize: "0.83rem", fontWeight: 700, order: btn.side === "right" ? 2 : 0, transition: "all 0.25s" }} className={btn.active ? "hover:bg-[#C3143D] hover:text-white" : ""}>
+                <motion.button type="button" key={bi} whileHover={btn.active ? { scale: 1.05 } : {}} whileTap={btn.active ? { scale: 0.95 } : {}} onClick={btn.onClick} disabled={!btn.active} style={{ display: "flex", alignItems: "center", gap: 5, padding: "8px 16px", borderRadius: 100, background: btn.active ? "rgba(195,20,61,0.1)" : "transparent", color: btn.active ? "#ff4d6d" : "rgba(255,255,255,0.18)", cursor: btn.active ? "pointer" : "not-allowed", border: "none", fontSize: "0.83rem", fontWeight: 700, order: btn.side === "right" ? 2 : 0, transition: "all 0.25s" }} className={btn.active ? "hover:bg-[#C3143D] hover:text-white" : ""}>
                   {btn.side === "left" && btn.icon}
                   <span className="hidden sm:inline">{btn.label}</span>
                   {btn.side === "right" && btn.icon}
@@ -665,8 +899,8 @@ export function PortfolioManager() {
               <h2 style={{ margin: 0, fontSize: "1.15rem", color: "#fff", fontWeight: 700 }}>Delete Item?</h2>
               <p style={{ margin: "8px 0 24px", fontSize: "0.84rem", color: "rgba(255,255,255,0.45)", lineHeight: 1.6 }}>This action cannot be undone and all associated media will be removed.</p>
               <div style={{ display: "flex", gap: 10, width: "100%" }}>
-                <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }} onClick={() => setConfirmDeleteId(null)} style={{ flex: 1, background: "transparent", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 10, padding: 10, color: "#fff", fontSize: "0.875rem", cursor: "pointer", transition: "all 0.2s" }} className="hover:bg-white/5">Cancel</motion.button>
-                <motion.button whileHover={{ scale: 1.02, boxShadow: "0 6px 20px rgba(239,68,68,0.4)" }} whileTap={{ scale: 0.97 }} onClick={() => handleDelete(confirmDeleteId)} style={{ flex: 1, background: "#ef4444", border: "none", borderRadius: 10, padding: 10, color: "#fff", fontSize: "0.875rem", fontWeight: 700, cursor: "pointer", boxShadow: "0 4px 14px rgba(239,68,68,0.3)" }}>Delete</motion.button>
+                <motion.button type="button" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }} onClick={() => setConfirmDeleteId(null)} style={{ flex: 1, background: "transparent", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 10, padding: 10, color: "#fff", fontSize: "0.875rem", cursor: "pointer", transition: "all 0.2s" }} className="hover:bg-white/5">Cancel</motion.button>
+                <motion.button type="button" whileHover={{ scale: 1.02, boxShadow: "0 6px 20px rgba(239,68,68,0.4)" }} whileTap={{ scale: 0.97 }} onClick={() => handleDelete(confirmDeleteId)} style={{ flex: 1, background: "#ef4444", border: "none", borderRadius: 10, padding: 10, color: "#fff", fontSize: "0.875rem", fontWeight: 700, cursor: "pointer", boxShadow: "0 4px 14px rgba(239,68,68,0.3)" }}>Delete</motion.button>
               </div>
             </motion.div>
           </motion.div>

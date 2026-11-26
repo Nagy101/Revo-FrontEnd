@@ -1,8 +1,6 @@
 "use client"
 
-import { motion } from "framer-motion"
 import { Sparkles } from "lucide-react"
-import { useLanguage } from "@/lib/i18n/language-context"
 
 // Real client portfolio from client assets
 const TRACK_ONE_CLIENTS = [
@@ -30,8 +28,6 @@ const TRACK_TWO_CLIENTS = [
 ]
 
 export function ClientsSection() {
-  const { isArabic } = useLanguage()
-
   // Exactly two identical halves (2 x 2 sets) for a mathematically seamless 50% loop
   const singleHalfOne = [...TRACK_ONE_CLIENTS, ...TRACK_ONE_CLIENTS]
   const trackOneItems = [...singleHalfOne, ...singleHalfOne]
@@ -50,19 +46,11 @@ export function ClientsSection() {
         <div className="flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-white/[0.04] border border-white/10 backdrop-blur-md mb-4 shadow-sm">
           <Sparkles className="w-3.5 h-3.5 text-[#C3143D]" />
           <span className="text-[11px] md:text-xs font-semibold uppercase tracking-[0.25em] text-white/90">
-            {isArabic ? "سجل عملائنا وشركاء النجاح" : "Our Customer Portfolio"}
+            Our Customer Portfolio
           </span>
         </div>
         <h2 className="text-2xl sm:text-3xl md:text-5xl font-sora font-extrabold uppercase tracking-tight text-white">
-          {isArabic ? (
-            <>
-              موثوق به من كبرى <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-red-200 to-[#C3143D]">العلامات والنجوم</span>
-            </>
-          ) : (
-            <>
-              Trusted by Leading <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-red-200 to-[#C3143D]">Brands & Stars</span>
-            </>
-          )}
+          Trusted by Leading <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-red-200 to-[#C3143D]">Brands & Stars</span>
         </h2>
       </div>
 
@@ -131,13 +119,11 @@ export function ClientsSection() {
 
       </div>
 
-      {/* ── BOTTOM TRUST STATEMENT (FROM CLIENT ASSET) ── */}
+      {/* ── BOTTOM TRUST STATEMENT ── */}
       <div className="relative z-10 mt-12 md:mt-16 px-6 max-w-4xl mx-auto text-center">
         <div className="w-16 h-[1px] bg-gradient-to-r from-transparent via-[#C3143D] to-transparent mx-auto mb-4" />
         <p className="text-[11px] sm:text-xs md:text-sm font-light uppercase tracking-[0.25em] text-white/50 leading-relaxed drop-shadow">
-          {isArabic
-            ? "شراكتنا مع هذه المؤسسات والكيانات مبنية دائماً على ثقة راسخة"
-            : "Our collaboration with these institutions has always been built on strong trust"}
+          Our collaboration with these institutions has always been built on strong trust
         </p>
       </div>
 

@@ -13,33 +13,33 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 
-import { usePortfolios } from "@/features/portfolio/hooks/usePortfolios"
-import { useCategories } from "@/features/categories/hooks/useCategories"
-import { useServices } from "@/features/services/hooks/useServices"
+import { usePublicPortfolios } from "@/features/portfolio/hooks/usePortfolios"
+import { useAllCategories } from "@/features/categories/hooks/useCategories"
+import { usePublicServices } from "@/features/services/hooks/useServices"
 import { useContactRequests } from "@/features/contact/hooks/useContactRequests"
 import { MediaType, PortfolioItem } from "@/features/portfolio/types"
 import { ServiceItem } from "@/features/services/types"
 import { ContactRequestItem } from "@/features/contact/types"
 
 export function DashboardMainView() {
-  // Fetch real data from all 4 live endpoints
+  // Fetch full datasets across paginated endpoints
   const { 
     data: portfoliosData, 
     isLoading: portfoliosLoading, 
     refetch: refetchPortfolios 
-  } = usePortfolios(1, 100)
+  } = usePublicPortfolios()
 
   const { 
     data: categoriesData, 
     isLoading: categoriesLoading, 
     refetch: refetchCategories 
-  } = useCategories(1, 100)
+  } = useAllCategories()
 
   const { 
     data: servicesData, 
     isLoading: servicesLoading, 
     refetch: refetchServices 
-  } = useServices(1, 100)
+  } = usePublicServices()
 
   const { 
     data: contactsData, 
@@ -50,9 +50,9 @@ export function DashboardMainView() {
   const isGlobalLoading = portfoliosLoading || categoriesLoading || servicesLoading || contactsLoading
 
   // Extract typed arrays safely
-  const portfolios: PortfolioItem[] = portfoliosData?.data?.data || []
-  const categories = categoriesData?.data?.data || []
-  const services: ServiceItem[] = servicesData?.data?.data || []
+  const portfolios: PortfolioItem[] = Array.isArray(portfoliosData) ? portfoliosData : []
+  const categories = Array.isArray(categoriesData) ? categoriesData : []
+  const services: ServiceItem[] = Array.isArray(servicesData) ? servicesData : []
   const contactRequests: ContactRequestItem[] = contactsData?.data?.data || []
 
   // ─── 100% REAL CALCULATIONS (ZERO FAKE DATA) ───
