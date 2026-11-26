@@ -7,6 +7,14 @@ import { useCategories, useCreateCategory, useUpdateCategory, useDeleteCategory 
 import type { Category } from "@/features/categories/types"
 import { extractApiErrorMessage } from "@/lib/api/http-client"
 
+const MAX_IMAGE_SIZE_MB = 10
+const MAX_IMAGE_SIZE_BYTES = MAX_IMAGE_SIZE_MB * 1024 * 1024
+
+function formatFileSize(bytes: number): string {
+  if (bytes >= 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+  return `${Math.max(1, Math.round(bytes / 1024))} KB`
+}
+
 // --- Custom Toast Component ---
 function CustomToast({ message, type, onClose }: { message: string, type: 'success' | 'error', onClose: () => void }) {
   useEffect(() => {
@@ -54,10 +62,13 @@ export function CategoriesManager() {
   })
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [selectedFileName, setSelectedFileName] = useState<string | null>(null)
+  const [selectedFileSize, setSelectedFileSize] = useState<number | null>(null)
   
   const [toast, setToast] = useState<{ message: string, type: 'success' | 'error' } | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
+
+  const isOversizedImage = Boolean(selectedFileSize && selectedFileSize > MAX_IMAGE_SIZE_BYTES)
 
   // Sync image preview when modal opens or category changes
   useEffect(() => {
@@ -65,13 +76,16 @@ export function CategoriesManager() {
       if (modalState.type === 'edit' && modalState.category?.imageUrl) {
         setImagePreview(modalState.category.imageUrl)
         setSelectedFileName(null)
+        setSelectedFileSize(null)
       } else {
         setImagePreview(null)
         setSelectedFileName(null)
+        setSelectedFileSize(null)
       }
     } else {
       setImagePreview(null)
       setSelectedFileName(null)
+      setSelectedFileSize(null)
     }
   }, [modalState.isOpen, modalState.type, modalState.category])
 
@@ -79,6 +93,7 @@ export function CategoriesManager() {
     const file = e.target.files?.[0]
     if (file) {
       setSelectedFileName(file.name)
+      setSelectedFileSize(file.size)
       const objectUrl = URL.createObjectURL(file)
       setImagePreview(objectUrl)
     }
@@ -88,13 +103,14 @@ export function CategoriesManager() {
     e.stopPropagation()
     setImagePreview(null)
     setSelectedFileName(null)
+    setSelectedFileSize(null)
     const fileInput = document.getElementById('imageUrl') as HTMLInputElement
     if (fileInput) fileInput.value = ''
   }
 
   const filteredCategories = categories.filter((c) => 
-    c.nameEn.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    c.nameAr.toLowerCase().includes(searchTerm.toLowerCase())
+    (c.nameEn || "").toLowerCase().includes(searchTerm.toLowerCase()) || 
+    (c.nameAr || "").toLowerCase().includes(searchTerm.toLowerCase())
   ).sort((a, b) => a.orderIndex - b.orderIndex)
 
   const showToast = (message: string, type: 'success' | 'error' = 'success') => setToast({ message, type })
@@ -110,16 +126,18 @@ export function CategoriesManager() {
     const file = formData.get("imageUrl") as File
     const hasImage = file && file.size > 0
 
-    if (!hasImage && !imagePreview) {
-      showToast("Please select a cover image for the category", 'error');
-      return;
+    if (hasImage && file.size > MAX_IMAGE_SIZE_BYTES) {
+      showToast(`Image exceeds the ${MAX_IMAGE_SIZE_MB} MB limit (${formatFileSize(file.size)}). Please choose a smaller file.`, 'error')
+      return
     }
 
+    const rawOrder = String(formData.get("orderIndex") ?? "").trim()
+    const orderIndex = rawOrder === "" ? 0 : Math.max(0, Number(rawOrder) || 0)
+
     const payload = {
-      nameAr: formData.get("nameAr") as string,
-      nameEn: formData.get("nameEn") as string,
-      orderIndex: Number(formData.get("orderIndex") || categories.length + 1),
-      ...(hasImage ? { imageUrl: file } : (modalState.type === 'edit' ? { imageUrl: modalState.category?.imageUrl } : {}))
+      nameEn: (formData.get("nameEn") as string).trim(),
+      orderIndex,
+      ...(hasImage ? { imageUrl: file } : (modalState.type === 'edit' && imagePreview ? { imageUrl: modalState.category?.imageUrl } : {}))
     }
 
     if (modalState.type === 'create') {
@@ -257,7 +275,6 @@ export function CategoriesManager() {
                 </div>
                 <div className="flex flex-col">
                   <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 600, color: '#fff', letterSpacing: '-0.01em' }}>{cat.nameEn}</h3>
-                  <p style={{ margin: '4px 0 0 0', fontSize: '0.85rem', color: 'rgba(255,255,255,0.5)', fontWeight: 400 }}>{cat.nameAr}</p>
                 </div>
               </div>
 
@@ -452,13 +469,13 @@ export function CategoriesManager() {
 
                 <form onSubmit={handleSubmit} style={{ padding: '24px 24px 32px 24px', display: 'flex', flexDirection: 'column', gap: 28 }}>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-                    {/* Name En & Ar - Responsive Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                        <label style={{ fontSize: '0.85rem', fontWeight: 500, color: 'rgba(255,255,255,0.8)' }}>Category Name (English)</label>
+                    {/* Category Name & Sort Order */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                      <div className="md:col-span-2" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                        <label style={{ fontSize: '0.85rem', fontWeight: 500, color: 'rgba(255,255,255,0.8)' }}>Category Name *</label>
                         <div style={{ position: 'relative' }}>
                           <input 
-                            name="nameEn" defaultValue={modalState.category?.nameEn} required
+                            name="nameEn" defaultValue={modalState.category?.nameEn} required maxLength={100}
                             placeholder="e.g. Photography, Video Production"
                             style={{
                               width: '100%', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12,
@@ -470,45 +487,29 @@ export function CategoriesManager() {
                         </div>
                       </div>
 
+                      {/* Sort Order */}
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                        <label style={{ fontSize: '0.85rem', fontWeight: 500, color: 'rgba(255,255,255,0.8)' }}>Category Name (Arabic)</label>
-                        <div style={{ position: 'relative' }}>
-                          <input 
-                            name="nameAr" defaultValue={modalState.category?.nameAr} required
-                            placeholder="مثال: تصوير فوتوغرافي، إنتاج فيديو"
-                            style={{
-                              width: '100%', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12,
-                              padding: '14px 16px', color: '#fff', fontSize: '0.95rem', outline: 'none',
-                              textAlign: 'right', transition: 'all 0.2s', direction: 'rtl'
-                            }}
-                            onFocus={e => { e.currentTarget.style.borderColor = '#C3143D'; e.currentTarget.style.background = 'rgba(195,20,61,0.05)'; }}
-                            onBlur={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; }}
-                          />
-                        </div>
+                        <label style={{ fontSize: '0.85rem', fontWeight: 500, color: 'rgba(255,255,255,0.8)' }}>
+                          Sort Order <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)', fontWeight: 400 }}>(Optional)</span>
+                        </label>
+                        <input 
+                          name="orderIndex" type="number" min={0} defaultValue={modalState.type === 'edit' ? (modalState.category?.orderIndex ?? 0) : ""}
+                          placeholder="0 (Optional)"
+                          style={{
+                            width: '100%', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12,
+                            padding: '14px 16px', color: '#fff', fontSize: '0.95rem', outline: 'none', transition: 'all 0.2s'
+                          }}
+                          onFocus={e => { e.currentTarget.style.borderColor = '#C3143D'; e.currentTarget.style.background = 'rgba(195,20,61,0.05)'; }}
+                          onBlur={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; }}
+                        />
                       </div>
                     </div>
 
-                    {/* Sort Order */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                      <label style={{ fontSize: '0.85rem', fontWeight: 500, color: 'rgba(255,255,255,0.8)' }}>Sort Order Index</label>
-                      <input 
-                        name="orderIndex" type="number" defaultValue={modalState.category?.orderIndex || categories.length + 1} required
-                        placeholder="e.g. 1"
-                        style={{
-                          width: '100%', maxWidth: '100%', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12,
-                          padding: '14px 16px', color: '#fff', fontSize: '0.95rem', outline: 'none', transition: 'all 0.2s'
-                        }}
-                        className="md:max-w-[200px]"
-                        onFocus={e => { e.currentTarget.style.borderColor = '#C3143D'; e.currentTarget.style.background = 'rgba(195,20,61,0.05)'; }}
-                        onBlur={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; }}
-                      />
-                    </div>
-
-                    {/* Image Cover (Full Width Dropzone with Real Preview) */}
+                    {/* Image Cover (Full Width Dropzone with Real Preview - Optional) */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexDirection: 'column', gap: 4 }} className="md:flex-row md:items-end md:gap-0">
-                        <label style={{ fontSize: '0.85rem', fontWeight: 500, color: 'rgba(255,255,255,0.8)' }}>Category Cover Image</label>
-                        <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)' }}>Max size 10MB • JPG, PNG, WEBP</span>
+                        <label style={{ fontSize: '0.85rem', fontWeight: 500, color: 'rgba(255,255,255,0.8)' }}>Category Cover Image (Optional)</label>
+                        <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)' }}>Optional • Max size 10MB • JPG, PNG, WEBP</span>
                       </div>
                       
                       <div style={{ position: 'relative', marginTop: 4 }}>
@@ -628,6 +629,12 @@ export function CategoriesManager() {
                           </div>
                         )}
                       </div>
+                      {isOversizedImage && selectedFileSize && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#f87171', fontSize: '0.78rem', fontWeight: 600, marginTop: 4 }}>
+                          <AlertCircle size={14} color="#ef4444" />
+                          <span>{selectedFileName} ({formatFileSize(selectedFileSize)}) — Exceeds {MAX_IMAGE_SIZE_MB} MB limit. Please choose a smaller image.</span>
+                        </div>
+                      )}
                     </div>
                   </div>
 

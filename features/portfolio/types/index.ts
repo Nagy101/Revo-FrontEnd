@@ -15,11 +15,11 @@ export interface PortfolioMedia {
 
 export interface PortfolioItem {
   id: string;
-  captionAr: string;
+  captionAr?: string | null;
   captionEn: string;
   orderIndex: number;
   categoryId: string;
-  categoryNameAr: string;
+  categoryNameAr?: string | null;
   categoryNameEn: string;
   thumbnailUrl: string | null;
   thumbnailType: MediaType | null;
@@ -31,7 +31,7 @@ export interface PortfolioItemDetails extends PortfolioItem {
 
 export interface PortfolioPayload {
   id?: string;
-  captionAr: string;
+  captionAr?: string | null;
   captionEn: string;
   orderIndex: number;
   categoryId: string;

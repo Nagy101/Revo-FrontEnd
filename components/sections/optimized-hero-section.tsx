@@ -3,16 +3,14 @@
 import { useRef, useEffect, useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { motion, useScroll, useTransform, useMotionValue, useSpring, useMotionTemplate } from "framer-motion"
+import { motion, useScroll, useTransform, useMotionValue, useSpring } from "framer-motion"
 import { ArrowDown, Play, Sparkles } from "lucide-react"
-import { useLanguage } from "@/lib/i18n/language-context"
 
 const EASE = [0.16, 1, 0.3, 1] as const
 
 export function OptimizedHeroSection() {
   const containerRef = useRef<HTMLDivElement>(null)
   const [isMounted, setIsMounted] = useState(false)
-  const { isArabic } = useLanguage()
   
   useEffect(() => {
     setIsMounted(true)
@@ -80,7 +78,6 @@ export function OptimizedHeroSection() {
           sizes="100vw"
           className="object-cover object-[center_60%] sm:object-bottom opacity-85"
         />
-        {/* Subtle overlays: dark at top for navbar, transparent in center, soft transition at bottom */}
         <div className="absolute inset-0 bg-black/35" />
         <div className="absolute inset-0 bg-gradient-to-b from-[#050505]/80 via-transparent to-[#050505]/60" />
       </motion.div>
@@ -115,7 +112,7 @@ export function OptimizedHeroSection() {
         >
           <div className="w-8 md:w-14 h-[1px] bg-gradient-to-r from-transparent to-[#C3143D]" />
           <span className="flex items-center gap-2 text-white/90 text-xs md:text-sm font-semibold tracking-[0.3em] uppercase drop-shadow">
-            <Sparkles className="w-3.5 h-3.5 text-[#C3143D]" /> {isArabic ? "نحن ريفو" : "We Are Revo"}
+            <Sparkles className="w-3.5 h-3.5 text-[#C3143D]" /> We Are Revo
           </span>
           <div className="w-8 md:w-14 h-[1px] bg-gradient-to-l from-transparent to-[#C3143D]" />
         </motion.div>
@@ -129,7 +126,7 @@ export function OptimizedHeroSection() {
               transition={{ duration: 1.2, ease: EASE, delay: 0.3 }}
               className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-sora font-black uppercase tracking-tight text-white leading-[1] drop-shadow-2xl"
             >
-              {isArabic ? "كل كادر" : "Every Frame"}
+              Every Frame
             </motion.h1>
           </div>
           
@@ -147,11 +144,10 @@ export function OptimizedHeroSection() {
               className="relative"
             >
               <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-serif italic leading-[1] text-transparent bg-clip-text bg-gradient-to-r from-white via-red-200 to-[#C3143D] pr-3 drop-shadow-2xl">
-                {isArabic ? "وراه حكاية." : "Has A Story."}
+                Has A Story.
               </h1>
-              {/* Subtle text glow */}
               <h1 className="absolute inset-0 text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-serif italic leading-[1] text-[#C3143D] opacity-25 blur-2xl pointer-events-none">
-                {isArabic ? "وراه حكاية." : "Has A Story."}
+                Has A Story.
               </h1>
             </motion.div>
             <motion.div
@@ -170,14 +166,10 @@ export function OptimizedHeroSection() {
           transition={{ duration: 1, ease: EASE, delay: 0.7 }}
           className="max-w-xl text-center text-white/90 text-xs sm:text-sm md:text-base font-light mt-2.5 sm:mt-3 leading-relaxed [text-shadow:_0_1px_12px_rgba(0,0,0,0.8)]"
         >
-          {isArabic ? (
-            <>نحوّل الفعاليات والأفكار والعلامات التجارية إلى قصص بصرية تعيش في الذاكرة. من التغطيات السينمائية الكبرى إلى الإعلانات المؤثرة والأفلام الإبداعية، تقدّم <span className="text-white font-semibold">REVO</span> الرؤية، والفريق، والطاقة لتحويل كل لقطة إلى عمل لا يُنسى.</>
-          ) : (
-            <>We turn events, ideas, and brands into visual stories people remember. From cinematic event coverage to high-impact ads and creative films, <span className="text-white font-semibold">REVO</span> brings the vision, the crew, and the energy to make every frame count.</>
-          )}
+          We turn events, ideas, and brands into visual stories people remember. From cinematic event coverage to high-impact ads and creative films, <span className="text-white font-semibold">REVO</span> brings the vision, the crew, and the energy to make every frame count.
         </motion.p>
 
-        {/* Action Buttons (Compact horizontal row on mobile) */}
+        {/* Action Buttons */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -190,8 +182,8 @@ export function OptimizedHeroSection() {
           >
             <div className="absolute inset-0 w-full h-full bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-cinematic" />
             <span className="relative flex items-center gap-2">
-              {isArabic ? "استكشف أعمالنا" : "Explore Our Work"}{" "}
-              <Play size={12} className="fill-current rtl:rotate-180" />
+              Explore Our Work{" "}
+              <Play size={12} className="fill-current" />
             </span>
           </Link>
           
@@ -199,7 +191,7 @@ export function OptimizedHeroSection() {
             href="/contact"
             className="group px-5 py-2.5 sm:px-7 sm:py-3 bg-black/40 backdrop-blur-md text-white border border-white/20 rounded-full font-semibold tracking-widest uppercase text-xs sm:text-sm hover:border-white hover:bg-white/10 hover:scale-105 transition-all duration-300 inline-flex items-center justify-center cursor-pointer"
           >
-            {isArabic ? "تواصل معنا" : "Let's Talk"}
+            Let&apos;s Talk
           </Link>
         </motion.div>
 
@@ -210,7 +202,7 @@ export function OptimizedHeroSection() {
           transition={{ duration: 1, ease: EASE, delay: 1 }}
           className="flex flex-row items-end justify-center gap-3 sm:gap-5 mt-4 sm:mt-6 w-full max-w-xl mx-auto z-20"
         >
-          {/* Card 1: Singer Stage (Natural 2:3 Portrait - 100% Unobstructed) */}
+          {/* Card 1: Singer Stage */}
           <Link href="/portfolio" className="w-[120px] xs:w-[135px] sm:w-[155px] md:w-[170px] shrink-0">
             <motion.div 
               whileHover={{ scale: 1.05, y: -5 }}
@@ -224,13 +216,11 @@ export function OptimizedHeroSection() {
                   sizes="(max-width: 640px) 195px, 255px"
                   className="object-cover group-hover:scale-108 transition-transform duration-500" 
                 />
-                {/* Subtle soft bottom shadow only - leaves performers 100% clear */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent pointer-events-none" />
                 
-                {/* Clean Bottom Label */}
                 <div className="absolute bottom-1.5 left-2 right-2 flex items-center justify-between text-white">
                   <p className="text-[9px] sm:text-xs font-bold truncate drop-shadow-[0_1px_4px_rgba(0,0,0,0.9)]">
-                    {isArabic ? "إمبراطورية كايروكي" : "Cairokee Empire"}
+                    Cairokee Empire
                   </p>
                   <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center group-hover:bg-[#C3143D] transition-colors shrink-0">
                     <Play size={7} className="fill-current text-white translate-x-0.5" />
@@ -240,7 +230,7 @@ export function OptimizedHeroSection() {
             </motion.div>
           </Link>
 
-          {/* Card 2: Acoustic Sessions (Natural 3:2 Landscape - 100% Unobstructed) */}
+          {/* Card 2: Acoustic Sessions */}
           <Link href="/portfolio" className="w-[175px] xs:w-[195px] sm:w-[230px] md:w-[255px] shrink-0">
             <motion.div 
               whileHover={{ scale: 1.05, y: -5 }}
@@ -254,13 +244,11 @@ export function OptimizedHeroSection() {
                   sizes="(max-width: 640px) 195px, 255px"
                   className="object-cover group-hover:scale-108 transition-transform duration-500" 
                 />
-                {/* Subtle soft bottom shadow only - leaves musicians 100% clear */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent pointer-events-none" />
                 
-                {/* Clean Bottom Label */}
                 <div className="absolute bottom-1.5 left-2 right-2 flex items-center justify-between text-white">
                   <p className="text-[9px] sm:text-xs font-bold truncate drop-shadow-[0_1px_4px_rgba(0,0,0,0.9)]">
-                    {isArabic ? "جلسات أكوستيك" : "Acoustic Sessions"}
+                    Acoustic Sessions
                   </p>
                   <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center group-hover:bg-[#C3143D] transition-colors shrink-0">
                     <Play size={7} className="fill-current text-white translate-x-0.5" />
@@ -300,7 +288,6 @@ export function OptimizedHeroSection() {
         </div>
       </motion.div>
 
-      {/* Subtle bottom edge fade to next section */}
       <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-[#050505] to-transparent z-10 pointer-events-none" />
     </section>
   )

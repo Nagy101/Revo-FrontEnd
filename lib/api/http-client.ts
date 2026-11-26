@@ -27,7 +27,7 @@ export function extractApiErrorMessage(errorData: any, status?: number): string 
     errorData?.name === "AbortError" ||
     (typeof errorData?.message === "string" && (errorData.message.includes("timed out") || errorData.message.includes("signal timed out") || errorData.message.includes("aborted")))
   ) {
-    return "انتهت مهلة الاتصال بالخادم (Request Timed Out). يرجى التأكد من سرعة الإنترنت أو حجم الملف والمحاولة مرة أخرى.";
+    return "Request timed out. Please check your internet connection or file size and try again.";
   }
 
   // Handle direct Error or AxiosError object
@@ -37,7 +37,7 @@ export function extractApiErrorMessage(errorData: any, status?: number): string 
       return extractApiErrorMessage(nestedData, (errorData as any).status || (errorData as any).response?.status || status);
     }
     if (errorData.message && (errorData.message.includes("timed out") || errorData.message.includes("signal timed out") || errorData.message.includes("aborted"))) {
-      return "انتهت مهلة الاتصال بالخادم (Request Timed Out). يرجى التأكد من سرعة الإنترنت أو حجم الملف والمحاولة مرة أخرى.";
+      return "Request timed out. Please check your internet connection or file size and try again.";
     }
     return errorData.message;
   }

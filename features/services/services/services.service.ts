@@ -15,32 +15,40 @@ export const servicesService = {
 
   create: (payload: ServiceRequestPayload) => {
     const formData = new FormData();
-    formData.append("NameAr", payload.nameAr);
-    formData.append("NameEn", payload.nameEn);
-    formData.append("DescriptionAr", payload.descriptionAr);
-    formData.append("DescriptionEn", payload.descriptionEn);
+    if (payload.nameAr?.trim()) {
+      formData.append("NameAr", payload.nameAr.trim());
+    }
+    formData.append("NameEn", payload.nameEn.trim());
+    if (payload.descriptionAr?.trim()) {
+      formData.append("DescriptionAr", payload.descriptionAr.trim());
+    }
+    formData.append("DescriptionEn", payload.descriptionEn.trim());
     formData.append("OrderIndex", payload.orderIndex.toString());
-    
+
     if (payload.imageUrl instanceof File) {
       formData.append("Image", payload.imageUrl);
     }
-    
+
     return httpClient.post<ApiResponse<{ id: string }>>("/Services", formData);
   },
 
   update: (id: string, payload: ServiceRequestPayload) => {
     const formData = new FormData();
-    formData.append("NameAr", payload.nameAr);
-    formData.append("NameEn", payload.nameEn);
-    formData.append("DescriptionAr", payload.descriptionAr);
-    formData.append("DescriptionEn", payload.descriptionEn);
+    if (payload.nameAr?.trim()) {
+      formData.append("NameAr", payload.nameAr.trim());
+    }
+    formData.append("NameEn", payload.nameEn.trim());
+    if (payload.descriptionAr?.trim()) {
+      formData.append("DescriptionAr", payload.descriptionAr.trim());
+    }
+    formData.append("DescriptionEn", payload.descriptionEn.trim());
     formData.append("OrderIndex", payload.orderIndex.toString());
-    
+
     // For update, Image is optional. Only append if it's a new file.
     if (payload.imageUrl instanceof File) {
       formData.append("Image", payload.imageUrl);
     }
-    
+
     return httpClient.put<ApiResponse<{ id: string }>>(`/Services/${id}`, formData);
   },
 

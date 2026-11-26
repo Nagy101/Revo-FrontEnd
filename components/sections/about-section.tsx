@@ -2,13 +2,11 @@
 
 import { useRef, useState } from "react"
 import { motion, useScroll, useTransform } from "framer-motion"
-import { Play, Pause, Volume2, VolumeX, Maximize2, Sparkles, Film, Video } from "lucide-react"
-import { useLanguage } from "@/lib/i18n/language-context"
+import { Play, Pause, Volume2, VolumeX, Maximize2, Sparkles, Film } from "lucide-react"
 
 export function AboutSection() {
   const containerRef = useRef<HTMLElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
-  const { isArabic } = useLanguage()
   
   const [isPlaying, setIsPlaying] = useState(false)
   const [isMuted, setIsMuted] = useState(false)
@@ -62,31 +60,24 @@ export function AboutSection() {
     }
   }
 
-  // Real, authentic production capabilities instead of fake numerical stats
   const pillars = [
     {
       step: "01",
-      tag: isArabic ? "الرؤية والفكرة" : "Vision & Concept",
-      title: isArabic ? "قبل أول لقطة" : "Before The First Roll",
-      desc: isArabic
-        ? "يبدأ كل مشروع بقصة بصرية وسيناريو متكامل مصمم لجعل علامتك التجارية أو فنانك لا يُنسى."
-        : "Every production begins with a distinct narrative and visual storyboard designed to make your brand or artist unforgettable."
+      tag: "Vision & Concept",
+      title: "Before The First Roll",
+      desc: "Every production begins with a distinct narrative and visual storyboard designed to make your brand or artist unforgettable."
     },
     {
       step: "02",
-      tag: isArabic ? "طاقم العمل" : "On-Set Crew",
-      title: isArabic ? "قوة سينمائية خارقة" : "Cinema-Grade Power",
-      desc: isArabic
-        ? "إخراج متعدد الكاميرات، وعدسات سينمائية فائقة السرعة، وطيارو درون FPV لالتقاط الطاقة الحية للمدرجات."
-        : "Multi-camera directing, high-speed cinema optics, and FPV drone pilots engineered to capture the raw energy of stadium crowds."
+      tag: "On-Set Crew",
+      title: "Cinema-Grade Power",
+      desc: "Multi-camera directing, high-speed cinema optics, and FPV drone pilots engineered to capture the raw energy of stadium crowds."
     },
     {
       step: "03",
-      tag: isArabic ? "ما بعد الإنتاج" : "Post-Production",
-      title: isArabic ? "كيمياء الصوت والألوان" : "Sound & Color Alchemy",
-      desc: isArabic
-        ? "تلوين سينمائي دقيق، وإيقاع مونتاج ديناميكي، وهندسة صوتية محيطية تحول المشاهد الخام إلى تحفة حسية."
-        : "Surgical color grading, dynamic pacing, and immersive sound engineering that turn raw footage into a sensory masterpiece."
+      tag: "Post-Production",
+      title: "Sound & Color Alchemy",
+      desc: "Surgical color grading, dynamic pacing, and immersive sound engineering that turn raw footage into a sensory masterpiece."
     }
   ]
 
@@ -112,7 +103,7 @@ export function AboutSection() {
           <motion.div variants={itemVariants} className="flex items-center gap-4 mb-8 md:mb-10">
             <div className="w-10 md:w-14 h-px bg-gradient-to-r from-transparent to-[#C3143D]" />
             <span className="flex items-center gap-2 text-[#C3143D] text-xs font-bold uppercase tracking-[0.3em]">
-              <Sparkles className="w-3.5 h-3.5" /> {isArabic ? "البيان الإبداعي" : "The Manifesto"}
+              <Sparkles className="w-3.5 h-3.5" /> The Manifesto
             </span>
             <div className="w-10 md:w-14 h-px bg-gradient-to-l from-transparent to-[#C3143D]" />
           </motion.div>
@@ -120,53 +111,50 @@ export function AboutSection() {
           <div className="text-4xl md:text-6xl lg:text-[5.5rem] font-sora font-light uppercase text-white/95 leading-[1.08] mb-8 md:mb-10 tracking-tight flex flex-col items-center">
             <div className="overflow-hidden">
               <motion.span variants={{ hidden: { y: "100%", opacity: 0 }, show: { y: 0, opacity: 1, transition: { duration: 1, ease: [0.16, 1, 0.3, 1] as any } } }} className="block">
-                {isArabic ? "نحن لا نوثق اللحظات فحسب." : "We don't just capture moments."}
+                We don&apos;t just capture moments.
               </motion.span>
             </div>
             <div className="overflow-hidden mt-2 md:mt-4">
               <motion.span variants={{ hidden: { y: "100%", opacity: 0 }, show: { y: 0, opacity: 1, transition: { duration: 1, ease: [0.16, 1, 0.3, 1] as any } } }} className="block font-serif italic text-transparent bg-clip-text bg-gradient-to-r from-white via-red-200 to-[#C3143D] pr-4">
-                {isArabic ? "بل نصنع" : "We engineer"}
+                We engineer
               </motion.span>
             </div>
             <div className="overflow-hidden mt-2 md:mt-4">
               <motion.span variants={{ hidden: { y: "100%", opacity: 0 }, show: { y: 0, opacity: 1, transition: { duration: 1, ease: [0.16, 1, 0.3, 1] as any } } }} className="block">
-                {isArabic ? "قصصاً سينمائية." : "cinematic stories."}
+                cinematic stories.
               </motion.span>
             </div>
           </div>
 
           <motion.p variants={itemVariants} className="text-white/60 text-sm sm:text-base md:text-xl font-light leading-relaxed max-w-2xl mx-auto mb-16 md:mb-20">
-            {isArabic
-              ? "REVO هي منظومة إبداعية متكاملة من المخرجين وصناع القصص البصرية. نحمل الرؤية وفريق العمل والطاقة لتحويل مدرجات الملاعب والفعاليات الكبرى والحملات الإعلانية إلى لحظات بصرية خالدة."
-              : "REVO is a powerhouse of visual storytellers, directors, and creators. We bring the vision, the crew, and the energy to turn live stadiums, high-stakes events, and commercial campaigns into unforgettable visual moments."}
+            REVO is a powerhouse of visual storytellers, directors, and creators. We bring the vision, the crew, and the energy to turn live stadiums, high-stakes events, and commercial campaigns into unforgettable visual moments.
           </motion.p>
         </motion.div>
 
-        {/* ── CINEMATIC REVO X DISCO MISR VIDEO PLAYER ── */}
+        {/* ── CINEMATIC REVO X DISCO MISR VIDEO PLAYER (BLACK SPACES ARE DEFAULT) ── */}
         <motion.div 
           initial={{ opacity: 0, scale: 0.97, y: 30 }}
           whileInView={{ opacity: 1, scale: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] as any }}
           onClick={togglePlay}
-          className="group relative w-full aspect-[16/10] sm:aspect-[16/9] md:aspect-[21/9] rounded-3xl overflow-hidden bg-black border border-white/15 shadow-[0_20px_80px_rgba(0,0,0,0.8),0_0_40px_rgba(195,20,61,0.15)] cursor-pointer select-none"
+          className="group relative w-full aspect-video rounded-3xl overflow-hidden bg-black border border-white/15 shadow-[0_20px_80px_rgba(0,0,0,0.8),0_0_40px_rgba(195,20,61,0.15)] cursor-pointer select-none"
         >
-          {/* HTML5 Native Video Tag */}
+          {/* HTML5 Native Video Tag — object-contain on pure bg-black so black spaces are default */}
           <video
             ref={videoRef}
             playsInline
             preload="metadata"
             loop
-            poster="/images/revo-hero-bg.jpg"
             onPlay={() => setIsPlaying(true)}
             onPause={() => setIsPlaying(false)}
-            className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-700"
+            className="w-full h-full object-contain bg-black"
           >
-            <source src="/videos/revo-disco-misr.mp4" type="video/mp4" />
+            <source src="/videos/revo-disco-misr.mp4#t=0.1" type="video/mp4" />
           </video>
 
-          {/* Vignette / Dark Ambient Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/60 pointer-events-none" />
+          {/* Subtle Vignette */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/50 pointer-events-none" />
 
           {/* Top Info Bar */}
           <div className="absolute top-4 left-4 sm:top-6 sm:left-6 flex items-center gap-2.5 z-20 pointer-events-none">
@@ -197,7 +185,7 @@ export function AboutSection() {
                 </div>
               </div>
               <span className="mt-4 px-4 py-1.5 rounded-full bg-black/60 backdrop-blur-md border border-white/10 text-white/90 text-xs sm:text-sm font-medium tracking-[0.2em] uppercase">
-                {isArabic ? "تشغيل شو ريل الإنتاج" : "Play Production Reel"}
+                Play Production Reel
               </span>
             </div>
           )}
@@ -206,6 +194,7 @@ export function AboutSection() {
           <div className="absolute bottom-4 left-4 right-4 sm:bottom-6 sm:left-6 sm:right-6 flex items-center justify-between z-20">
             <div className="flex items-center gap-3">
               <button 
+                type="button"
                 onClick={(e) => { e.stopPropagation(); togglePlay(); }}
                 className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black/70 backdrop-blur-md border border-white/15 flex items-center justify-center text-white hover:bg-[#C3143D] hover:border-[#C3143D] transition-all duration-300"
                 aria-label={isPlaying ? "Pause" : "Play"}
@@ -214,6 +203,7 @@ export function AboutSection() {
               </button>
               
               <button 
+                type="button"
                 onClick={toggleMute}
                 className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black/70 backdrop-blur-md border border-white/15 flex items-center justify-center text-white hover:bg-white/20 transition-all duration-300"
                 aria-label={isMuted ? "Unmute" : "Mute"}
@@ -224,9 +214,10 @@ export function AboutSection() {
 
             <div className="flex items-center gap-3">
               <span className="hidden sm:inline-block text-[11px] uppercase tracking-widest text-white/60 font-medium">
-                {isArabic ? "تغطية الحفلات الحية" : "Live Concert Coverage"}
+                Live Concert Coverage
               </span>
               <button 
+                type="button"
                 onClick={handleFullscreen}
                 className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black/70 backdrop-blur-md border border-white/15 flex items-center justify-center text-white hover:bg-white/20 transition-all duration-300"
                 aria-label="Fullscreen"
@@ -269,8 +260,8 @@ export function AboutSection() {
               </div>
 
               <div className="mt-8 pt-4 border-t border-white/5 flex items-center gap-2 text-[#C3143D] text-xs font-semibold tracking-widest uppercase opacity-0 group-hover:opacity-100 transition-opacity">
-                <span>{isArabic ? "معايير ريفو" : "The REVO Standard"}</span>
-                <span className="rtl:rotate-180">→</span>
+                <span>The REVO Standard</span>
+                <span>→</span>
               </div>
             </motion.div>
           ))}
@@ -285,7 +276,7 @@ export function AboutSection() {
           className="mt-14 text-center"
         >
           <span className="text-[11px] font-mono uppercase tracking-[0.3em] text-white/30">
-            {isArabic ? "✦ مصممة للاستادات، والمهرجانات العالمية، وأقوى الحملات الإعلانية ✦" : "✦ BUILT FOR STADIUMS, GLOBAL FESTIVALS & HIGH-IMPACT ADS ✦"}
+            ✦ BUILT FOR STADIUMS, GLOBAL FESTIVALS & HIGH-IMPACT ADS ✦
           </span>
         </motion.div>
 

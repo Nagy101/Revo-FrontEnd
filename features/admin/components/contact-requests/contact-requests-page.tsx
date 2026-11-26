@@ -4,7 +4,7 @@ import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Search, Filter, Loader2, Check, CheckCircle2, MessageSquare, Phone, Calendar, Mail, MapPin, Briefcase, ChevronRight, ArrowLeft, ArrowRight } from "lucide-react"
 import { useContactRequests, useMarkContactRequestAsRead } from "@/features/contact/hooks/useContactRequests"
-import { useServices } from "@/features/services/hooks/useServices"
+import { usePublicServices } from "@/features/services/hooks/useServices"
 
 export function ContactRequestsPage() {
   const [pageIndex, setPageIndex] = useState(1)
@@ -14,8 +14,7 @@ export function ContactRequestsPage() {
   const { data, isLoading, isError } = useContactRequests(pageIndex, pageSize, filterRead)
   const { mutate: markAsRead, isPending: isMarking } = useMarkContactRequestAsRead()
   
-  const { data: servicesData } = useServices(1, 100)
-  const services = servicesData?.data?.data || []
+  const { data: services = [] } = usePublicServices()
 
   const [selectedRequestId, setSelectedRequestId] = useState<string | null>(null)
 

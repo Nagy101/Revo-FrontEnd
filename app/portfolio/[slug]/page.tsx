@@ -27,13 +27,19 @@ export async function generateMetadata(
       }
     }
 
+    const description = portfolio.captionEn || "Signature production by REVO Media Production."
+
     return {
       title: `${portfolio.captionEn} | REVO Portfolio`,
-      description: portfolio.captionAr,
+      description,
       openGraph: {
         title: portfolio.captionEn,
-        description: portfolio.captionAr,
-        images: portfolio.mediaItems?.[0]?.mediaUrl ? [portfolio.mediaItems[0].mediaUrl] : [],
+        description,
+        images: portfolio.mediaItems?.[0]?.coverImageUrl
+          ? [portfolio.mediaItems[0].coverImageUrl]
+          : portfolio.mediaItems?.[0]?.type !== 2 && portfolio.mediaItems?.[0]?.mediaUrl
+            ? [portfolio.mediaItems[0].mediaUrl]
+            : [],
       },
     }
   } catch (error) {

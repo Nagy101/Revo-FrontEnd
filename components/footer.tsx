@@ -3,28 +3,10 @@
 import Link from "next/link"
 import Image from "next/image"
 import { ArrowUpRight } from "lucide-react"
-import { useLanguage } from "@/lib/i18n/language-context"
 
-// ── SWEET ANIMATION: Smooth Reveal on Hover (Preserves connected Arabic & prevents LTR/RTL reversal) ──
+// ── SWEET ANIMATION: Smooth Reveal on Hover ──
 const AnimatedLink = ({ text, href, external = false }: { text: string, href: string, external?: boolean }) => {
-  const isArabicText = /[\u0600-\u06FF]/.test(text)
-
-  const content = isArabicText ? (
-    <span className="relative inline-flex items-center overflow-hidden">
-      <span className="inline-block transition-transform duration-500 ease-cinematic group-hover:-translate-y-full">
-        {text}
-      </span>
-      <span className="absolute inset-0 inline-block translate-y-full transition-transform duration-500 ease-cinematic group-hover:translate-y-0 text-white font-medium">
-        {text}
-      </span>
-      {external && (
-        <ArrowUpRight
-          size={12}
-          className="mr-1.5 opacity-0 group-hover:opacity-100 transition-all duration-300 text-[#C3143D] self-center shrink-0"
-        />
-      )}
-    </span>
-  ) : (
+  const content = (
     <span className="relative flex items-center overflow-hidden" dir="ltr">
       {text.split('').map((char, i) => (
         <span key={i} className="relative inline-block whitespace-pre">
@@ -62,17 +44,15 @@ const AnimatedLink = ({ text, href, external = false }: { text: string, href: st
 }
 
 export function Footer() {
-  const { isArabic } = useLanguage()
-
   const menuLinks = [
-    { name: isArabic ? "من نحن" : "About Us", href: "/about" },
-    { name: isArabic ? "خدماتنا" : "Our Services", href: "/services" },
-    { name: isArabic ? "معرض الأعمال" : "Portfolio", href: "/portfolio" },
-    { name: isArabic ? "اتصل بنا" : "Contact", href: "/contact" },
+    { name: "About Us", href: "/about" },
+    { name: "Our Services", href: "/services" },
+    { name: "Portfolio", href: "/portfolio" },
+    { name: "Contact", href: "/contact" },
   ]
 
   const socials = [
-    { name: isArabic ? "انستجرام" : "Instagram", href: "https://www.instagram.com/revomedia.eg?obrf=N3cwbGZhdzJ6cWM0" },
+    { name: "Instagram", href: "https://www.instagram.com/revomedia.eg?obrf=N3cwbGZhdzJ6cWM0" },
   ]
 
   return (
@@ -93,9 +73,7 @@ export function Footer() {
               />
             </Link>
             <p className="text-white/40 text-sm font-light leading-relaxed mb-6">
-              {isArabic
-                ? "وكالة إنتاج إعلامي وسينمائي تصنع تجارب بصرية مبهرة وتبني هويات استثنائية."
-                : "A creative digital agency engineering immersive experiences and building brand empires."}
+              A creative digital agency engineering immersive experiences and building brand empires.
             </p>
 
             <div className="flex flex-col gap-3">
@@ -117,7 +95,7 @@ export function Footer() {
               {/* Location */}
               <div className="inline-flex items-center gap-3 text-white/50 text-sm font-light">
                 <span className="text-[#C3143D] text-sm">📍</span>
-                <span>{isArabic ? "نيو كايرو ١، القاهرة" : "New Cairo 1, Cairo"}</span>
+                <span>New Cairo</span>
               </div>
             </div>
           </div>
@@ -125,8 +103,8 @@ export function Footer() {
           {/* ── RIGHT: NAVIGATION ── */}
           <div className="flex gap-16 md:gap-32">
             <div className="flex flex-col gap-6">
-              <span className={`text-white/30 text-xs font-medium uppercase ${isArabic ? "tracking-normal font-sans" : "tracking-widest"}`}>
-                {isArabic ? "روابط سريعة" : "Navigation"}
+              <span className="text-white/30 text-xs font-medium uppercase tracking-widest">
+                Navigation
               </span>
               <ul className="flex flex-col gap-4">
                 {menuLinks.map((link) => (
@@ -138,8 +116,8 @@ export function Footer() {
             </div>
 
             <div className="flex flex-col gap-6">
-              <span className={`text-white/30 text-xs font-medium uppercase ${isArabic ? "tracking-normal font-sans" : "tracking-widest"}`}>
-                {isArabic ? "وسائل التواصل" : "Socials"}
+              <span className="text-white/30 text-xs font-medium uppercase tracking-widest">
+                Socials
               </span>
               <ul className="flex flex-col gap-4">
                 {socials.map((link) => (
@@ -155,12 +133,10 @@ export function Footer() {
         {/* ── BOTTOM: COPYRIGHT ── */}
         <div className="border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center gap-6">
           <span className="text-white/30 text-[10px] md:text-xs font-light uppercase tracking-widest">
-            {isArabic
-              ? `© ${new Date().getFullYear()} REVO للإنتاج الإعلامي. جميع الحقوق محفوظة.`
-              : `© ${new Date().getFullYear()} REVO Media Production. All rights reserved.`}
+            {`© ${new Date().getFullYear()} REVO Media Production. All rights reserved.`}
           </span>
           <span className="text-white/40 text-[10px] md:text-xs font-mono tracking-widest uppercase">
-            {isArabic ? "نيو كايرو ١، القاهرة، مصر" : "New Cairo 1, Cairo, Egypt"}
+            New Cairo
           </span>
         </div>
 

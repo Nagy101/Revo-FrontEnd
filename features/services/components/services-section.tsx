@@ -6,7 +6,6 @@ import Image from "next/image"
 import Link from "next/link"
 import { ArrowUpRight } from "lucide-react"
 import { usePublicServices } from "../hooks/useServices"
-import { useLanguage } from "@/lib/i18n/language-context"
 
 // Fallback images based on index
 const fallbackImages = [
@@ -16,18 +15,15 @@ const fallbackImages = [
 ]
 
 export function ServicesSection() {
-  const { data: services = [], isLoading } = usePublicServices()
+  const { data: services = [] } = usePublicServices()
   const [hoveredIndex, setHoveredIndex] = useState<number>(0)
-  const { isArabic } = useLanguage()
 
   // Use real API items only
   const featuredServices = (Array.isArray(services) && services.length > 0)
     ? services.slice(0, 3).map((s: any, idx: number) => ({
         id: s.id,
-        nameEn: s.nameEn || s.titleEn || "Production Service",
-        nameAr: s.nameAr || s.titleAr || "خدمة إنتاجية",
-        descriptionEn: s.descriptionEn || "",
-        descriptionAr: s.descriptionAr || "",
+        nameEn: s.nameEn || s.titleEn || s.nameAr || "Production Service",
+        descriptionEn: s.descriptionEn || s.descriptionAr || "",
         imageUrl: s.imageUrl || fallbackImages[idx] || fallbackImages[0],
       }))
     : []
@@ -52,7 +48,7 @@ export function ServicesSection() {
             >
               <div className="w-12 h-px bg-[#C3143D]" />
               <span className="text-[#C3143D] text-xs font-bold uppercase tracking-[0.3em]">
-                {isArabic ? "خبراتنا" : "Our Expertise"}
+                Our Expertise
               </span>
             </motion.div>
             
@@ -63,17 +59,8 @@ export function ServicesSection() {
               transition={{ duration: 1, delay: 0.2 }}
               className="text-4xl md:text-5xl lg:text-7xl font-sora font-light uppercase text-white leading-tight tracking-widest mb-6"
             >
-              {isArabic ? (
-                <>
-                  نصنع <br/>
-                  <span className="font-serif italic text-transparent bg-clip-text bg-gradient-to-r from-white via-red-200 to-[#C3143D] pr-4">التأثير.</span>
-                </>
-              ) : (
-                <>
-                  We create <br/>
-                  <span className="font-serif italic text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-500 pr-4">Impact</span>
-                </>
-              )}
+              We create <br/>
+              <span className="font-serif italic text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-500 pr-4">Impact</span>
             </motion.h2>
             
             <motion.p 
@@ -83,9 +70,7 @@ export function ServicesSection() {
               transition={{ duration: 1, delay: 0.4 }}
               className="text-white/40 max-w-sm text-sm md:text-base font-light leading-relaxed"
             >
-              {isArabic
-                ? "نقدم مجموعة متكاملة من الخدمات الإبداعية المصممة لرفع قيمة علامتك التجارية وبناء صلة حقيقية مع جمهورك."
-                : "We offer a comprehensive suite of creative services designed to elevate your brand and connect with your audience on a visceral level."}
+              We offer a comprehensive suite of creative services designed to elevate your brand and connect with your audience on a visceral level.
             </motion.p>
           </div>
 
@@ -102,7 +87,7 @@ export function ServicesSection() {
               >
                 <Image 
                   src={featuredServices[hoveredIndex]?.imageUrl || fallbackImages[hoveredIndex] || fallbackImages[0]} 
-                  alt={isArabic ? (featuredServices[hoveredIndex]?.nameAr || "خدمة") : (featuredServices[hoveredIndex]?.nameEn || "Service")}
+                  alt={featuredServices[hoveredIndex]?.nameEn || "Service"}
                   fill
                   className="object-cover grayscale-[30%] group-hover:scale-105 transition-transform duration-2000"
                 />
@@ -116,8 +101,8 @@ export function ServicesSection() {
         <div className="w-full lg:w-7/12 flex flex-col pt-10 lg:pt-0">
           {featuredServices.length > 0 ? (
             featuredServices.map((service, index) => {
-              const title = (isArabic ? (service.nameAr || service.nameEn) : (service.nameEn || service.nameAr)) || ""
-              const desc = (isArabic ? (service.descriptionAr || service.descriptionEn) : (service.descriptionEn || service.descriptionAr)) || ""
+              const title = service.nameEn || ""
+              const desc = service.descriptionEn || ""
 
               return (
                 <Link key={service.id} href={`/services/${service.id}`} className="contents block">
@@ -135,16 +120,16 @@ export function ServicesSection() {
                     </span>
                     
                     <div className="flex-1">
-                      <h3 className="text-3xl md:text-5xl font-sora font-light uppercase text-white/80 group-hover:text-white group-hover:translate-x-4 rtl:group-hover:-translate-x-4 transition-all duration-500 mb-4 tracking-wider">
+                      <h3 className="text-3xl md:text-5xl font-sora font-light uppercase text-white/80 group-hover:text-white group-hover:translate-x-4 transition-all duration-500 mb-4 tracking-wider">
                         {title}
                       </h3>
-                      <p className="text-white/40 text-sm md:text-base font-light leading-relaxed max-w-lg group-hover:text-white/60 transition-colors duration-500 group-hover:translate-x-4 rtl:group-hover:-translate-x-4">
+                      <p className="text-white/40 text-sm md:text-base font-light leading-relaxed max-w-lg group-hover:text-white/60 transition-colors duration-500 group-hover:translate-x-4 line-clamp-3">
                         {desc}
                       </p>
                     </div>
 
                     <div className="hidden md:flex w-16 h-16 rounded-full border border-white/10 items-center justify-center group-hover:bg-[#C3143D] group-hover:border-[#C3143D] transition-all duration-500 shrink-0">
-                      <ArrowUpRight className="text-white/30 group-hover:text-white group-hover:rotate-45 rtl:group-hover:-rotate-45 transition-all duration-500 w-6 h-6" />
+                      <ArrowUpRight className="text-white/30 group-hover:text-white group-hover:rotate-45 transition-all duration-500 w-6 h-6" />
                     </div>
                   </motion.div>
                 </Link>
@@ -153,9 +138,7 @@ export function ServicesSection() {
           ) : (
             <div className="text-center py-20 border border-white/5 rounded-3xl bg-white/[0.01]">
               <p className="text-white/40 text-sm font-light">
-                {isArabic
-                  ? "جاري تجهيز وعرض باقة خدماتنا الإنتاجية قريباً."
-                  : "Our production services catalog is coming soon."}
+                Our production services catalog is coming soon.
               </p>
             </div>
           )}
@@ -172,8 +155,8 @@ export function ServicesSection() {
               <button className="group relative px-10 py-5 bg-transparent border border-white/10 rounded-full overflow-hidden hover:border-white/30 transition-colors duration-500 cursor-none" data-cursor="View All">
                 <div className="absolute inset-0 w-full h-full bg-white/5 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-cinematic" />
                 <span className="relative text-white/80 group-hover:text-white font-medium uppercase tracking-[0.3em] text-xs transition-colors duration-500 flex items-center gap-4">
-                  {isArabic ? "عرض جميع الخدمات" : "View All Services"}{" "}
-                  <ArrowUpRight size={14} className="rtl:rotate-180" />
+                  View All Services{" "}
+                  <ArrowUpRight size={14} />
                 </span>
               </button>
             </Link>

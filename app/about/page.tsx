@@ -29,7 +29,6 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
-import { useLanguage } from "@/lib/i18n/language-context"
 
 const EASE = [0.16, 1, 0.3, 1] as const
 
@@ -37,36 +36,28 @@ const EASE = [0.16, 1, 0.3, 1] as const
 const TEAM_MEMBERS = [
   {
     nameEn: "Hossam Shaaban",
-    nameAr: "حسام شعبان",
     roleEn: "Co-Founder",
-    roleAr: "مؤسس شريك",
     isFounder: true,
     image: "/images/team/hossam-shaaban.jpg",
     number: "01"
   },
   {
     nameEn: "Bassiouny",
-    nameAr: "بسيوني",
     roleEn: "Co-Founder",
-    roleAr: "مؤسس شريك",
     isFounder: true,
     image: "/images/team/bassiouny.jpg",
     number: "02"
   },
   {
     nameEn: "Ibrahim Fayda",
-    nameAr: "إبراهيم فايدة",
     roleEn: "Co-Founder",
-    roleAr: "مؤسس شريك",
     isFounder: true,
     image: "/images/team/ibrahim-fayda-portrait.jpg",
     number: "03"
   },
   {
     nameEn: "Samir Saeed",
-    nameAr: "سمير سعيد",
     roleEn: "Full-Time Team",
-    roleAr: "فريق العمل المتفرغ",
     isFounder: false,
     image: "/images/team/samir-saeed.jpg",
     number: "04"
@@ -74,7 +65,6 @@ const TEAM_MEMBERS = [
 ]
 
 export default function AboutPage() {
-  const { isArabic } = useLanguage()
   const containerRef = useRef<HTMLDivElement>(null)
   const heroRef = useRef<HTMLDivElement>(null)
   const [isMounted, setIsMounted] = useState(false)
@@ -196,7 +186,7 @@ export default function AboutPage() {
           >
             <div className="w-8 md:w-14 h-[1px] bg-gradient-to-r from-transparent to-[#C3143D]" />
             <span className="flex items-center gap-2 text-white/90 text-xs md:text-sm font-semibold tracking-[0.3em] uppercase drop-shadow">
-              <Sparkles className="w-3.5 h-3.5 text-[#C3143D]" /> {isArabic ? "عن ريفو REVO" : "About REVO"}
+              <Sparkles className="w-3.5 h-3.5 text-[#C3143D]" /> About REVO
             </span>
             <div className="w-8 md:w-14 h-[1px] bg-gradient-to-l from-transparent to-[#C3143D]" />
           </motion.div>
@@ -210,7 +200,7 @@ export default function AboutPage() {
                 transition={{ duration: 1.2, ease: EASE, delay: 0.3 }}
                 className="text-3xl sm:text-4xl md:text-5xl lg:text-[3.5rem] font-sora font-black uppercase tracking-tight text-white leading-[1.05] drop-shadow-2xl whitespace-nowrap"
               >
-                {isArabic ? "إحنا هنا عشان نخلي" : "We’re Here To Make"}
+                We’re Here To Make
               </motion.h1>
             </div>
             
@@ -228,10 +218,10 @@ export default function AboutPage() {
                 className="relative whitespace-nowrap"
               >
                 <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[3.5rem] font-serif italic leading-[1.05] text-transparent bg-clip-text bg-gradient-to-r from-white via-red-200 to-[#C3143D] pr-2 drop-shadow-2xl">
-                  {isArabic ? "للمشهد معنى وتأثير." : "Visuals Mean Something."}
+                  Visuals Mean Something.
                 </h1>
                 <h1 className="absolute inset-0 text-3xl sm:text-4xl md:text-5xl lg:text-[3.5rem] font-serif italic leading-[1.05] text-[#C3143D] opacity-25 blur-2xl pointer-events-none">
-                  {isArabic ? "للمشهد معنى وتأثير." : "Visuals Mean Something."}
+                  Visuals Mean Something.
                 </h1>
               </motion.div>
               <motion.div
@@ -250,15 +240,7 @@ export default function AboutPage() {
             transition={{ duration: 1, ease: EASE, delay: 0.7 }}
             className="max-w-xl text-center text-white/90 text-xs sm:text-sm font-light mt-2.5 md:mt-3.5 leading-relaxed [text-shadow:_0_1px_12px_rgba(0,0,0,0.8)]"
           >
-            {isArabic ? (
-              <>
-                إحنا <span className="text-white font-semibold">REVO</span> — بيت إنتاج إعلامي وإبداعي بنحوّل الأفكار لواقع ملموس من خلال التصوير، الإنتاج السينمائي، وسرد القصص البصرية الجريئة. من أضخم الفعاليات للحملات الإعلانية الكبرى، بنصنع محتوى يشد الانتباه ويسيب أثر حقيقي.
-              </>
-            ) : (
-              <>
-                We’re <span className="text-white font-semibold">REVO</span> — a creative media production team bringing ideas to life through photography, filmmaking, and bold visual storytelling. From live events to brand identities, we create content that captures attention and leaves a lasting impression.
-              </>
-            )}
+            We’re <span className="text-white font-semibold">REVO</span> — a creative media production team bringing ideas to life through photography, filmmaking, and bold visual storytelling. From live events to brand identities, we create content that captures attention and leaves a lasting impression.
           </motion.p>
 
           {/* Punchline Tagline */}
@@ -269,7 +251,7 @@ export default function AboutPage() {
             className="flex items-center gap-3 mt-2 text-red-200/90 font-serif italic text-xs sm:text-sm tracking-wide [text-shadow:_0_1px_10px_rgba(0,0,0,0.8)]"
           >
             <span className="w-6 h-px bg-gradient-to-r from-transparent to-[#C3143D]" />
-            <span>{isArabic ? "“يلا نصنع حاجة تستاهل تفتكرها.”" : "“Let’s make something worth remembering.”"}</span>
+            <span>“Let’s make something worth remembering.”</span>
             <span className="w-6 h-px bg-gradient-to-l from-transparent to-[#C3143D]" />
           </motion.div>
 
@@ -286,7 +268,7 @@ export default function AboutPage() {
             >
               <div className="absolute inset-0 w-full h-full bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-cinematic" />
               <span className="relative flex items-center gap-2">
-                {isArabic ? "استكشف أعمالنا" : "Explore Our Work"} <Play size={12} className="fill-current rtl:rotate-180" />
+                Explore Our Work <Play size={12} className="fill-current" />
               </span>
             </Link>
             
@@ -294,7 +276,7 @@ export default function AboutPage() {
               href="/contact"
               className="group px-6 py-2.5 md:px-7 md:py-3 bg-black/40 backdrop-blur-md text-white border border-white/20 rounded-full font-semibold tracking-widest uppercase text-xs md:text-sm hover:border-white hover:bg-white/10 hover:scale-105 transition-all duration-300 inline-flex items-center justify-center cursor-pointer"
             >
-              {isArabic ? "تواصل معنا" : "Let’s Talk"}
+              Let’s Talk
             </Link>
           </motion.div>
 
@@ -319,7 +301,7 @@ export default function AboutPage() {
                   {/* Clean Bottom Label */}
                   <div className="absolute bottom-1.5 left-2 right-2 flex items-center justify-between text-white">
                     <p className="text-[10px] sm:text-xs font-bold truncate drop-shadow-[0_1px_4px_rgba(0,0,0,0.9)]">
-                      {isArabic ? "طاقة المسرح" : "Stage Energy"}
+                      Stage Energy
                     </p>
                     <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center group-hover:bg-[#C3143D] transition-colors shrink-0">
                       <Play size={7} className="fill-current text-white translate-x-0.5" />
@@ -343,7 +325,7 @@ export default function AboutPage() {
                   {/* Clean Bottom Label */}
                   <div className="absolute bottom-1.5 left-2 right-2 flex items-center justify-between text-white">
                     <p className="text-[10px] sm:text-xs font-bold truncate drop-shadow-[0_1px_4px_rgba(0,0,0,0.9)]">
-                      {isArabic ? "أداء حي" : "Raw Vocal"}
+                      Raw Vocal
                     </p>
                     <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center group-hover:bg-[#C3143D] transition-colors shrink-0">
                       <Play size={7} className="fill-current text-white translate-x-0.5" />
@@ -375,7 +357,7 @@ export default function AboutPage() {
               <path id="circlePathAbout" d="M 50, 50 m -36, 0 a 36,36 0 1,1 72,0 a 36,36 0 1,1 -72,0" fill="none" />
               <text className="text-[10px] uppercase font-bold tracking-[0.25em]">
                 <textPath href="#circlePathAbout" startOffset="0%">
-                  {isArabic ? "★ اكتشف ريفو ★ إبداع سينمائي متكامل" : "★ DISCOVER OUR ROOTS ★ KNOW REVO AGENCY"}
+                  ★ DISCOVER OUR ROOTS ★ KNOW REVO AGENCY
                 </textPath>
               </text>
             </svg>
@@ -410,15 +392,15 @@ export default function AboutPage() {
             <div key={`about-set-${setIndex}`} className="flex items-center gap-8 shrink-0">
               {[...Array(3)].map((_, i) => (
                 <div key={`about-item-${setIndex}-${i}`} className="flex items-center gap-8 shrink-0">
-                  <span className="text-white">{isArabic ? "تجارب وفعاليات حية" : "Live Experiences"}</span>
+                  <span className="text-white">Live Experiences</span>
                   <span className="w-1.5 h-1.5 rounded-full bg-[#C3143D]" />
-                  <span className="text-white/80">{isArabic ? "سرد سينمائي مبهر" : "Cinematic Storytelling"}</span>
+                  <span className="text-white/80">Cinematic Storytelling</span>
                   <span className="w-1.5 h-1.5 rounded-full bg-[#C3143D]" />
-                  <span className="text-white">{isArabic ? "حملات إعلانية وتجارية" : "Commercial Campaigns"}</span>
+                  <span className="text-white">Commercial Campaigns</span>
                   <span className="w-1.5 h-1.5 rounded-full bg-[#C3143D]" />
-                  <span className="text-white/80">{isArabic ? "إنتاج سينمائي عالي الجودة" : "High-Production Films"}</span>
+                  <span className="text-white/80">High-Production Films</span>
                   <span className="w-1.5 h-1.5 rounded-full bg-[#C3143D]" />
-                  <span className="text-[#C3143D] font-bold">{isArabic ? "بيت ريفو الإبداعي REVO" : "REVO Creative House"}</span>
+                  <span className="text-[#C3143D] font-bold">REVO Creative House</span>
                   <span className="w-1.5 h-1.5 rounded-full bg-[#C3143D]" />
                 </div>
               ))}
@@ -447,7 +429,7 @@ export default function AboutPage() {
               >
                 <span className="w-8 h-[2px] bg-[#C3143D]" />
                 <span className="text-[#C3143D] text-xs font-bold tracking-[0.3em] uppercase">
-                  {isArabic ? "من نحن" : "Who We Are"}
+                  Who We Are
                 </span>
               </motion.div>
 
@@ -458,21 +440,10 @@ export default function AboutPage() {
                 transition={{ duration: 0.9, delay: 0.1, ease: EASE }}
                 className="text-3xl sm:text-4xl md:text-5xl font-sora font-extrabold text-white tracking-tight uppercase leading-[1.15]"
               >
-                {isArabic ? (
-                  <>
-                    أكتر من مجرد طاقم تصوير. <br/>
-                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-red-200 to-[#C3143D] font-serif italic tracking-normal">
-                      شريكك الإبداعي.
-                    </span>
-                  </>
-                ) : (
-                  <>
-                    More Than A Production Crew. <br/>
-                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-red-200 to-[#C3143D] font-serif italic lowercase tracking-normal">
-                      a creative partner.
-                    </span>
-                  </>
-                )}
+                More Than A Production Crew. <br/>
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-red-200 to-[#C3143D] font-serif italic lowercase tracking-normal">
+                  a creative partner.
+                </span>
               </motion.h2>
 
               <motion.p
@@ -482,9 +453,7 @@ export default function AboutPage() {
                 transition={{ duration: 0.9, delay: 0.15, ease: EASE }}
                 className="mt-5 text-white/50 text-sm leading-relaxed"
               >
-                {isArabic
-                  ? "بنربط بين الحرفية التقنية العالية والرؤية الإبداعية المتجددة عشان نصنع محتوى بصري فارق يفرض حضوره ويلفت الأنظار."
-                  : "We bridge the gap between technical production mastery and high-level creative vision to build memorable media that commands attention."}
+                We bridge the gap between technical production mastery and high-level creative vision to build memorable media that commands attention.
               </motion.p>
 
               <motion.div
@@ -494,10 +463,7 @@ export default function AboutPage() {
                 transition={{ duration: 0.9, delay: 0.2, ease: EASE }}
                 className="mt-6 flex flex-wrap gap-2"
               >
-                {(isArabic
-                  ? ["فعاليات ومهرجانات حية", "حملات إعلانية", "سرد وهوية بصرية", "تصوير سينمائي"]
-                  : ["Live Events", "Commercial Campaigns", "Brand Storytelling", "Cinematography"]
-                ).map((tag, i) => (
+                {["Live Events", "Commercial Campaigns", "Brand Storytelling", "Cinematography"].map((tag, i) => (
                   <span key={i} className="px-3 py-1 rounded-full bg-white/[0.04] border border-white/10 text-white/70 text-xs font-medium">
                     {tag}
                   </span>
@@ -518,26 +484,14 @@ export default function AboutPage() {
 
               <div className="relative z-10 space-y-5 text-white/80 text-base md:text-lg font-light leading-relaxed">
                 <p className="text-white text-lg md:text-xl font-normal leading-snug">
-                  {isArabic ? (
-                    <>
-                      في <span className="text-white font-semibold underline decoration-[#C3143D] underline-offset-4">REVO</span>، بنؤمن إن المحتوى العظيم مش مجرد كادر شكله حلو. الموضوع بيبدأ من فهم الرؤية، وتوثيق اللحظات الصح، وتحويل الأفكار لتجارب يتفاعل معاها الناس بصدق.
-                    </>
-                  ) : (
-                    <>
-                      At <span className="text-white font-semibold underline decoration-[#C3143D] underline-offset-4">REVO</span>, we believe great content is more than a good-looking shot. It’s about understanding the vision, capturing the right moments, and turning ideas into experiences people connect with.
-                    </>
-                  )}
+                  At <span className="text-white font-semibold underline decoration-[#C3143D] underline-offset-4">REVO</span>, we believe great content is more than a good-looking shot. It’s about understanding the vision, capturing the right moments, and turning ideas into experiences people connect with.
                 </p>
                 <p className="text-white/70">
-                  {isArabic
-                    ? "بنجمع بين الإبداع، الإنتاج السينمائي، وسرد الحكاية لمساعدة العلامات التجارية والشركات ومنظمي الفعاليات على الظهور بأعلى درجات الثقة والتميز."
-                    : "We bring creativity, production, and storytelling together to help brands, businesses, and event organizers show up with confidence."}
+                  We bring creativity, production, and storytelling together to help brands, businesses, and event organizers show up with confidence.
                 </p>
                 <div className="border-l-2 border-[#C3143D] pl-4 py-1">
                   <p className="text-white/85 text-sm md:text-base italic font-serif leading-relaxed">
-                    {isArabic
-                      ? "“سواء كان حدثاً حياً ضخماً، حملة إعلانية، أو محتوى فيديو لمنصات التواصل، بنتعامل مع كل مشروع بأفكار متجددة، واهتمام بأدق التفاصيل، والتزام كامل بتقديم القصة بأفضل صورة.”"
-                      : "“Whether it’s a live event, a commercial campaign, or a short-form social video, we approach every project with fresh ideas, attention to detail, and a commitment to getting the story right.”"}
+                    “Whether it’s a live event, a commercial campaign, or a short-form social video, we approach every project with fresh ideas, attention to detail, and a commitment to getting the story right.”
                   </p>
                 </div>
               </div>
@@ -567,7 +521,7 @@ export default function AboutPage() {
               >
                 <Crown className="w-3.5 h-3.5 text-[#C3143D]" />
                 <span className="text-[#C3143D] text-[11px] font-bold tracking-[0.3em] uppercase">
-                  {isArabic ? "القيادة وفريق العمل" : "Leadership & Core Team"}
+                  Leadership & Core Team
                 </span>
               </motion.div>
               
@@ -578,15 +532,7 @@ export default function AboutPage() {
                 transition={{ delay: 0.1 }}
                 className="text-3xl sm:text-4xl md:text-5xl font-sora font-extrabold text-white tracking-tight uppercase"
               >
-                {isArabic ? (
-                  <>
-                    العقول اللي وراء <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-red-200 to-[#C3143D]">REVO.</span>
-                  </>
-                ) : (
-                  <>
-                    The Minds Behind <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-red-200 to-[#C3143D]">REVO.</span>
-                  </>
-                )}
+                The Minds Behind <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-red-200 to-[#C3143D]">REVO.</span>
               </motion.h2>
             </div>
 
@@ -597,9 +543,7 @@ export default function AboutPage() {
               transition={{ delay: 0.2 }}
               className="text-white/50 text-sm max-w-md font-light"
             >
-              {isArabic
-                ? "المؤسسون الشركاء والمتخصصون الذين يقودون رؤية واتجاه وتنفيذ مشاريع ريفو."
-                : "The co-founders and key specialists driving the vision, direction, and execution of REVO."}
+              The co-founders and key specialists driving the vision, direction, and execution of REVO.
             </motion.p>
           </div>
 
@@ -619,7 +563,7 @@ export default function AboutPage() {
                 <div className="absolute inset-0 z-0 overflow-hidden">
                   <Image 
                     src={member.image} 
-                    alt={isArabic ? member.nameAr : member.nameEn} 
+                    alt={member.nameEn} 
                     fill
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
                     className="object-cover object-center group-hover:scale-106 group-hover:contrast-105 transition-all duration-700 ease-out"
@@ -635,14 +579,14 @@ export default function AboutPage() {
                     <div className="px-3 py-1 rounded-full bg-black/80 backdrop-blur-md border border-[#C3143D]/50 text-white flex items-center gap-1.5 shadow-lg">
                       <Crown className="w-3 h-3 text-[#C3143D]" />
                       <span className="text-[10px] font-bold tracking-widest uppercase text-white/90">
-                        {isArabic ? "مؤسس شريك" : "Co-Founder"}
+                        Co-Founder
                       </span>
                     </div>
                   ) : (
                     <div className="px-3 py-1 rounded-full bg-black/80 backdrop-blur-md border border-cyan-500/40 text-white flex items-center gap-1.5 shadow-lg">
                       <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
                       <span className="text-[10px] font-bold tracking-widest uppercase text-cyan-200">
-                        {isArabic ? "فريق العمل" : "Full-Time"}
+                        Full-Time
                       </span>
                     </div>
                   )}
@@ -655,11 +599,11 @@ export default function AboutPage() {
                 {/* Bottom Content Area (Minimalist: Name & Role Badge Only) */}
                 <div className="relative z-10 mt-auto p-5 md:p-6 flex flex-col justify-end">
                   <span className="text-[#C3143D] text-[10px] md:text-[11px] font-bold tracking-[0.25em] uppercase mb-1 drop-shadow">
-                    {isArabic ? member.roleAr : member.roleEn}
+                    {member.roleEn}
                   </span>
 
                   <h3 className="text-xl md:text-2xl font-sora font-extrabold text-white tracking-tight group-hover:text-red-100 transition-colors drop-shadow-md">
-                    {isArabic ? member.nameAr : member.nameEn}
+                    {member.nameEn}
                   </h3>
                 </div>
 
@@ -687,7 +631,7 @@ export default function AboutPage() {
             >
               <Sparkles className="w-3.5 h-3.5 text-[#C3143D]" />
               <span className="text-[#C3143D] text-[11px] font-bold tracking-[0.3em] uppercase">
-                {isArabic ? "البوصلة والهدف" : "Guiding Purpose"}
+                Guiding Purpose
               </span>
             </motion.div>
             <motion.h2 
@@ -697,7 +641,7 @@ export default function AboutPage() {
               transition={{ delay: 0.1 }}
               className="text-3xl sm:text-4xl md:text-5xl font-sora font-extrabold text-white tracking-tight uppercase"
             >
-              {isArabic ? "رسالتنا ورؤيتنا" : "Our Mission & Vision"}
+              Our Mission & Vision
             </motion.h2>
           </div>
 
@@ -721,34 +665,26 @@ export default function AboutPage() {
                 </div>
 
                 <span className="text-[#C3143D] text-xs font-bold tracking-[0.3em] uppercase mb-2 block">
-                  {isArabic ? "رسالتنا" : "Our Mission"}
+                  Our Mission
                 </span>
 
                 <h3 className="text-2xl sm:text-3xl font-sora font-extrabold text-white mb-4 uppercase tracking-tight">
-                  {isArabic ? (
-                    <>تحويل الأفكار إلى <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-red-200">تجارب حية.</span></>
-                  ) : (
-                    <>Turn Ideas Into <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-red-200">Experiences.</span></>
-                  )}
+                  Turn Ideas Into <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-red-200">Experiences.</span>
                 </h3>
 
                 <div className="space-y-3 text-white/70 text-sm md:text-base font-light leading-relaxed">
                   <p>
-                    {isArabic
-                      ? "رسالتنا هي تمكين العلامات التجارية والشركات من التواصل مع جمهورها بمحتوى بصري قوي ومؤثر."
-                      : "Our mission is to help brands and businesses communicate through powerful visual content."}
+                    Our mission is to help brands and businesses communicate through powerful visual content.
                   </p>
                   <p className="text-white/60">
-                    {isArabic
-                      ? "بنجمع بين التفكير الإبداعي غير التقليدي والإنتاج الاحترافي لتوثيق اللحظات وصناعة أعمال تتصل مباشرة بوجدان الجمهور المستهدف."
-                      : "We combine creative thinking with thoughtful production to capture moments, communicate messages, and create work that connects with the right audience."}
+                    We combine creative thinking with thoughtful production to capture moments, communicate messages, and create work that connects with the right audience.
                   </p>
                 </div>
               </div>
 
               <div className="mt-6 pt-5 border-t border-white/5 flex items-center justify-between text-xs font-semibold tracking-wider uppercase text-white/40 group-hover:text-white transition-colors">
-                <span>{isArabic ? "إنتاج سينمائي مؤثر" : "Impact-Driven Production"}</span>
-                <ArrowRight size={14} className="group-hover:translate-x-1 rtl:group-hover:-translate-x-1 rtl:rotate-180 transition-transform" />
+                <span>Impact-Driven Production</span>
+                <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
               </div>
             </motion.div>
 
@@ -770,36 +706,26 @@ export default function AboutPage() {
                 </div>
 
                 <span className="text-[#C3143D] text-xs font-bold tracking-[0.3em] uppercase mb-2 block">
-                  {isArabic ? "رؤيتنا" : "Our Vision"}
+                  Our Vision
                 </span>
 
                 <h3 className="text-2xl sm:text-3xl font-sora font-extrabold text-white mb-4 uppercase tracking-tight">
-                  {isArabic ? (
-                    <>نخلي كل كادر <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-red-200">له قيمة.</span></>
-                  ) : (
-                    <>Make Every Frame <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-red-200">Count.</span></>
-                  )}
+                  Make Every Frame <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-red-200">Count.</span>
                 </h3>
 
                 <div className="space-y-3 text-white/70 text-sm md:text-base font-light leading-relaxed">
                   <p>
-                    {isArabic
-                      ? "نهدف لأن نكون الشريك الإبداعي والإنتاجي الأكثر موثوقية للعلامات التجارية والمؤسسات ومنظمي الفعاليات — بهويتنا البصرية المميزة وروحنا التعاونية والتزامنا الصارم بالجودة."
-                      : "We aim to become a trusted creative media partner for brands, businesses, and event organizers — known for our distinctive visual style, collaborative spirit, and consistent commitment to quality."}
+                    We aim to become a trusted creative media partner for brands, businesses, and event organizers — known for our distinctive visual style, collaborative spirit, and consistent commitment to quality.
                   </p>
                   <p className="text-white/60">
-                    {isArabic ? (
-                      <>عايزين كل مشروع نعمله ميكونش بس شكله حلو. <strong className="text-white font-medium">عايزينه يسيب بصمة ويكون له معنى.</strong></>
-                    ) : (
-                      <>We want every project to do more than look good. <strong className="text-white font-medium">We want it to mean something.</strong></>
-                    )}
+                    We want every project to do more than look good. <strong className="text-white font-medium">We want it to mean something.</strong>
                   </p>
                 </div>
               </div>
 
               <div className="mt-6 pt-5 border-t border-white/5 flex items-center justify-between text-xs font-semibold tracking-wider uppercase text-white/40 group-hover:text-white transition-colors">
-                <span>{isArabic ? "أسلوب بصري فريد" : "Distinctive Visual Style"}</span>
-                <ArrowRight size={14} className="group-hover:translate-x-1 rtl:group-hover:-translate-x-1 rtl:rotate-180 transition-transform" />
+                <span>Distinctive Visual Style</span>
+                <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
               </div>
             </motion.div>
 
@@ -823,7 +749,7 @@ export default function AboutPage() {
               >
                 <Flame className="w-3.5 h-3.5 text-[#C3143D]" />
                 <span className="text-[#C3143D] text-[11px] font-bold tracking-[0.3em] uppercase">
-                  {isArabic ? "ما يحركنا" : "What Drives Us"}
+                  What Drives Us
                 </span>
               </motion.div>
               
@@ -834,11 +760,7 @@ export default function AboutPage() {
                 transition={{ delay: 0.1 }}
                 className="text-3xl sm:text-4xl md:text-5xl font-sora font-extrabold text-white tracking-tight uppercase"
               >
-                {isArabic ? (
-                  <>إبداع ذو <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-red-200 to-[#C3143D]">هدف ورؤية.</span></>
-                ) : (
-                  <>Creativity With <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-red-200 to-[#C3143D]">Purpose.</span></>
-                )}
+                Creativity With <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-red-200 to-[#C3143D]">Purpose.</span>
               </motion.h2>
             </div>
 
@@ -849,9 +771,7 @@ export default function AboutPage() {
               transition={{ delay: 0.2 }}
               className="text-white/50 text-sm max-w-md font-light"
             >
-              {isArabic
-                ? "المبادئ الخمسة الأساسية التي تحدد طريقة إبداعنا وتعاوننا وتسليمنا لأعلى المعايير."
-                : "The five core principles that define how we create, collaborate, and consistently deliver."}
+              The five core principles that define how we create, collaborate, and consistently deliver.
             </motion.p>
           </div>
 
@@ -878,12 +798,10 @@ export default function AboutPage() {
 
               <div className="relative z-10 mt-6">
                 <h3 className="text-xl font-sora font-bold text-white mb-2">
-                  {isArabic ? "إبداع فطري ومتجدد" : "Creative by Nature"}
+                  Creative by Nature
                 </h3>
                 <p className="text-white/70 text-sm font-light leading-relaxed max-w-lg">
-                  {isArabic
-                    ? "بنستكشف أفكار جديدة، ونجرب أساليب بصرية جريئة، وندور على طرق مبتكرة لسرد القصص اللي تبرز وسط الزحام."
-                    : "We explore fresh ideas, experiment with visual styles, and look for new ways to tell stories that cut through the noise."}
+                  We explore fresh ideas, experiment with visual styles, and look for new ways to tell stories that cut through the noise.
                 </p>
               </div>
             </motion.div>
@@ -908,12 +826,10 @@ export default function AboutPage() {
 
               <div className="relative z-10 mt-6">
                 <h3 className="text-xl font-sora font-bold text-white mb-2">
-                  {isArabic ? "الجودة في أدق التفاصيل" : "Quality in Every Detail"}
+                  Quality in Every Detail
                 </h3>
                 <p className="text-white/70 text-sm font-light leading-relaxed">
-                  {isArabic
-                    ? "من أول كادر تصوير لآخر لمسة مونتاج، بنهتم بأدق التفاصيل اللي بتجمع أركان المشروع وتخليه يعيش في الذاكرة."
-                    : "From the first frame to the final edit, we care about the details that bring a project together and make it timeless."}
+                  From the first frame to the final edit, we care about the details that bring a project together and make it timeless.
                 </p>
               </div>
             </motion.div>
@@ -938,12 +854,10 @@ export default function AboutPage() {
 
               <div className="relative z-10 mt-5">
                 <h3 className="text-lg font-sora font-bold text-white mb-1.5">
-                  {isArabic ? "قائم على روح الشراكة" : "Built on Collaboration"}
+                  Built on Collaboration
                 </h3>
                 <p className="text-white/60 text-xs md:text-sm font-light leading-relaxed">
-                  {isArabic
-                    ? "أعظم الأعمال بتولد لما نتشارك الأفكار. بنشتغل جنباً إلى جنب مع عملائنا عشان نحول رؤيتهم لحقيقة."
-                    : "The best work happens when ideas are shared. We work closely with our clients to bring their vision to life."}
+                  The best work happens when ideas are shared. We work closely with our clients to bring their vision to life.
                 </p>
               </div>
             </motion.div>
@@ -968,12 +882,10 @@ export default function AboutPage() {
 
               <div className="relative z-10 mt-5">
                 <h3 className="text-lg font-sora font-bold text-white mb-1.5">
-                  {isArabic ? "شريك محل ثقة دائمة" : "A Partner You Can Trust"}
+                  A Partner You Can Trust
                 </h3>
                 <p className="text-white/60 text-xs md:text-sm font-light leading-relaxed">
-                  {isArabic
-                    ? "الشراكات الحقيقية بتتبني على التواصل الشفاف، الالتزام بالمواعيد، والحرص المشترك على النجاح."
-                    : "Strong partnerships are built through clear communication, consistency, and a shared commitment."}
+                  Strong partnerships are built through clear communication, consistency, and a shared commitment.
                 </p>
               </div>
             </motion.div>
@@ -998,12 +910,10 @@ export default function AboutPage() {
 
               <div className="relative z-10 mt-5">
                 <h3 className="text-lg font-sora font-bold text-white mb-1.5">
-                  {isArabic ? "تطور وابتكار دائم" : "Always Evolving"}
+                  Always Evolving
                 </h3>
                 <p className="text-white/60 text-xs md:text-sm font-light leading-relaxed">
-                  {isArabic
-                    ? "دايماً شغوفين، بنستكشف أحدث التقنيات ووسائط العرض، وبنتكيف مع الطرق المتغيرة لاستهلاك المحتوى واكتشافه."
-                    : "We stay curious, explore new formats, and adapt to the changing ways people discover content."}
+                  We stay curious, explore new formats, and adapt to the changing ways people discover content.
                 </p>
               </div>
             </motion.div>
@@ -1027,7 +937,7 @@ export default function AboutPage() {
             >
               <CheckCircle2 className="w-3.5 h-3.5 text-[#C3143D]" />
               <span className="text-[#C3143D] text-[11px] font-bold tracking-[0.3em] uppercase">
-                {isArabic ? "منهجية العمل" : "Our Approach"}
+                Our Approach
               </span>
             </motion.div>
 
@@ -1038,21 +948,10 @@ export default function AboutPage() {
               transition={{ delay: 0.1 }}
               className="text-3xl sm:text-4xl md:text-5xl font-sora font-extrabold text-white tracking-tight uppercase"
             >
-              {isArabic ? (
-                <>
-                  من أول فكرة <br className="hidden sm:inline" />
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-red-200 to-[#C3143D] font-serif italic tracking-normal">
-                    لآخر كادر سينمائي.
-                  </span>
-                </>
-              ) : (
-                <>
-                  From First Idea <br className="hidden sm:inline" />
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-red-200 to-[#C3143D] font-serif italic lowercase tracking-normal">
-                    to final frame.
-                  </span>
-                </>
-              )}
+              From First Idea <br className="hidden sm:inline" />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-red-200 to-[#C3143D] font-serif italic lowercase tracking-normal">
+                to final frame.
+              </span>
             </motion.h2>
 
             <motion.p 
@@ -1062,9 +961,7 @@ export default function AboutPage() {
               transition={{ delay: 0.2 }}
               className="mt-3 text-white/50 text-sm font-light"
             >
-              {isArabic
-                ? "منظومة عمل تعاونية من 4 مراحل مصممة للوضوح والدقة والزخم السينمائي."
-                : "A collaborative 4-stage framework engineered for clarity and cinematic momentum."}
+              A collaborative 4-stage framework engineered for clarity and cinematic momentum.
             </motion.p>
           </div>
 
@@ -1074,39 +971,31 @@ export default function AboutPage() {
             {[
               {
                 num: "01",
-                title: isArabic ? "فهم الرؤية" : "Understand",
-                desc: isArabic
-                  ? "بنتعرف أولاً على أهدافك، جمهورك المستهدف، والقصة والرسالة اللي حابب تقدمها للعالم."
-                  : "We start by learning about your goals, your audience, and the story you want to tell.",
+                title: "Understand",
+                desc: "We start by learning about your goals, your audience, and the story you want to tell.",
                 icon: Search,
-                phase: isArabic ? "الاستكشاف والتخطيط" : "Discovery & Strategy"
+                phase: "Discovery & Strategy"
               },
               {
                 num: "02",
-                title: isArabic ? "بلورة الفكرة" : "Create",
-                desc: isArabic
-                  ? "بنصيغ الفكرة الإبداعية، ونرتب خطة الإنتاج، ونحدد التوجه البصري والفني الأنسب للمشروع."
-                  : "We shape the concept, plan the production, and bring the right creative direction to the project.",
+                title: "Create",
+                desc: "We shape the concept, plan the production, and bring the right creative direction to the project.",
                 icon: Palette,
-                phase: isArabic ? "الفكرة وتجهيز الإنتاج" : "Concept & Planning"
+                phase: "Concept & Planning"
               },
               {
                 num: "03",
-                title: isArabic ? "التصوير الميداني" : "Capture",
-                desc: isArabic
-                  ? "طاقم العمل بينطلق في الميدان لتوثيق المشاهد والتفاصيل بدقة سينمائية تنبض بالحياة."
-                  : "Our team gets to work, capturing the moments, details, and visuals that bring the idea to life.",
+                title: "Capture",
+                desc: "Our team gets to work, capturing the moments, details, and visuals that bring the idea to life.",
                 icon: Camera,
-                phase: isArabic ? "التصوير والإنتاج" : "Production & Shoot"
+                phase: "Production & Shoot"
               },
               {
                 num: "04",
-                title: isArabic ? "التسليم النهائي" : "Deliver",
-                desc: isArabic
-                  ? "بنصقل اللقطات بالمونتاج وتصحيح الألوان والمؤثرات الصوتية لتقديم عمل سينمائي متكامل."
-                  : "We refine the footage and imagery into purposeful content designed around your project’s needs.",
+                title: "Deliver",
+                desc: "We refine the footage and imagery into purposeful content designed around your project’s needs.",
                 icon: Film,
-                phase: isArabic ? "ما بعد الإنتاج والمونتاج" : "Post-Production"
+                phase: "Post-Production"
               }
             ].map((step, idx) => {
               const StepIcon = step.icon
@@ -1144,7 +1033,7 @@ export default function AboutPage() {
 
                   <div className="pt-4 mt-4 border-t border-white/5 flex items-center gap-2 text-[10px] font-medium text-white/40 group-hover:text-white transition-colors">
                     <span className="w-1.5 h-1.5 rounded-full bg-[#C3143D]" />
-                    <span>{isArabic ? `تنفيذ المرحلة ${step.num}` : `Phase ${step.num} Execution`}</span>
+                    <span>{`Phase ${step.num} Execution`}</span>
                   </div>
                 </motion.div>
               )
@@ -1172,7 +1061,7 @@ export default function AboutPage() {
               >
                 <span className="w-8 h-[2px] bg-[#C3143D]" />
                 <span className="text-[#C3143D] text-xs font-bold tracking-[0.3em] uppercase">
-                  {isArabic ? "شركاء النجاح" : "Partnerships"}
+                  Partnerships
                 </span>
               </motion.div>
 
@@ -1183,21 +1072,10 @@ export default function AboutPage() {
                 transition={{ delay: 0.1 }}
                 className="text-3xl sm:text-4xl md:text-5xl font-sora font-extrabold text-white tracking-tight uppercase leading-[1.15]"
               >
-                {isArabic ? (
-                  <>
-                    مع مين <br />
-                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-red-200 to-[#C3143D] font-serif italic tracking-normal">
-                      بنشتغل.
-                    </span>
-                  </>
-                ) : (
-                  <>
-                    Who We <br />
-                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-red-200 to-[#C3143D] font-serif italic lowercase tracking-normal">
-                      work with.
-                    </span>
-                  </>
-                )}
+                Who We <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-red-200 to-[#C3143D] font-serif italic lowercase tracking-normal">
+                  work with.
+                </span>
               </motion.h2>
             </div>
 
@@ -1210,16 +1088,10 @@ export default function AboutPage() {
                 className="space-y-3 text-white/70 text-sm md:text-base font-light leading-relaxed"
               >
                 <p className="text-white text-base md:text-lg font-normal leading-snug">
-                  {isArabic
-                    ? "بنتعاون مع العلامات التجارية، الشركات، المشاريع الناشئة، منظمي الفعاليات، وصناع المحتوى الراغبين في التعبير عن أفكارهم بمحتوى بصري متميز."
-                    : "We collaborate with brands, businesses, startups, event organizers, and teams looking to communicate their ideas through compelling visual content."}
+                  We collaborate with brands, businesses, startups, event organizers, and teams looking to communicate their ideas through compelling visual content.
                 </p>
                 <p className="text-white/60">
-                  {isArabic ? (
-                    <>سواء كان حدثاً لمرة واحدة أو شراكة إنتاجية مستمرة، بنتعامل مع كل تعاون بنفس الهدف: <span className="text-white font-medium">تقديم عمل يمثلك في أبهى وأقوى صورة.</span></>
-                  ) : (
-                    <>From a one-time event to an ongoing content partnership, we approach every collaboration with the same goal: <span className="text-white font-medium">create work that represents you at your best.</span></>
-                  )}
+                  From a one-time event to an ongoing content partnership, we approach every collaboration with the same goal: <span className="text-white font-medium">create work that represents you at your best.</span>
                 </p>
               </motion.div>
             </div>
@@ -1230,31 +1102,23 @@ export default function AboutPage() {
             {[
               {
                 icon: Calendar,
-                title: isArabic ? "منظمو الفعاليات والمهرجانات" : "Event Organizers",
-                desc: isArabic
-                  ? "حفلات استادات، مهرجانات، وتجمعات ثقافية موثقة بطاقة سينمائية وحماس جماهيري غير مسبوق."
-                  : "Concerts, festivals, and cultural gatherings documented with visceral energy and crowd excitement."
+                title: "Event Organizers",
+                desc: "Concerts, festivals, and cultural gatherings documented with visceral energy and crowd excitement."
               },
               {
                 icon: Briefcase,
-                title: isArabic ? "العلامات التجارية والشركات" : "Brands & Businesses",
-                desc: isArabic
-                  ? "حملات إعلانية عالية الإنتاج، أفلام مؤسسية، وأصول بصرية تعزز ولاء وثقة العملاء."
-                  : "High-production commercial campaigns, brand films, and visual assets that inspire customer loyalty."
+                title: "Brands & Businesses",
+                desc: "High-production commercial campaigns, brand films, and visual assets that inspire customer loyalty."
               },
               {
                 icon: Rocket,
-                title: isArabic ? "الشركات والمشاريع الصاعدة" : "Startups & Emerging Teams",
-                desc: isArabic
-                  ? "فيديوهات إطلاق ديناميكية وقصص منتجات ملهمة تجذب المستثمرين والعملاء بقوة."
-                  : "Dynamic launch videos, product stories, and visionary content that attracts investors and users."
+                title: "Startups & Emerging Teams",
+                desc: "Dynamic launch videos, product stories, and visionary content that attracts investors and users."
               },
               {
                 icon: Mic2,
-                title: isArabic ? "الفنانون وصناع الموسيقى" : "Artists & Performers",
-                desc: isArabic
-                  ? "فيديو كليبات سينمائية، ملخصات عروض حية، وهوية فنية تخطف الأنظار في الساحة الفنية."
-                  : "Cinematic music videos, live show recaps, and artist identity content that stands out in the industry."
+                title: "Artists & Performers",
+                desc: "Cinematic music videos, live show recaps, and artist identity content that stands out in the industry."
               }
             ].map((collab, i) => {
               const CollabIcon = collab.icon
@@ -1297,7 +1161,7 @@ export default function AboutPage() {
           >
             <Sparkles className="w-3.5 h-3.5 text-[#C3143D]" />
             <span className="text-[#C3143D] text-[11px] font-bold tracking-[0.3em] uppercase">
-              {isArabic ? "ابدأ المحادثة معنا" : "Start The Conversation"}
+              Start The Conversation
             </span>
           </motion.div>
 
@@ -1309,21 +1173,10 @@ export default function AboutPage() {
             transition={{ duration: 0.9, ease: EASE }}
             className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-sora font-black text-white uppercase tracking-tight leading-[1.1]"
           >
-            {isArabic ? (
-              <>
-                عندك فكرة ورؤية؟ <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-red-200 to-[#C3143D] font-serif italic tracking-normal">
-                  يلا نحولها لواقع.
-                </span>
-              </>
-            ) : (
-              <>
-                Got A Vision? <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-red-200 to-[#C3143D] font-serif italic lowercase tracking-normal">
-                  let’s make it real.
-                </span>
-              </>
-            )}
+            Got A Vision? <br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-red-200 to-[#C3143D] font-serif italic lowercase tracking-normal">
+              let’s make it real.
+            </span>
           </motion.h2>
 
           {/* Subtext */}
@@ -1334,9 +1187,7 @@ export default function AboutPage() {
             transition={{ duration: 0.9, delay: 0.15, ease: EASE }}
             className="mt-5 text-white/70 text-sm sm:text-base md:text-lg max-w-lg font-light leading-relaxed"
           >
-            {isArabic
-              ? "عندك حدث حابب تغطيه، حملة عايز تنتجها، أو فكرة جاهزة للتحليق؟ كلمنا وخلنا نبدأ نصنع العظمة مع بعض."
-              : "Have an event to cover, a campaign to produce, or an idea ready to take shape? Let’s talk about what we can create together."}
+            Have an event to cover, a campaign to produce, or an idea ready to take shape? Let’s talk about what we can create together.
           </motion.p>
 
           {/* Action Buttons */}
@@ -1351,15 +1202,15 @@ export default function AboutPage() {
               href="/contact"
               className="group relative inline-flex items-center justify-center gap-3 px-8 py-3.5 md:px-9 md:py-3.5 bg-[#C3143D] text-white rounded-full font-semibold uppercase tracking-widest text-xs md:text-sm shadow-[0_0_35px_rgba(195,20,61,0.5)] hover:shadow-[0_0_55px_rgba(195,20,61,0.7)] hover:scale-105 transition-all duration-300"
             >
-              <span>{isArabic ? "ابدأ مشروعك" : "Start a Project"}</span>
-              <ArrowRight size={15} className="group-hover:translate-x-1 rtl:group-hover:-translate-x-1 rtl:rotate-180 transition-transform" />
+              <span>Start a Project</span>
+              <ArrowRight size={15} className="group-hover:translate-x-1 transition-transform" />
             </Link>
 
             <Link 
               href="/portfolio"
               className="inline-flex items-center justify-center gap-2 px-8 py-3.5 md:px-9 md:py-3.5 bg-white/[0.04] hover:bg-white/10 text-white border border-white/15 rounded-full font-semibold uppercase tracking-widest text-xs md:text-sm hover:border-white/30 transition-all duration-300"
             >
-              <span>{isArabic ? "استكشف أعمالنا" : "Explore Portfolio"}</span>
+              <span>Explore Portfolio</span>
             </Link>
           </motion.div>
 

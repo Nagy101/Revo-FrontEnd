@@ -36,7 +36,7 @@ apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.code === 'ECONNABORTED' || error.message?.includes('timeout') || error.message?.includes('timed out')) {
-      error.message = "انتهت مهلة الاتصال بالخادم (Request Timed Out). يرجى التأكد من استجابة السيرفر وسرعة الإنترنت والمحاولة مرة أخرى.";
+      error.message = "Request timed out. Please check your internet connection and try again.";
     }
 
     if (error.response) {

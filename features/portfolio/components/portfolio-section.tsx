@@ -6,11 +6,26 @@ import Image from "next/image"
 import { Play, ArrowUpRight } from "lucide-react"
 import Link from "next/link"
 import { usePublicPortfolios } from "../hooks/usePortfolios"
-import { useLanguage } from "@/lib/i18n/language-context"
+
+function isValidImageCover(url?: string | null): boolean {
+  if (!url || !url.trim() || url === "null") return false
+  const lower = url.toLowerCase()
+  if (
+    lower.includes("youtube.com/") ||
+    lower.includes("youtu.be/") ||
+    lower.includes("vimeo.com/") ||
+    lower.includes("drive.google.com/") ||
+    lower.includes("instagram.com/") ||
+    /\.(mp4|webm|ogg|mov|m4v)(\?|$)/i.test(lower) ||
+    lower.includes("/video/upload/")
+  ) {
+    return false
+  }
+  return true
+}
 
 function ProjectCard({ project, index }: { project: any, index: number }) {
   const cardRef = useRef<HTMLDivElement>(null)
-  const { isArabic } = useLanguage()
   
   const { scrollYProgress } = useScroll({
     target: cardRef,
@@ -20,7 +35,6 @@ function ProjectCard({ project, index }: { project: any, index: number }) {
   // Subtle parallax effect for the image inside the card
   const y = useTransform(scrollYProgress, [0, 1], ["-10%", "10%"])
   
-  // Bespoke gallery layout for the 3 items
   const layouts = [
     {
       direction: "md:flex-row",
@@ -46,18 +60,11 @@ function ProjectCard({ project, index }: { project: any, index: number }) {
   ]
 
   const layout = layouts[index] || layouts[0]
+  const isVideo = project.thumbnailType === 2
+  const hasCover = isValidImageCover(project.thumbnailUrl)
 
-  const projectTitle = (
-    isArabic
-      ? project.captionAr || project.captionEn || "مشروع سينمائي"
-      : project.captionEn || project.captionAr || "Cinematic Project"
-  ).trim()
-
-  const projectCategory = (
-    isArabic
-      ? project.categoryNameAr || project.categoryNameEn || "عمل مميز"
-      : project.categoryNameEn || project.categoryNameAr || "Featured Work"
-  ).trim()
+  const projectTitle = (project.captionEn || project.captionAr || "Cinematic Project").trim()
+  const projectCategory = (project.categoryNameEn || project.categoryNameAr || "Featured Work").trim()
 
   return (
     <motion.div 
@@ -68,27 +75,50 @@ function ProjectCard({ project, index }: { project: any, index: number }) {
       transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
       className={`relative flex flex-col ${layout.direction} ${layout.justify} gap-8 md:gap-12 items-center w-full my-16 md:my-24`}
     >
-      {/* ── IMAGE CONTAINER ── */}
+      {/* ── MEDIA CONTAINER (BLACK SPACE IS DEFAULT FOR VIDEOS) ── */}
       <Link href={`/portfolio/${project.id}`} className="w-full block contents">
         <div 
-          data-cursor="View"
-          className={`w-full ${layout.imgWidth} relative ${layout.aspect} overflow-hidden rounded-2xl bg-[#0a0a0a] group shadow-2xl cursor-none`}
+          data-cursor={isVideo ? "Play" : "View"}
+          className={`w-full ${layout.imgWidth} relative ${layout.aspect} overflow-hidden rounded-2xl bg-black border border-white/10 group shadow-2xl cursor-none`}
         >
-          <motion.div style={{ y, height: "120%" }} className="absolute inset-0 w-full top-[-10%]">
+          {hasCover ? (
+            isVideo ? (
+              <Image
+                src={project.thumbnailUrl}
+                alt={projectTitle}
+                fill
+                sizes="(max-width: 768px) 100vw, 60vw"
+                className="object-contain bg-black transition-transform duration-700 group-hover:scale-[1.02]"
+              />
+            ) : (
+              <motion.div style={{ y, height: "120%" }} className="absolute inset-0 w-full top-[-10%]">
+                <Image
+                  src={project.thumbnailUrl}
+                  alt={projectTitle}
+                  fill
+                  sizes="(max-width: 768px) 100vw, 60vw"
+                  className="object-cover transition-transform duration-1500 ease-cinematic group-hover:scale-105"
+                />
+              </motion.div>
+            )
+          ) : isVideo ? (
+            /* Pure black space is default when no cover image is set */
+            <div className="w-full h-full bg-black" />
+          ) : (
             <Image
-              src={project.thumbnailUrl || "/images/revo-hero-bg.jpg"}
+              src="/images/revo-hero-bg.jpg"
               alt={projectTitle}
               fill
               sizes="(max-width: 768px) 100vw, 60vw"
               className="object-cover transition-transform duration-1500 ease-cinematic group-hover:scale-105"
             />
-          </motion.div>
+          )}
           
           <div className="absolute inset-0 bg-[#050505]/10 group-hover:bg-transparent transition-colors duration-700" />
           
-          {project.thumbnailType === 2 && (
-            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-700 scale-95 group-hover:scale-100">
-              <div className="w-16 h-16 md:w-20 md:h-20 bg-[#C3143D]/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform duration-300">
+          {isVideo && (
+            <div className="absolute inset-0 flex items-center justify-center transition-all duration-500">
+              <div className="w-16 h-16 md:w-20 md:h-20 bg-[#C3143D] rounded-full flex items-center justify-center shadow-[0_0_30px_rgba(195,20,61,0.55)] group-hover:scale-110 transition-transform duration-300">
                 <Play className="w-6 h-6 md:w-8 md:h-8 text-white ml-1" fill="currentColor" />
               </div>
             </div>
@@ -113,12 +143,12 @@ function ProjectCard({ project, index }: { project: any, index: number }) {
         </h3>
 
         <Link href={`/portfolio/${project.id}`}>
-          <button className="group flex items-center gap-4 w-max cursor-pointer">
+          <button type="button" className="group flex items-center gap-4 w-max cursor-pointer">
             <span className="text-white/80 font-medium uppercase tracking-[0.2em] text-[10px] md:text-xs transition-colors duration-500 group-hover:text-white">
-              {isArabic ? "استكشف المشروع" : "Explore Project"}
+              Explore Project
             </span>
             <div className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center group-hover:bg-white group-hover:border-white transition-all duration-500">
-              <ArrowUpRight className="text-white/50 w-4 h-4 group-hover:rotate-45 rtl:group-hover:-rotate-45 group-hover:text-black transition-all duration-500" />
+              <ArrowUpRight className="text-white/50 w-4 h-4 group-hover:rotate-45 group-hover:text-black transition-all duration-500" />
             </div>
           </button>
         </Link>
@@ -128,18 +158,14 @@ function ProjectCard({ project, index }: { project: any, index: number }) {
 }
 
 export function PortfolioSection() {
-  const { data: portfolios = [], isLoading } = usePublicPortfolios()
-  const { isArabic } = useLanguage()
+  const { data: portfolios = [] } = usePublicPortfolios()
 
-  // Use real API items only
   const featuredPortfolios = (Array.isArray(portfolios) && portfolios.length > 0)
     ? portfolios.slice(0, 3).map((p: any) => ({
         id: p.id,
-        captionEn: p.captionEn || p.titleEn || "Cinematic Story",
-        captionAr: p.captionAr || p.titleAr,
-        categoryNameEn: p.categoryNameEn || p.category?.nameEn || "Featured Work",
-        categoryNameAr: p.categoryNameAr || p.category?.nameAr || "أعمال مميزة",
-        thumbnailUrl: p.thumbnailUrl || p.mediaUrl || "/images/revo-hero-bg.jpg",
+        captionEn: p.captionEn || p.titleEn || p.captionAr || "Cinematic Story",
+        categoryNameEn: p.categoryNameEn || p.category?.nameEn || p.categoryNameAr || "Featured Work",
+        thumbnailUrl: p.thumbnailUrl || null,
         thumbnailType: p.thumbnailType ?? (p.mediaType === "video" ? 2 : 1),
       }))
     : []
@@ -167,7 +193,7 @@ export function PortfolioSection() {
             >
               <div className="w-8 h-px bg-[#C3143D]" />
               <span className="text-[#C3143D] text-xs font-bold uppercase tracking-[0.3em]">
-                {isArabic ? "معرض الأعمال" : "Portfolio"}
+                Portfolio
               </span>
             </motion.div>
             
@@ -182,7 +208,7 @@ export function PortfolioSection() {
                   variants={{ hidden: { y: "100%" }, show: { y: 0, transition: { duration: 1, ease: [0.16, 1, 0.3, 1] } } }}
                   className="text-3xl md:text-5xl lg:text-[4rem] font-sora font-light uppercase text-white/90 leading-none tracking-widest"
                 >
-                  {isArabic ? "مختارات من" : "Selected"}
+                  Selected
                 </motion.h2>
               </div>
               <div className="overflow-hidden mt-1 md:mt-2">
@@ -190,7 +216,7 @@ export function PortfolioSection() {
                   variants={{ hidden: { y: "100%" }, show: { y: 0, transition: { duration: 1, ease: [0.16, 1, 0.3, 1] } } }}
                   className="text-3xl md:text-5xl lg:text-[5rem] font-serif italic text-transparent bg-clip-text bg-gradient-to-r from-white via-red-200 to-[#C3143D] leading-none pr-4"
                 >
-                  {isArabic ? "روائع أعمالنا." : "Masterpieces."}
+                  Masterpieces.
                 </motion.h2>
               </div>
             </motion.div>
@@ -204,9 +230,7 @@ export function PortfolioSection() {
             className="flex items-center gap-6"
           >
             <p className="text-white/40 max-w-xs text-xs md:text-sm font-light leading-relaxed hidden lg:block">
-              {isArabic
-                ? "مختارات منتقاة من أبرز أعمالنا، تجمع بين الرؤية الاستراتيجية والتنفيذ السينمائي المتقن."
-                : "A curated selection of our finest work, blending visionary strategy with flawless execution."}
+              A curated selection of our finest work, blending visionary strategy with flawless execution.
             </p>
           </motion.div>
         </div>
@@ -220,9 +244,7 @@ export function PortfolioSection() {
           ) : (
             <div className="text-center py-20 border border-white/5 rounded-3xl bg-white/[0.01]">
               <p className="text-white/40 text-sm font-light">
-                {isArabic
-                  ? "جاري تجهيز وعرض أحدث أعمالنا ومشاريعنا قريباً."
-                  : "Our latest productions and featured projects are coming soon."}
+                Our latest productions and featured projects are coming soon.
               </p>
             </div>
           )}
@@ -237,11 +259,11 @@ export function PortfolioSection() {
           className="mt-20 flex justify-center w-full"
         >
           <Link href="/portfolio">
-            <button className="group relative px-10 py-5 bg-transparent border border-white/10 rounded-full overflow-hidden hover:border-white/30 transition-colors duration-500 cursor-pointer">
+            <button type="button" className="group relative px-10 py-5 bg-transparent border border-white/10 rounded-full overflow-hidden hover:border-white/30 transition-colors duration-500 cursor-pointer">
               <div className="absolute inset-0 w-full h-full bg-white/5 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-cinematic" />
               <span className="relative text-white/80 group-hover:text-white font-medium uppercase tracking-[0.3em] text-xs transition-colors duration-500 flex items-center gap-4">
-                {isArabic ? "عرض جميع المشاريع" : "View All Projects"}{" "}
-                <ArrowUpRight size={14} className="rtl:rotate-180" />
+                View All Projects{" "}
+                <ArrowUpRight size={14} />
               </span>
             </button>
           </Link>

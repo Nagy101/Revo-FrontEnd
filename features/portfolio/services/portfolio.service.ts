@@ -17,8 +17,10 @@ export const portfolioService = {
 
   create: (payload: PortfolioPayload) => {
     const formData = new FormData();
-    formData.append("CaptionAr", payload.captionAr);
-    formData.append("CaptionEn", payload.captionEn);
+    if (payload.captionAr?.trim()) {
+      formData.append("CaptionAr", payload.captionAr.trim());
+    }
+    formData.append("CaptionEn", payload.captionEn.trim());
     formData.append("OrderIndex", payload.orderIndex.toString());
     formData.append("CategoryId", payload.categoryId);
     formData.append("IsDeleted", "false");
@@ -26,7 +28,7 @@ export const portfolioService = {
     payload.mediaItems.forEach((media, index) => {
       formData.append(`MediaItems[${index}].Type`, media.type.toString());
       formData.append(`MediaItems[${index}].OrderIndex`, media.orderIndex.toString());
-      
+
       if (media.type === MediaType.Video) {
         if (media.videoUrl) formData.append(`MediaItems[${index}].VideoUrl`, media.videoUrl);
         if (media.file) formData.append(`MediaItems[${index}].CoverImage`, media.file);
@@ -41,8 +43,10 @@ export const portfolioService = {
   update: (id: string, payload: PortfolioPayload) => {
     const formData = new FormData();
     formData.append("Id", id);
-    formData.append("CaptionAr", payload.captionAr);
-    formData.append("CaptionEn", payload.captionEn);
+    if (payload.captionAr?.trim()) {
+      formData.append("CaptionAr", payload.captionAr.trim());
+    }
+    formData.append("CaptionEn", payload.captionEn.trim());
     formData.append("OrderIndex", payload.orderIndex.toString());
     formData.append("CategoryId", payload.categoryId);
     formData.append("IsDeleted", "false");
@@ -50,13 +54,13 @@ export const portfolioService = {
     payload.mediaItems.forEach((media, index) => {
       formData.append(`MediaItems[${index}].Type`, media.type.toString());
       formData.append(`MediaItems[${index}].OrderIndex`, media.orderIndex.toString());
-      
+
       // If a new file is uploaded for an existing media item, do NOT send its ID.
       // This forces the backend to delete the old image and upload the new one!
       if (media.id && !media.id.includes("-temp-") && media.id.length > 10 && !media.file) {
         formData.append(`MediaItems[${index}].Id`, media.id);
       }
-      
+
       if (media.type === MediaType.Video) {
         if (media.videoUrl) formData.append(`MediaItems[${index}].VideoUrl`, media.videoUrl);
         if (media.file) formData.append(`MediaItems[${index}].CoverImage`, media.file);

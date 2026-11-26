@@ -10,7 +10,7 @@ export const contactRequestsService = {
     // Normalize Egyptian phone number (strip +20, 0020, spaces, dashes)
     let cleanPhone = payload.phoneNumber.trim().replace(/[\s-]/g, "");
     if (cleanPhone.startsWith("+20")) cleanPhone = cleanPhone.slice(2);
-    else if (cleanPhone.startsWith("0020")) cleanPhone = cleanPhone.slice(4);
+    else if (cleanPhone.startsWith("0020")) cleanPhone = cleanPhone.slice(3);
     else if (cleanPhone.startsWith("+2")) cleanPhone = cleanPhone.slice(2);
 
     let messageText = payload.message.trim();

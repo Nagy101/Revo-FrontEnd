@@ -205,7 +205,7 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void })
               {isMuted ? (
                 <>
                   <VolumeX className="w-4 h-4 text-white/60 group-hover:text-[#C3143D]" />
-                  <span className="text-[11px] font-semibold tracking-wide">صوت العرض • Sound Off</span>
+                  <span className="text-[11px] font-semibold tracking-wide">Sound Off</span>
                 </>
               ) : (
                 <>
@@ -273,7 +273,7 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void })
                 className="mt-5 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#C3143D]/30 border border-[#C3143D]/60 text-xs text-white tracking-wider backdrop-blur-md animate-pulse shadow-lg"
               >
                 <Play className="w-3.5 h-3.5 fill-current text-white" />
-                <span>انقر في أي مكان لتشغيل الفيديو • Tap to play</span>
+                <span>Tap anywhere to play</span>
               </motion.div>
             )}
           </div>

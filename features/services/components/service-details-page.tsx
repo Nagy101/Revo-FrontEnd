@@ -9,7 +9,6 @@ import {
   Loader2,
   Layers,
   Sparkles,
-  Lock,
   Clock,
   Video,
   Sliders,
@@ -19,11 +18,10 @@ import {
 import Link from "next/link"
 import { useServiceDetails } from "../hooks/useServices"
 import { useCreateContactRequest } from "@/features/contact/hooks/useContactRequests"
-import { useLanguage } from "@/lib/i18n/language-context"
 
 const EASE = [0.16, 1, 0.3, 1] as const
 
-function getCleanImage(url: string | undefined): string {
+function getCleanImage(url: string | null | undefined): string {
   if (!url || url.includes("placehold.co") || url.trim() === "") {
     return "/images/revo-services-card1.jpg"
   }
@@ -37,9 +35,9 @@ interface ServiceDetailsPageProps {
 export function ServiceDetailsPage({ id }: ServiceDetailsPageProps) {
   const { data, isLoading, error } = useServiceDetails(id)
   const { mutate: submitBooking, isPending } = useCreateContactRequest()
-  const { isArabic } = useLanguage()
   const [isMounted, setIsMounted] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
+  const [phoneError, setPhoneError] = useState("")
   const [lastWhatsAppUrl, setLastWhatsAppUrl] = useState("")
 
   // Booking Form State
@@ -70,16 +68,25 @@ export function ServiceDetailsPage({ id }: ServiceDetailsPageProps) {
   }, [mouseX, mouseY])
 
   const service = data?.data
-  const title = (isArabic ? (service?.nameAr || service?.nameEn || "خدمة إنتاجية") : (service?.nameEn || "Production Service")).trim()
-  const description = (isArabic ? (service?.descriptionAr || service?.descriptionEn || "إنتاج سينمائي شامل مصمم لترك أثر لا يُنسى.") : (service?.descriptionEn || "Full-spectrum media production engineered for unforgettable impact.")).trim()
+  const title = (service?.nameEn || service?.nameAr || "Production Service").trim()
+  const description = (service?.descriptionEn || service?.descriptionAr || "Full-spectrum media production engineered for unforgettable impact.").trim()
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!service) return
 
-    const waText = isArabic
-      ? `مرحباً REVO Media Production 👋\nأرغب في الاستفسار وحجز خدمة: *${title}*\n\n👤 *الاسم:* ${formData.name.trim()}\n📱 *رقم الهاتف:* ${formData.phoneNumber.trim()}${formData.message.trim() ? `\n📝 *تفاصيل واستفسار:* \n${formData.message.trim()}` : ""}`
-      : `Hello REVO Media Production 👋\nI would like to inquire about booking: *${title}*\n\n👤 *Name:* ${formData.name.trim()}\n📱 *Phone:* ${formData.phoneNumber.trim()}${formData.message.trim() ? `\n📝 *Message:* \n${formData.message.trim()}` : ""}`
+    let cleanPhone = formData.phoneNumber.trim().replace(/[\s-]/g, "")
+    if (cleanPhone.startsWith("+20")) cleanPhone = cleanPhone.slice(2)
+    else if (cleanPhone.startsWith("0020")) cleanPhone = cleanPhone.slice(3)
+    else if (cleanPhone.startsWith("+2")) cleanPhone = cleanPhone.slice(2)
+
+    if (!/^\d{11}$/.test(cleanPhone)) {
+      setPhoneError("Phone number must be exactly 11 digits (e.g. 010xxxxxxxx).")
+      return
+    }
+    setPhoneError("")
+
+    const waText = `Hello REVO Media Production 👋\nI would like to inquire about booking: *${title}*\n\n👤 *Name:* ${formData.name.trim()}\n📱 *Phone:* ${cleanPhone}${formData.message.trim() ? `\n📝 *Message:* \n${formData.message.trim()}` : ""}`
 
     const whatsappUrl = `https://wa.me/201064102972?text=${encodeURIComponent(waText)}`
     setLastWhatsAppUrl(whatsappUrl)
@@ -94,7 +101,7 @@ export function ServiceDetailsPage({ id }: ServiceDetailsPageProps) {
       {
         serviceId: service.id,
         name: formData.name.trim(),
-        phoneNumber: formData.phoneNumber.trim().replace(/[\s-]/g, ""),
+        phoneNumber: cleanPhone,
         message: formData.message.trim() || `Inquiry for ${service.nameEn}`
       },
       {
@@ -114,7 +121,7 @@ export function ServiceDetailsPage({ id }: ServiceDetailsPageProps) {
           <Sparkles className="w-4 h-4 text-[#C3143D] absolute" />
         </div>
         <p className="text-white/40 text-xs uppercase tracking-[0.2em] font-semibold">
-          {isArabic ? "جاري تحميل تفاصيل الخدمة..." : "Loading Service Specs..."}
+          Loading Service Specs...
         </p>
       </div>
     )
@@ -127,18 +134,16 @@ export function ServiceDetailsPage({ id }: ServiceDetailsPageProps) {
           <Layers size={24} />
         </div>
         <h1 className="text-2xl sm:text-3xl font-sora font-extrabold mb-3">
-          {isArabic ? "لم يتم العثور على الخدمة" : "Service Not Found"}
+          Service Not Found
         </h1>
         <p className="text-white/50 text-sm max-w-md mb-8 leading-relaxed">
-          {isArabic
-            ? "عذراً، لم نتمكن من العثور على الخدمة المطلوبة أو تم نقلها."
-            : "The requested service could not be found or has been moved."}
+          The requested service could not be found or has been moved.
         </p>
         <Link
           href="/services"
           className="px-6 py-3 rounded-full bg-[#C3143D] hover:bg-white hover:text-black text-white font-semibold uppercase tracking-wider text-xs transition-all duration-300 inline-flex items-center gap-2 cursor-pointer"
         >
-          <ArrowLeft size={14} className="rtl:rotate-180" /> {isArabic ? "العودة لجميع الخدمات" : "Back To All Services"}
+          <ArrowLeft size={14} /> Back To All Services
         </Link>
       </div>
     )
@@ -172,13 +177,13 @@ export function ServiceDetailsPage({ id }: ServiceDetailsPageProps) {
           href="/services"
           className="inline-flex items-center gap-2 text-white/50 hover:text-white transition-colors text-xs uppercase tracking-wider font-semibold group cursor-pointer"
         >
-          <ArrowLeft size={14} className="group-hover:-translate-x-1 rtl:group-hover:translate-x-1 rtl:rotate-180 transition-transform" />
-          <span>{isArabic ? "جميع الخدمات" : "All Services"}</span>
+          <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
+          <span>All Services</span>
         </Link>
 
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.03] border border-white/10 text-[11px] font-semibold uppercase tracking-widest text-white/60">
           <span className="w-1.5 h-1.5 rounded-full bg-[#C3143D] animate-pulse" />
-          {isArabic ? "إنتاج ريفو" : "REVO Production"}
+          REVO Production
         </div>
       </div>
 
@@ -192,14 +197,14 @@ export function ServiceDetailsPage({ id }: ServiceDetailsPageProps) {
         >
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#C3143D]/10 border border-[#C3143D]/30 text-[#C3143D] text-[10px] font-bold tracking-[0.25em] uppercase mb-4">
             <Sparkles size={11} />
-            {isArabic ? "مواصفات الخدمة" : "Capability Specs"}
+            Capability Specs
           </div>
 
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-sora font-extrabold uppercase text-white tracking-tight leading-tight mb-4 drop-shadow-md">
             {title}
           </h1>
 
-          <p className="text-white/70 text-sm sm:text-base font-light leading-relaxed max-w-2xl">
+          <p className="text-white/70 text-sm sm:text-base font-light leading-relaxed max-w-2xl whitespace-pre-line">
             {description}
           </p>
         </motion.div>
@@ -239,15 +244,15 @@ export function ServiceDetailsPage({ id }: ServiceDetailsPageProps) {
             <div className="grid grid-cols-3 gap-3 p-4 rounded-xl bg-white/[0.02] border border-white/5 text-center text-xs text-white/70">
               <div className="flex items-center justify-center gap-1.5">
                 <Video size={13} className="text-[#C3143D]" />
-                <span>{isArabic ? "طاقم عمل متكامل" : "Dedicated Crew"}</span>
+                <span>Dedicated Crew</span>
               </div>
               <div className="flex items-center justify-center gap-1.5 border-x border-white/5">
                 <Sliders size={13} className="text-[#C3143D]" />
-                <span>{isArabic ? "مواصفات بث تلفزيوني" : "Broadcast Spec"}</span>
+                <span>Broadcast Spec</span>
               </div>
               <div className="flex items-center justify-center gap-1.5">
                 <ShieldCheck size={13} className="text-[#C3143D]" />
-                <span>{isArabic ? "تسليم سريع" : "Fast Turnaround"}</span>
+                <span>Fast Turnaround</span>
               </div>
             </div>
           </div>
@@ -267,37 +272,30 @@ export function ServiceDetailsPage({ id }: ServiceDetailsPageProps) {
               <div className="mb-6 pb-4 border-b border-white/5">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-[10px] font-bold uppercase tracking-widest text-[#C3143D]">
-                    {isArabic ? "حجز مباشر" : "Direct Booking"}
+                    Direct Booking
                   </span>
                   <span className="text-[10px] uppercase font-bold tracking-widest text-white/40">
-                    {isArabic ? "رد خلال 24 ساعة" : "24h Response"}
+                    24h Response
                   </span>
                 </div>
                 <h3 className="text-xl font-sora font-extrabold text-white tracking-tight">
-                  {isArabic ? "احجز هذه الخدمة" : "Book This Service"}
+                  Book This Service
                 </h3>
                 <p className="text-white/45 text-xs mt-1 font-light leading-relaxed">
-                  {isArabic ? (
-                    <>احجز مواعيد الإنتاج لخدمة <span className="text-white font-medium">{title}</span>.</>
-                  ) : (
-                    <>Reserve production dates for <span className="text-white font-medium">{title}</span>.</>
-                  )}
+                  Reserve production dates for <span className="text-white font-medium">{title}</span>.
                 </p>
               </div>
 
               {isSubmitted ? (
-                // Clean Confirmation State
                 <div className="py-8 text-center flex flex-col items-center">
                   <div className="w-14 h-14 rounded-full bg-[#C3143D]/10 border border-[#C3143D]/40 flex items-center justify-center text-[#C3143D] mb-3 shadow-[0_0_20px_rgba(195,20,61,0.25)]">
                     <CheckCircle2 size={26} />
                   </div>
                   <h4 className="text-base font-sora font-bold text-white mb-1.5">
-                    {isArabic ? "تم استلام طلبك بنجاح!" : "Request Received!"}
+                    Request Received!
                   </h4>
                   <p className="text-xs text-white/50 leading-relaxed mb-6 font-light max-w-xs">
-                    {isArabic
-                      ? "شكراً لك. سيقوم فريقنا الإبداعي بمراجعة تفاصيل مشروعك والتواصل معك خلال 24 ساعة."
-                      : "Thank you. Our creative team will review your project details and contact you within 24 hours."}
+                    Thank you. Our creative team will review your project details and contact you within 24 hours.
                   </p>
                   <div className="flex flex-col sm:flex-row items-center gap-2.5">
                     <a
@@ -307,30 +305,30 @@ export function ServiceDetailsPage({ id }: ServiceDetailsPageProps) {
                       className="px-5 py-2.5 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer shadow-[0_0_20px_rgba(16,185,129,0.35)] flex items-center gap-2"
                     >
                       <MessageSquare size={14} />
-                      <span>{isArabic ? "متابعة عبر واتساب" : "Chat on WhatsApp"}</span>
+                      <span>Chat on WhatsApp</span>
                     </a>
                     <button
                       onClick={() => setIsSubmitted(false)}
                       className="px-5 py-2.5 rounded-full bg-white/5 hover:bg-white/10 text-white/80 hover:text-white text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer border border-white/10"
                     >
-                      {isArabic ? "إرسال طلب استفسار آخر" : "Submit Another Inquiry"}
+                      Submit Another Inquiry
                     </button>
                   </div>
                 </div>
               ) : (
-                // Luxury Form
                 <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                   {/* Name Input */}
                   <div className="flex flex-col gap-1.5">
                     <label className="text-[11px] font-semibold tracking-wider uppercase text-white/60">
-                      {isArabic ? "الاسم الكريم" : "Your Name"}
+                      Your Name
                     </label>
                     <input
                       type="text"
                       required
+                      maxLength={100}
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      placeholder={isArabic ? "مثال: حسام شعبان" : "e.g. Hossam Shaaban"}
+                      placeholder="e.g. Hossam Shaaban"
                       className="w-full h-11 rounded-xl bg-black/50 border border-white/10 hover:border-white/20 px-4 text-xs sm:text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-[#C3143D] focus:ring-1 focus:ring-[#C3143D] transition-all"
                     />
                   </div>
@@ -338,29 +336,35 @@ export function ServiceDetailsPage({ id }: ServiceDetailsPageProps) {
                   {/* Phone Input */}
                   <div className="flex flex-col gap-1.5">
                     <label className="text-[11px] font-semibold tracking-wider uppercase text-white/60">
-                      {isArabic ? "رقم الهاتف / واتساب" : "Phone / WhatsApp"}
+                      Phone / WhatsApp *
                     </label>
                     <input
                       type="tel"
                       required
                       value={formData.phoneNumber}
-                      onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
+                      onChange={(e) => {
+                        setFormData({ ...formData, phoneNumber: e.target.value })
+                        if (phoneError) setPhoneError("")
+                      }}
                       placeholder="010xxxxxxxx"
-                      className="w-full h-11 rounded-xl bg-black/50 border border-white/10 hover:border-white/20 px-4 text-xs sm:text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-[#C3143D] focus:ring-1 focus:ring-[#C3143D] transition-all text-left dir-ltr"
+                      className={`w-full h-11 rounded-xl bg-black/50 border ${phoneError ? "border-red-500 focus:border-red-500 focus:ring-red-500" : "border-white/10 hover:border-white/20 focus:border-[#C3143D] focus:ring-[#C3143D]"} px-4 text-xs sm:text-sm text-white placeholder:text-white/25 focus:outline-none focus:ring-1 transition-all text-left dir-ltr`}
                     />
+                    {phoneError && (
+                      <p className="text-red-400 text-[11px] font-medium">{phoneError}</p>
+                    )}
                   </div>
 
                   {/* Project Scope Textarea */}
                   <div className="flex flex-col gap-1.5">
                     <label className="text-[11px] font-semibold tracking-wider uppercase text-white/60 flex items-center justify-between">
-                      <span>{isArabic ? "تفاصيل المشروع" : "Project Details"}</span>
-                      <span className="text-white/30 text-[10px] normal-case">{isArabic ? "اختياري" : "Optional"}</span>
+                      <span>Project Details</span>
+                      <span className="text-white/30 text-[10px] normal-case">Optional</span>
                     </label>
                     <textarea
                       rows={2}
                       value={formData.message}
                       onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                      placeholder={isArabic ? "تاريخ الفعالية، نطاق العمل، أو تفاصيل الفكرة..." : "Event date, project scope, or ideas..."}
+                      placeholder="Event date, project scope, or ideas..."
                       className="w-full rounded-xl bg-black/50 border border-white/10 hover:border-white/20 p-3.5 text-xs sm:text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-[#C3143D] focus:ring-1 focus:ring-[#C3143D] transition-all resize-none"
                     />
                   </div>
@@ -374,33 +378,29 @@ export function ServiceDetailsPage({ id }: ServiceDetailsPageProps) {
                     {isPending ? (
                       <>
                         <Loader2 size={15} className="animate-spin" />
-                        <span>{isArabic ? "جاري الإرسال..." : "Submitting..."}</span>
+                        <span>Submitting...</span>
                       </>
                     ) : (
                       <>
-                        <span>{isArabic ? "إرسال طلب الحجز" : "Submit Booking Request"}</span>
-                        <ArrowRight size={14} className="rtl:rotate-180" />
+                        <span>Submit</span>
+                        <ArrowRight size={14} />
                       </>
                     )}
                   </button>
                 </form>
               )}
 
-              {/* Minimal Trust & Contact Strip */}
+              {/* Minimal Contact Strip */}
               <div className="mt-5 pt-4 border-t border-white/5 flex items-center justify-between text-[11px] text-white/40">
                 <span className="flex items-center gap-1.5">
-                  <Lock size={12} className="text-[#C3143D]" />
-                  {isArabic ? "سري وآمن" : "Confidential"}
-                </span>
-                <span className="flex items-center gap-1.5">
                   <Clock size={12} className="text-[#C3143D]" />
-                  {isArabic ? "رد خلال 24 ساعة" : "24h Guarantee"}
+                  24h Response
                 </span>
                 <Link
                   href="/contact"
                   className="text-white/60 hover:text-white transition-colors"
                 >
-                  {isArabic ? "تواصل معنا ←" : "Contact →"}
+                  Let&apos;s Talk →
                 </Link>
               </div>
             </motion.div>

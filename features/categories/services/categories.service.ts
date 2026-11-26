@@ -17,8 +17,10 @@ export const categoriesService = {
 
   create: (payload: CategoryRequestPayload) => {
     const formData = new FormData();
-    formData.append("NameAr", payload.nameAr);
-    formData.append("NameEn", payload.nameEn);
+    if (payload.nameAr?.trim()) {
+      formData.append("NameAr", payload.nameAr.trim());
+    }
+    formData.append("NameEn", payload.nameEn.trim());
     formData.append("OrderIndex", payload.orderIndex.toString());
     if (payload.imageUrl instanceof File) {
       formData.append("Image", payload.imageUrl);
@@ -28,8 +30,10 @@ export const categoriesService = {
 
   update: (id: string, payload: CategoryRequestPayload) => {
     const formData = new FormData();
-    formData.append("NameAr", payload.nameAr);
-    formData.append("NameEn", payload.nameEn);
+    if (payload.nameAr?.trim()) {
+      formData.append("NameAr", payload.nameAr.trim());
+    }
+    formData.append("NameEn", payload.nameEn.trim());
     formData.append("OrderIndex", payload.orderIndex.toString());
     if (payload.imageUrl instanceof File) {
       formData.append("Image", payload.imageUrl);

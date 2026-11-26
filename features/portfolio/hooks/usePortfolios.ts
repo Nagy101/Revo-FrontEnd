@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { fetchAllPaginated } from "@/lib/api/fetch-all-paginated";
 import { portfolioService } from "../services/portfolio.service";
 import { PortfolioPayload } from "../types";
 
@@ -6,6 +7,7 @@ export const PORTFOLIO_QUERY_KEYS = {
   all: ["portfolios"] as const,
   lists: () => [...PORTFOLIO_QUERY_KEYS.all, "list"] as const,
   list: (filters: { pageIndex: number; pageSize: number; categoryId?: string }) => [...PORTFOLIO_QUERY_KEYS.lists(), filters] as const,
+  publicAll: () => [...PORTFOLIO_QUERY_KEYS.all, "public-all"] as const,
   details: () => [...PORTFOLIO_QUERY_KEYS.all, "detail"] as const,
   detail: (id: string) => [...PORTFOLIO_QUERY_KEYS.details(), id] as const,
 };
@@ -19,14 +21,9 @@ export const usePortfolios = (pageIndex: number = 1, pageSize: number = 10, cate
 
 export const usePublicPortfolios = () => {
   return useQuery({
-    queryKey: PORTFOLIO_QUERY_KEYS.list({ pageIndex: 1, pageSize: 50 }),
-    queryFn: () => portfolioService.getAll(1, 50),
-    select: (res: any) => {
-      if (Array.isArray(res?.data?.data)) return res.data.data;
-      if (Array.isArray(res?.data)) return res.data;
-      if (Array.isArray(res)) return res;
-      return [];
-    }
+    queryKey: PORTFOLIO_QUERY_KEYS.publicAll(),
+    queryFn: () =>
+      fetchAllPaginated((page, size) => portfolioService.getAll(page, size), 100),
   });
 };
 

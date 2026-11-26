@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { fetchAllPaginated } from "@/lib/api/fetch-all-paginated";
 import { servicesService } from "../services/services.service";
 import { ServiceRequestPayload } from "../types";
 
@@ -9,14 +10,13 @@ export function useServices(pageIndex: number = 1, pageSize: number = 10) {
   });
 }
 
-// Hook for public facing pages that just need the flat array of services
+// Hook for public facing pages that fetches ALL paginated pages and returns the full flat array
 export function usePublicServices() {
-  const query = useServices(1, 100);
-  const rawData = query.data?.data?.data || query.data?.data || query.data;
-  return {
-    ...query,
-    data: Array.isArray(rawData) ? rawData : [],
-  };
+  return useQuery({
+    queryKey: ["services", "all"],
+    queryFn: () =>
+      fetchAllPaginated((page, size) => servicesService.getAll(page, size), 100),
+  });
 }
 
 export function useServiceDetails(id: string) {

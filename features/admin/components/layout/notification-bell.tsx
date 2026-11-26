@@ -94,14 +94,14 @@ export function NotificationBell() {
                   >
                     <div className="flex justify-between items-start mb-1">
                       <h4 className={`text-sm ${!notif.isRead ? 'text-white font-semibold' : 'text-white/70'}`}>
-                        {notif.titleEn}
+                        {notif.titleEn || notif.titleAr || "Notification"}
                       </h4>
                       {!notif.isRead && (
                         <div className="w-2 h-2 rounded-full bg-red-500 flex-shrink-0 mt-1"></div>
                       )}
                     </div>
                     <p className="text-xs text-white/50 line-clamp-2 mt-1">
-                      {notif.messageEn}
+                      {notif.messageEn || notif.messageAr || ""}
                     </p>
                     <span className="text-[10px] text-white/30 mt-2 block">
                       {new Intl.DateTimeFormat('en-US', {

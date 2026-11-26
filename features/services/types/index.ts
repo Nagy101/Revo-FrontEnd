@@ -1,20 +1,18 @@
-import { PaginatedList } from "@/types/api";
-
 export interface ServiceItem {
   id: string;
-  nameAr: string;
+  nameAr?: string | null;
   nameEn: string;
-  descriptionAr: string;
+  descriptionAr?: string | null;
   descriptionEn: string;
-  imageUrl: string;
+  imageUrl?: string | null;
   orderIndex: number;
 }
 
 export interface ServiceRequestPayload {
-  nameAr: string;
+  nameAr?: string | null;
   nameEn: string;
-  descriptionAr: string;
+  descriptionAr?: string | null;
   descriptionEn: string;
   orderIndex: number;
-  imageUrl?: string | File;
+  imageUrl?: string | File | null;
 }
